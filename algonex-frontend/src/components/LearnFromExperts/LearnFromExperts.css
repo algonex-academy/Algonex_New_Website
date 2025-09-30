@@ -1,0 +1,159 @@
+.learn-from-experts {
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 15px 0;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.timeline-container {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #4A90E2, #357ABD);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.steps-container {
+  position: relative;
+  z-index: 2;
+}
+
+.step-card {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.step-card:nth-child(odd) {
+  flex-direction: row;
+}
+
+.step-card:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+.step-number {
+  width: 60px;
+  height: 60px;
+  background: #4A90E2;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  z-index: 3;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+.step-content {
+  flex: 1;
+  max-width: 400px;
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid;
+  margin: 0 30px;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-content:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.step-card:nth-child(odd) .step-content {
+  margin-left: 30px;
+  margin-right: 0;
+}
+
+.step-card:nth-child(even) .step-content {
+  margin-right: 30px;
+  margin-left: 0;
+}
+
+.step-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  line-height: 1.2;
+}
+
+.step-description {
+  font-size: 1rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .section-subtitle {
+    font-size: 1rem;
+  }
+  
+  .timeline-line {
+    left: 30px;
+  }
+  
+  .step-card {
+    flex-direction: row !important;
+    margin-left: 60px;
+  }
+  
+  .step-number {
+    position: absolute;
+    left: -30px;
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  
+  .step-content {
+    margin: 0 !important;
+    max-width: none;
+  }
+  
+  .step-title {
+    font-size: 1.2rem;
+  }
+  
+  .step-description {
+    font-size: 0.9rem;
+  }
+}

@@ -1,16 +1,119 @@
-.home-navbar{
+.navbar {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 100px;
-    padding: 10px;
-    background-color: #f0f0f0;
+    padding: 0 20px;
+    height: 70px;
 }
 
-.home-navbar a{
+.navbar-logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #4A90E2 0%, #FF6B6B 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+.logo-a {
+    font-weight: 700;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.navbar-link {
     text-decoration: none;
-    color: #000;
-    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.navbar-link:hover {
+    color: #4A90E2;
+}
+
+.navbar-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #4A90E2;
+    transition: width 0.3s ease;
+}
+
+.navbar-link:hover::after {
+    width: 100%;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+}
+
+.signup-btn {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    border-radius: 6px;
     font-weight: 600;
-    padding: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.signup-btn:hover {
+    background: #4A90E2;
+    color: white;
+    border-color: #4A90E2;
+}
+
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 15px;
+        height: 60px;
+    }
+    
+    .navbar-menu {
+        display: none;
+    }
+    
+    .logo {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .signup-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
 }
