@@ -1,0 +1,14 @@
+.top-banner {
+  background-color: #4A90E2;
+  color: white;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+}
+
+.banner-text {
+  margin: 0;
+  padding: 0;
+}
