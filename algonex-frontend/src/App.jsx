@@ -1,6 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Pages/Home';
+import Courses from './components/Pages/Courses';
+import Events from './components/Pages/Events';
+import AboutUs from './components/Pages/AboutUs';
+import Contact from './components/Pages/Contact';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -16,9 +20,10 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* Future routes can be added here */}
-          {/* <Route path="/courses" element={<Courses />} /> */}
-          {/* <Route path="/events" element={<Events />} /> */}
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/aboutus" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
         <Footer />
       </div>
