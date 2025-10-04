@@ -1,5 +1,5 @@
 import React from 'react';
-import COURSES from './constants';
+import {COURSES} from '../../constants/constant';
 import { Card } from 'antd';
 const { Meta } = Card;  
 import './CourseCard.css';
