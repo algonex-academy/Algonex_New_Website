@@ -1,131 +1,170 @@
+:root {
+  /* Theme variables */
+  --bg-page: #f7f9fb;
+  --card-bg: #ffffff;
+  --muted: #6c757d;
+  --text: #23323f;
+  --accent: #2a9df4;
+  --shadow-small: 0 6px 12px rgba(34, 50, 63, 0.06);
+  --shadow-large: 0 12px 30px rgba(34, 50, 63, 0.12);
+  --radius: 14px;
+  --max-width: 1200px;
+  --grid-gap: 28px;
+}
+
 .student-testimonials {
-  padding: 60px 20px;
-  background-color: #f8f9fa;
+  padding: 72px 20px;
+  background-color: var(--bg-page);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 44px;
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
   font-weight: 700;
-  color: #2c3e50;
-  margin: 0 0 20px 0;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
 }
 
 .section-description {
   font-size: 1rem;
-  color: #666;
-  max-width: 800px;
+  color: var(--muted);
+  max-width: 820px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .testimonials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--grid-gap);
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 8px;
 }
 
 .testimonial-card {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 26px;
+  box-shadow: var(--shadow-small);
+  transition: transform 260ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
 }
 
-.testimonial-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.testimonial-card:hover,
+.testimonial-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-large);
 }
 
+/* LinkedIn / action badge */
 .linkedin-icon {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 30px;
-  height: 30px;
-  background: #4A90E2;
-  border-radius: 6px;
-  display: flex;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(180deg, var(--accent), #1f8fe0);
+  border-radius: 8px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-weight: 600;
-  font-size: 0.8rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 10px rgba(42,157,244,0.18);
 }
 
 .testimonial-content {
-  margin-top: 10px;
+  margin-top: 8px;
+  flex: 1 1 auto;
 }
 
 .testimonial-text {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #333;
-  margin: 0 0 20px 0;
+  font-size: 1rem;
+  line-height: 1.72;
+  color: var(--text);
+  margin: 0 0 18px 0;
   text-align: left;
+  white-space: pre-wrap;
 }
 
 .student-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 14px;
+  margin-top: auto;
 }
 
 .student-avatar {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #f0f0f0;
+  border: 2px solid rgba(0,0,0,0.04);
+  background-color: #eef6fb; /* fallback color */
+}
+
+.student-avatar[alt=''] {
+  /* visually hide broken images but keep the element size */
+  visibility: visible;
 }
 
 .student-details {
   flex: 1;
+  min-width: 0;
 }
 
 .student-name {
   font-size: 1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0 0 5px 0;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px 0;
 }
 
 .student-role {
-  font-size: 0.85rem;
-  color: #666;
-  margin: 0 0 3px 0;
-  font-weight: 500;
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0 0 2px 0;
+  font-weight: 600;
 }
 
 .student-program {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.82rem;
+  color: #95a2ad;
   margin: 0;
 }
 
-@media (max-width: 768px) {
-  .section-title {
-    font-size: 2rem;
-  }
-  
+/* Keyboard accessibility: visible focus */
+.testimonial-card:focus-within {
+  outline: 3px solid rgba(42,157,244,0.18);
+  outline-offset: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
   .testimonials-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
   }
-  
-  .testimonial-card {
-    padding: 20px;
-  }
-  
-  .testimonial-text {
-    font-size: 0.9rem;
-  }
+}
+
+@media (max-width: 600px) {
+  .student-testimonials { padding: 40px 16px; }
+  .section-title { font-size: 1.4rem; }
+  .testimonials-grid { grid-template-columns: 1fr; gap: 18px; }
+  .testimonial-card { padding: 18px; }
+  .testimonial-text { font-size: 0.95rem; }
+  .linkedin-icon { display: none; }
 }
