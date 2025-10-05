@@ -12,6 +12,7 @@ const Home = () => {
     return (
         <div>
             <HeroSection />
+            {/* TODO:  Carrer Paths */}
             <CourseExploration />
             <CareerProspects />
             <StudentTestimonials />
