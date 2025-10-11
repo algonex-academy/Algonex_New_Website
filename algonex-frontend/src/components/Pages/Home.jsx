@@ -151,7 +151,7 @@ const courses = Array(8).fill({
                 <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
                   <div className="flex justify-between items-start">
                     <h1 className="text-2xl font-bold text-gray-800">Fullstack</h1>
-                    <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
+                    <Link to="/stack/1"><FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" /></Link>
                   </div>
                   <div className="flex flex-col gap-4 mt-4">
                     {/* First Row */}

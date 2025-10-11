@@ -9,6 +9,7 @@ import Contact from './components/Pages/Contact';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Signin from './components/Pages/Signin';
+import StackPage from './pages/Course';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/stack/:id" element={<StackPage />} />
           <Route path="/events" element={<Events />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
