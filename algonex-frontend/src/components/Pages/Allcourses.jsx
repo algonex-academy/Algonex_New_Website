@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { STACKS } from '../../constants/constant';
+import { Link } from 'react-router-dom';
 
 const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Courses');
@@ -16,125 +18,21 @@ const CoursesPage = () => {
     'Machine Learning', 'Power BI', 'Testing', 'Github'
   ];
 
-  const careerAccelerators = [
-    {
-      title: 'JAVA FULLSTACK',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture3.png?updatedAt=1759557480087',
-      tags: ['Spring Boot', 'Microservices'],
-      moreCount: 15,
-      level: 'All Levels',
-      duration: '6 Months',
-      aiTools: '10+ AI Tools',
-      modules: '56',
-      category: 'Backend',
-      rating: '4.8',
-      students: '18.5K'
-    },
-    {
-      title: 'PYTHON FULLSTACK',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture4.png?updatedAt=1759557479904',
-      tags: ['Django', 'Flask'],
-      moreCount: 14,
-      level: 'All Levels',
-      duration: '6 Months',
-      aiTools: '10+ AI Tools',
-      modules: '56',
-      category: 'Backend',
-      rating: '4.7',
-      students: '16.2K'
-    },
-    {
-      title: 'DATA COURSES',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture5.png?updatedAt=1759557479964',
-      tags: ['Data Visualization', 'AI ML'],
-      moreCount: 12,
-      level: 'All Levels',
-      duration: '6 Months',
-      aiTools: '10+ AI Tools',
-      modules: '56',
-      category: 'Data Science',
-      rating: '4.9',
-      students: '21.3K'
-    },
-    {
-      title: 'MERN STACK',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture3.png?updatedAt=1759557480087',
-      tags: ['MongoDB', 'Express', 'React'],
-      moreCount: 18,
-      level: 'Intermediate',
-      duration: '7 Months',
-      aiTools: '12+ AI Tools',
-      modules: '64',
-      category: 'Frontend',
-      rating: '4.8',
-      students: '19.8K'
-    },
-    {
-      title: 'MEAN STACK',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture4.png?updatedAt=1759557479904',
-      tags: ['MongoDB', 'Angular'],
-      moreCount: 16,
-      level: 'Intermediate',
-      duration: '7 Months',
-      aiTools: '12+ AI Tools',
-      modules: '62',
-      category: 'Frontend',
-      rating: '4.7',
-      students: '15.9K'
-    },
-    {
-      title: 'DEVOPS ENGINEER',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture5.png?updatedAt=1759557479964',
-      tags: ['Docker', 'Kubernetes', 'CI/CD'],
-      moreCount: 20,
-      level: 'Advanced',
-      duration: '8 Months',
-      aiTools: '15+ AI Tools',
-      modules: '72',
-      category: 'DevOps',
-      rating: '4.9',
-      students: '14.7K'
-    },
-    {
-      title: 'CLOUD ARCHITECT',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture3.png?updatedAt=1759557480087',
-      tags: ['AWS', 'Azure', 'GCP'],
-      moreCount: 22,
-      level: 'Advanced',
-      duration: '9 Months',
-      aiTools: '15+ AI Tools',
-      modules: '78',
-      category: 'Cloud',
-      rating: '4.8',
-      students: '17.5K'
-    },
-    {
-      title: 'AI/ML ENGINEER',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture4.png?updatedAt=1759557479904',
-      tags: ['TensorFlow', 'PyTorch'],
-      moreCount: 25,
-      level: 'Advanced',
-      duration: '10 Months',
-      aiTools: '20+ AI Tools',
-      modules: '85',
-      category: 'Machine Learning',
-      rating: '4.9',
-      students: '22.1K'
-    },
-    {
-      title: 'CYBER SECURITY',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture5.png?updatedAt=1759557479964',
-      tags: ['Ethical Hacking', 'Penetration'],
-      moreCount: 19,
-      level: 'Intermediate',
-      duration: '8 Months',
-      aiTools: '12+ AI Tools',
-      modules: '68',
-      category: 'Cyber Security',
-      rating: '4.7',
-      students: '13.8K'
-    }
-  ];
+  // Use COURSES from constant.js as career accelerators
+  const careerAccelerators = STACKS.map(course => ({
+    id: course.id,
+    title: course.name.toUpperCase(),
+    image: course.banner || course.image,
+    tags: [course.category, course.recommended?.level || 'All Levels'],
+    moreCount: course.modules?.length || 0,
+    level: course.recommended?.level || 'All Levels',
+    duration: course.duration,
+    aiTools: '10+ AI Tools',
+    modules: course.modules?.length?.toString() || '0',
+    category: course.category,
+    rating: course.rating?.toString() || '4.5',
+    students: `${(course.students / 1000).toFixed(1)}K`
+  }));
 
   const courses = [
     {
@@ -579,17 +477,19 @@ const CoursesPage = () => {
               <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm p-5 rounded-2xl shadow-2xl">
                 <div className="flex justify-between items-start mb-4">
                   <h2 className="text-2xl font-bold text-gray-800">{accelerator.title}</h2>
-                  <svg 
-                    className="text-[#66E5FF] cursor-pointer hover:text-[#4dcff0] transition" 
-                    width="28" 
-                    height="28" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2"
-                  >
-                    <path d="M7 7h10v10M7 17L17 7" />
-                  </svg>
+                  <Link to={`/stack/${accelerator.id}`}>
+                    <svg 
+                      className="text-[#66E5FF] cursor-pointer hover:text-[#4dcff0] transition" 
+                      width="28" 
+                      height="28" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                    >
+                      <path d="M7 7h10v10M7 17L17 7" />
+                    </svg>
+                  </Link>
                 </div>
 
                 <div className="flex items-center gap-2 mb-3">

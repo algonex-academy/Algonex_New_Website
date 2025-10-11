@@ -1,8 +1,11 @@
-// Variables
-$primary-color: #4A90E2;
+// Variables - Matching Home Page
+$primary-color: #00B4D8;
 $secondary-color: #2c3e50;
 $success-color: #28a745;
-$light-gray: #f8f9fa;
+$light-gray: #CCF6FF;
+$secondary-bg: #EBFBFF;
+$accent-color: #66E5FF;
+$accent-hover: #4dcff0;
 $white: #ffffff;
 $border-color: #e0e0e0;
 $text-gray: #666;
@@ -40,15 +43,15 @@ $text-gray: #666;
     padding: 0;
     width: 85%;
 
-    // Left Side - Module Metadata
-    .module-meta-data {
-        flex: 1;
-        background: linear-gradient(135deg, $primary-color, $success-color);
-        padding: 2rem;
-        color: $white;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+     // Left Side - Module Metadata
+     .module-meta-data {
+         flex: 1;
+         background: linear-gradient(135deg, $primary-color, $accent-color);
+         padding: 2rem;
+         color: $white;
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
 
         h2 {
         font-size: 1.2rem;
@@ -91,27 +94,27 @@ $text-gray: #666;
         }
     }
 
-    // Right Side - Module Topics
-    .module-topics {
-        flex: 2;
-        padding: 2rem;
-        background: $light-gray;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        max-height: 600px;
-        overflow-y: auto;
+     // Right Side - Module Topics
+     .module-topics {
+         flex: 2;
+         padding: 2rem;
+         background: $secondary-bg;
+         display: flex;
+         flex-direction: column;
+         gap: 1rem;
+         max-height: 600px;
+         overflow-y: auto;
 
         .module-topic {
         background: $white;
         border-radius: 8px;
         padding: 1rem;
         @include transition(all, 0.3s);
-        border-left: 3px solid $primary-color;
+        border-left: 3px solid $accent-color;
 
         &:hover {
             transform: translateX(3px);
-            border-left-color: $success-color;
+            border-left-color: $primary-color;
             @include card-shadow(1);
         }
 

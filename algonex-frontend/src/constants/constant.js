@@ -1,11 +1,11 @@
-export const COURSES = [
+export const STACKS = [
     {
         id: 1,
-        name: "Course 1",
+        name: "Python Full Stack",
         description: "Description 1",
         image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
         banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner_text: "Banner Text 1",
+        banner_text: "Python Full Stack",
         recommended: {
             level: "Beginner",
             prior_knowledge: "No prior knowledge required",
@@ -18,6 +18,7 @@ export const COURSES = [
         rating: 4.5,
         reviews: 100,
         students: 1000,
+        skills: ["Python", "Data Analysis", "Data Visualization", "Data Cleaning", "Data Manipulation", "Data Modeling","SQL","Pandas", "NumPy", "Matplotlib", "Seaborn", "Scikit-learn", "TensorFlow"],
         modules: [
             {   id: 1,
                 title: "Module 1",
@@ -257,11 +258,34 @@ export const COURSES = [
                 question: "Question 3",
                 answer: "Answer 3"
             }
+        ],
+        testimonials: [
+            {
+                name: "Priya Sharma",
+                role: "Data Analyst at Microsoft",
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "The Data Analyst course gave me the skills I needed to land my dream job at Microsoft. The hands-on projects with real datasets were invaluable."
+            },
+            {
+                name: "Rahul Kumar",
+                role: "Business Analyst at Flipkart",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "From basic Excel to advanced Python analytics, this course covered everything. Now I'm driving data-driven decisions at Flipkart."
+            },
+            {
+                name: "Sneha Reddy",
+                role: "Analytics Consultant at Deloitte",
+                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "The SQL and visualization modules were exceptional. I went from zero knowledge to confidently presenting insights to clients."
+            }
         ]
     },
     {
         id: 2,
-        name: "Course 2",
+        name: "MERN Stack",
         description: "Description 2",
         image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
         banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
@@ -517,11 +541,34 @@ export const COURSES = [
                 question: "Question 3",
                 answer: "Answer 3"
             }
+        ],
+        testimonials: [
+            {
+                name: "Arjun Mehta",
+                role: "Full Stack Developer at Amazon",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "This course transformed my career. The hands-on projects and mentorship helped me land a job at Amazon within 3 months of completion."
+            },
+            {
+                name: "Ananya Singh",
+                role: "Software Engineer at Microsoft",
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "Best investment I made in my career. The curriculum is up-to-date with industry standards and the instructors are incredibly supportive."
+            },
+            {
+                name: "Rohan Desai",
+                role: "Lead Developer at Startup",
+                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "From zero coding experience to building my own startup's tech stack. This course gave me the confidence and skills to execute my vision."
+            }
         ]
     },
     {
         id: 3,
-        name: "Course 3",
+        name: "Data Analyst",
         description: "Description 3",
         image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
         banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
@@ -538,6 +585,7 @@ export const COURSES = [
         rating: 4.5,
         reviews: 100,
         students: 1000,
+        skills: ["Python", "Data Analysis", "Data Visualization", "Data Cleaning", "Data Manipulation", "Data Modeling","SQL","Pandas", "NumPy", "Matplotlib", "Seaborn", "Scikit-learn", "TensorFlow"],
         modules: [
             {   id: 1,
                 title: "Module 1",
@@ -777,11 +825,34 @@ export const COURSES = [
                 question: "Question 3",
                 answer: "Answer 3"
             }
+        ],
+        testimonials: [
+            {
+                name: "Vikram Patel",
+                role: "Python Developer at Google",
+                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "The Python Full Stack course exceeded my expectations. The Django projects prepared me perfectly for my role at Google."
+            },
+            {
+                name: "Meera Iyer",
+                role: "Backend Engineer at Netflix",
+                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "Comprehensive curriculum covering Python, Django, and modern deployment practices. The instructors are industry experts who really care about student success."
+            },
+            {
+                name: "Karthik Reddy",
+                role: "Full Stack Engineer at Swiggy",
+                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "I switched from manual testing to full stack development thanks to this course. The structured approach made learning Python and Django enjoyable."
+            }
         ]
     },
     {
         id: 4,
-        name: "Course 4",
+        name: "Java Full Stack",
         description: "Description 4",
         image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
         banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
@@ -1036,6 +1107,29 @@ export const COURSES = [
             {
                 question: "Question 3",
                 answer: "Answer 3"
+            }
+        ],
+        testimonials: [
+            {
+                name: "Aditya Sharma",
+                role: "Java Developer at TCS",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "The Java Full Stack program was comprehensive and well-structured. The Spring Boot and microservices modules were particularly valuable for my role."
+            },
+            {
+                name: "Neha Gupta",
+                role: "Full Stack Developer at Infosys",
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "From core Java to advanced Spring frameworks, this course covered everything. The capstone project gave me real-world experience that impressed my interviewers."
+            },
+            {
+                name: "Sanjay Kumar",
+                role: "Senior Developer at Wipro",
+                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop",
+                rating: 5,
+                text: "As someone with basic programming knowledge, this course helped me become a confident full stack developer. The instructor support was exceptional throughout."
             }
         ]
     }

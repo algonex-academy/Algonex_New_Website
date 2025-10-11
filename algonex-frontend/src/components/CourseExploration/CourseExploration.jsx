@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './CourseExploration.css';
 import { useNavigate } from 'react-router-dom';
 import Courses from '../Courses/Courses';
-import { COURSES } from '../../constants/constant';
+import { STACKS } from '../../constants/constant';
 const CourseExploration = () => {
   const [selectedCategory, setSelectedCategory] = useState('Trending');
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const CourseExploration = () => {
   return (
     <div className="course-exploration">
       <div className="section-header">
-        <h2 className="section-title">EXPLORE ONLINE COURSES</h2>
+        <h2 className="section-title">EXPLORE ONLINE CAREER ACCELERATORS</h2>
       </div>
       
       <div className="category-tags">
@@ -31,7 +31,7 @@ const CourseExploration = () => {
           </button>
         ))}
       </div>
-      <Courses courses={COURSES} />
+      <Courses courses={STACKS} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './FAQ.css';
+import './FAQ.scss';
 
 const FAQ = ({faqs}) => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -16,16 +16,17 @@ const FAQ = ({faqs}) => {
       
       <div className="faq-list">
         {faqs.map((faq, index) => (
-          <div key={index} className="faq-item">
-            <button 
-              className={`faq-question ${openIndex === index ? 'active' : ''}`}
-              onClick={() => toggleFAQ(index)}
-            >
-              <span>{faq.question}</span>
-              <span className="faq-icon">
+          <div key={index} className={`faq-item ${openIndex === index ? 'active' : ''}`}>
+            <div className="faq-question-container">
+              <span className="faq-question">{faq.question}</span>
+              <button 
+                className="faq-icon"
+                onClick={() => toggleFAQ(index)}
+                aria-label={openIndex === index ? 'Close answer' : 'Open answer'}
+              >
                 {openIndex === index ? '−' : '+'}
-              </span>
-            </button>
+              </button>
+            </div>
             {openIndex === index && (
               <div className="faq-answer">
                 <p>{faq.answer}</p>
