@@ -1,14 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Link } from 'react-router-dom';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import CareerProspects from './CareerProspects';
+import LearnFromExperts from './LearnFromExperts';
+import FAQ from './FAQ';
+import StudentTestimonials from '../StudentTestimonials/StudentTestimonials';
 
 const carouselImages = [
   'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009',
   'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009',
   'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009'
+];
+
+const categories = [
+  'Trending', 'Frontend', 'Backend', 'Data Engineer', 'Java', 'Python', 'Excel',
+  'Gen AI', 'Data Courses', 'Cyber Security', 'DevOps', 'Cloud',
+  'Machine Learning', 'Power BI', 'Testing', 'Github'
+];
+
+const allCourses = [
+  {
+    title: 'React for Beginners',
+    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    level: 'Beginner',
+    duration: '6 weeks',
+    modules: '12',
+    category: 'Frontend',
+    path: '/explore-course/frontend'
+  },
+  {
+    title: 'Python Essentials',
+    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    level: 'Beginner',
+    duration: '6 months',
+    modules: '56',
+    category: 'Python',
+    path: '/explore-course/python'
+  },
+  {
+    title: 'Java Backend Bootcamp',
+    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    level: 'Intermediate',
+    duration: '4 months',
+    modules: '40',
+    category: 'Backend',
+    path: '/explore-course/backend'
+  },
+  {
+    title: 'Cloud Fundamentals',
+    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    level: 'Beginner',
+    duration: '3 months',
+    modules: '20',
+    category: 'Cloud',
+    path: '/explore-course/cloud'
+  },
+  // Add more courses as needed
 ];
 
 const Home = () => {
@@ -21,13 +71,14 @@ const Home = () => {
     autoplay: true,
     autoplaySpeed: 2000
   };
-const courses = Array(8).fill({
-  title: 'PYTHON',
-  image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
-  level: 'Beginner',
-  duration: '6 months',
-  modules: '56',
-});
+   const [selectedCategory, setSelectedCategory] = useState('Trending');
+
+  const filteredCourses =
+    selectedCategory === 'Trending'
+      ? allCourses
+      : allCourses.filter(course => course.category === selectedCategory);
+
+
 
   return (
     <div className="flex flex-col min-h-screen bg-[#CCF6FF]">
@@ -276,59 +327,62 @@ const courses = Array(8).fill({
         </Link>
       </div>
 
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Explore Online Courses</h1>
-
-        {/* Buttons */}
-        <div className="flex flex-row justify-center flex-wrap gap-5 mb-8">
-          {[
-            'Trending', 'Frontend', 'Backend', 'Data Engineer', 'Java', 'Python', 'Excel',
-            'Gen AI', 'Data Courses', 'Cyber Security', 'DevOps', 'Cloud',
-            'Machine Learning', 'Power BI', 'Testing', 'Github'
-          ].map((category, index) => (
-            <button
-              key={index}
-              className="px-4 py-2 bg-[#ccf6ff] border border-black text-black rounded-full hover:bg-[#d3f6ff] transition"
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-        {courses.map((course, index) => (
-          <div
-            key={index}
-            className="rounded-xl shadow-md p-4 hover:shadow-lg transition"
-            style={{
-              backgroundImage: 'linear-gradient(to bottom, #FFE608, #585900)',
-            }}
-          >
-            <img
-              src={course.image}
-              alt={`${course.title} Course`}
-              className="w-full h-48 object-cover rounded-md mb-4"
-            />
-            <h2 className="text-xl font-semibold text-white mb-2">{course.title}</h2>
-
-            <div className="flex flex-row flex-wrap gap-2 mb-4">
-              <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
-                {course.level}
+      <div className="flex flex-col min-h-screen bg-[#CCF6FF]">
+      {/* Category Buttons */}
+        <div className="container mx-auto p-6">
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Explore Online Courses</h1>
+          <div className="flex flex-row justify-center flex-wrap gap-4 mb-8">
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 border border-black rounded-full transition ${
+                  selectedCategory === category
+                    ? 'bg-[#4dcff0] text-black'
+                    : 'bg-[#ccf6ff] text-black hover:bg-[#d3f6ff]'
+                }`}
+              >
+                {category}
               </button>
-              <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
-                {course.duration}
-              </button>
-              <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
-                {course.modules}
-              </button>
-            </div>
-
-            <button className="w-full px-4 py-2 bg-[#ccf6ff] text-black rounded-md hover:bg-[#4dcff0] transition">
-              Explore Course
-            </button>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {/* Filtered Course Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+            {filteredCourses.map((course, index) => (
+              <div
+                key={index}
+                className="rounded-xl shadow-md p-4 hover:shadow-lg transition"
+                style={{
+                  backgroundImage: 'linear-gradient(to bottom, #FFE608, #585900)',
+                }}
+              >
+                <img
+                  src={course.image}
+                  alt={`${course.title} Course`}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+                <h2 className="text-xl font-semibold text-white mb-2">{course.title}</h2>
+                <div className="flex flex-row flex-wrap gap-2 mb-4">
+                  <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
+                    {course.level}
+                  </button>
+                  <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
+                    {course.duration}
+                  </button>
+                  <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
+                    {course.modules}
+                  </button>
+                </div>
+                <Link to={course.path}>
+                  <button className="w-full px-4 py-2 bg-[#ccf6ff] text-black rounded-md hover:bg-[#4dcff0] transition">
+                    Explore Course
+                  </button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
 
@@ -403,10 +457,14 @@ const courses = Array(8).fill({
           </div>
         </div>
       </div>
+      
+      <CareerProspects/>
+      <LearnFromExperts/>
+      <StudentTestimonials/>
+      <FAQ/>
 
 
     </div>
-      
-  );
+ );     
 };
 export default Home;
