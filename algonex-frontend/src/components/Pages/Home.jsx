@@ -10,9 +10,9 @@ import FAQ from './FAQ';
 import StudentTestimonials from '../StudentTestimonials/StudentTestimonials';
 
 const carouselImages = [
-  'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009',
-  'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009',
-  'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009'
+  'https://ik.imagekit.io/jfg6wtvbq/Algonex/Banner/banner-1.png?updatedAt=1762692119965',
+  'https://ik.imagekit.io/jfg6wtvbq/Algonex/Banner/banner-2.png?updatedAt=1762692121892',
+  'https://ik.imagekit.io/jfg6wtvbq/Algonex/Banner/banner-3.png?updatedAt=1762692122210'
 ];
 
 const categories = [
@@ -24,39 +24,167 @@ const categories = [
 const allCourses = [
   {
     title: 'React for Beginners',
-    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
     level: 'Beginner',
     duration: '6 weeks',
     modules: '12',
     category: 'Frontend',
-    path: '/explore-course/frontend'
+    path: '/explore-course/frontend',
+    trending: true
   },
   {
     title: 'Python Essentials',
-    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
     level: 'Beginner',
     duration: '6 months',
     modules: '56',
     category: 'Python',
-    path: '/explore-course/python'
+    path: '/explore-course/python',
+    trending: true
   },
   {
     title: 'Java Backend Bootcamp',
-    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
     level: 'Intermediate',
     duration: '4 months',
     modules: '40',
     category: 'Backend',
-    path: '/explore-course/backend'
+    path: '/explore-course/backend',
+    trending: true
   },
   {
     title: 'Cloud Fundamentals',
-    image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
     level: 'Beginner',
     duration: '3 months',
     modules: '20',
     category: 'Cloud',
-    path: '/explore-course/cloud'
+    path: '/explore-course/cloud',
+    trending: true
+  },
+  {
+    title: 'Cloud Native DevOps',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
+    level: 'Expert',
+    duration: '11 months',
+    modules: '92',
+    category: 'DevOps',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'MACHINE LEARNING',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
+    level: 'Advanced',
+    duration: '12 months',
+    modules: '80',
+    category: 'Machine Learning',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'JAVA',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
+    level: 'Intermediate',
+    duration: '8 months',
+    modules: '64',
+    category: 'Java',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'CYBER SECURITY',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cyber_sec.jpeg?updatedAt=1762710244604',
+    level: 'Advanced',
+    duration: '9 months',
+    modules: '68',
+    category: 'Cyber Security',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'Generative AI Mastery',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
+    level: 'Advanced',
+    duration: '8 months',
+    modules: '75',
+    category: 'Gen AI',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'DATA SCIENCE',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/core_data_anl.png?updatedAt=1762693566687',
+    level: 'Advanced',
+    duration: '10 months',
+    modules: '72',
+    category: 'Data Courses',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'Data Engineering Pro',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/data-anl.png?updatedAt=1762691790858',
+    level: 'Advanced',
+    duration: '10 months',
+    modules: '86',
+    category: 'Data Engineer',
+    path: '/explore-course/',
+    trending: false
+  },
+  {
+    title: 'REACT JS',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+    level: 'Intermediate',
+    duration: '5 months',
+    modules: '48',
+    category: 'Frontend',
+    trending: false
+  },
+  {
+    title: 'Full Stack Web3 Development',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+    level: 'Intermediate',
+    duration: '10 months',
+    modules: '88',
+    category: 'Frontend',
+    trending: false
+  },
+  {
+    title: 'NODE JS',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+    level: 'Intermediate',
+    duration: '6 months',
+    modules: '52',
+    category: 'Backend',
+    trending: false
+  },
+  {
+    title: 'React Native Mobile Dev',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/rctnv.jpg?updatedAt=1762740153377',
+    level: 'Intermediate',
+    duration: '7 months',
+    modules: '68',
+    category: 'Frontend',
+    trending: false
+  },
+  {
+    title: 'Advanced Python for AI',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
+    level: 'Advanced',
+    duration: '9 months',
+    modules: '82',
+    category: 'Python',
+    trending: false
+  },
+  {
+    title: 'Kubernetes Expert',
+    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/image%2031.png?updatedAt=1762699746797',
+    level: 'Expert',
+    duration: '8 months',
+    modules: '72',
+    category: 'Cloud',
+    trending: false
   },
   // Add more courses as needed
 ];
@@ -71,13 +199,17 @@ const Home = () => {
     autoplay: true,
     autoplaySpeed: 2000
   };
-   const [selectedCategory, setSelectedCategory] = useState('Trending');
+  const [selectedCategory, setSelectedCategory] = useState('Trending');
+
+  // const filteredCourses =
+  //   selectedCategory === 'Trending'
+  //     ? allCourses
+  //     : allCourses.filter(course => course.category === selectedCategory);
 
   const filteredCourses =
     selectedCategory === 'Trending'
-      ? allCourses
+      ? allCourses.filter(course => course.trending)
       : allCourses.filter(course => course.category === selectedCategory);
-
 
 
   return (
@@ -90,14 +222,14 @@ const Home = () => {
                 className="flex flex-col justify-end bg-cover bg-center h-[65vh] px-4 py-20 rounded-2xl"
                 style={{ backgroundImage: `url(${url})` }}
               >
-                <h1 className="text-4xl font-bold text-white mb-4 ml-6">Become Top 1% in the<br/> AI-First World</h1>
-                <p className="text-lg text-white mb-6 ml-6">Whether it is Product, Growth, Design, Business,<br/> Tech or Data, GrowthSchool is the place to learn from<br/> top experts in the field to become the Top 1%</p>
-                 <div className="relative flex space-x-[-10px] mb-10 ml-6">
-                    <div className="w-8 h-8 rounded-full bg-pink-400 shadow-lg z-10" />
-                    <div className="w-8 h-8 rounded-full bg-yellow-200 shadow-lg z-20" />
-                    <div className="w-8 h-8 rounded-full bg-green-300 shadow-lg z-30" />
-                    <div className="w-8 h-8 rounded-full bg-gray-300 shadow-lg z-40" />
-                 </div>
+                <h1 className="text-4xl font-bold text-white mb-4 ml-6">Become Top 1% in the<br /> AI-First World</h1>
+                <p className="text-lg text-white mb-6 ml-6">Whether it is Product, Growth, Design, Business,<br /> Tech or Data, GrowthSchool is the place to learn from<br /> top experts in the field to become the Top 1%</p>
+                <div className="relative flex space-x-[-10px] mb-10 ml-6">
+                  <div className="w-8 h-8 rounded-full bg-pink-400 shadow-lg z-10" />
+                  <div className="w-8 h-8 rounded-full bg-yellow-200 shadow-lg z-20" />
+                  <div className="w-8 h-8 rounded-full bg-green-300 shadow-lg z-30" />
+                  <div className="w-8 h-8 rounded-full bg-gray-300 shadow-lg z-40" />
+                </div>
                 <div className="flex space-x-4 ml-6">
                   <button className="bg-[#EBFBFF] px-4 py-2 rounded-xl transition cursor-pointer">
                     Learn More
@@ -118,74 +250,74 @@ const Home = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-8">
           <div
-          className="relative bg-cover bg-center rounded-xl overflow-hidden"
-          style={{
-            backgroundImage: 'url("https://ik.imagekit.io/ipo22webapp/Picture3.png?updatedAt=1759557480087")',
-          }}
-        >
-          {/* NEW Badge */}
-          <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-            NEW
-          </div>
-
-          {/* Bottom Card */}
-          <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
-            <div className="flex justify-between items-start">
-              <h1 className="text-2xl font-bold text-gray-800">Internship</h1>
-              <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
+            className="relative bg-cover bg-center rounded-xl overflow-hidden"
+            style={{
+              backgroundImage: 'url("https://ik.imagekit.io/ipo22webapp/Picture3.png?updatedAt=1759557480087")',
+            }}
+          >
+            {/* NEW Badge */}
+            <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+              NEW
             </div>
-            <div className="flex flex-col gap-4 mt-4">
-              {/* First Row */}
-              <div className="flex flex-row gap-3">
-                <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                  Developer
-                </button>
-                <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                  Data Science & AI
-                </button>
-                <p className="text-sm text-gray-600 self-center">+12</p>
+
+            {/* Bottom Card */}
+            <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
+              <div className="flex justify-between items-start">
+                <h1 className="text-2xl font-bold text-gray-800">Internship</h1>
+                <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
               </div>
+              <div className="flex flex-col gap-4 mt-4">
+                {/* First Row */}
+                <div className="flex flex-row gap-3">
+                  <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
+                    Developer
+                  </button>
+                  <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
+                    Data Science & AI
+                  </button>
+                  <p className="text-sm text-gray-600 self-center">+12</p>
+                </div>
 
-              {/* Second Row */}
-              <div className="flex flex-row gap-1">
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  2 Months
-                </button>
+                {/* Second Row */}
+                <div className="flex flex-row gap-1">
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
+                      alt="Course Duration"
+                      className="w-4 h-4"
+                    />
+                    2 Months
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  6 Months
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
+                      alt="Course Duration"
+                      className="w-4 h-4"
+                    />
+                    6 Months
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/aa811ecebf620f0d8790c489d7fa4019bbe44911.png?updatedAt=1759588563739"
-                    alt="AI Tools"
-                    className="w-4 h-4"
-                  />
-                  10+ AI Tools
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/aa811ecebf620f0d8790c489d7fa4019bbe44911.png?updatedAt=1759588563739"
+                      alt="AI Tools"
+                      className="w-4 h-4"
+                    />
+                    10+ AI Tools
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
-                    alt="Total Enrolled"
-                    className="w-4 h-4"
-                  />
-                  56
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
+                      alt="Total Enrolled"
+                      className="w-4 h-4"
+                    />
+                    56
+                  </button>
+                </div>
               </div>
-        </div>
-      </div>
+            </div>
           </div>
 
           <div
@@ -193,59 +325,59 @@ const Home = () => {
             style={{
               backgroundImage: 'url("https://ik.imagekit.io/ipo22webapp/Picture4.png?updatedAt=1759557479904")',
             }}>
-                {/* NEW Badge */}
-                <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                  NEW
+            {/* NEW Badge */}
+            <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+              NEW
+            </div>
+
+            {/* Bottom Card */}
+            <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
+              <div className="flex justify-between items-start">
+                <h1 className="text-2xl font-bold text-gray-800">Fullstack</h1>
+                <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
+              </div>
+              <div className="flex flex-col gap-4 mt-4">
+                {/* First Row */}
+                <div className="flex flex-row gap-3">
+                  <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
+                    Python Fullstack
+                  </button>
+                  <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
+                    Data Courses with AI
+                  </button>
+                  <p className="text-sm text-gray-600 self-center">+5</p>
                 </div>
 
-                {/* Bottom Card */}
-                <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
-                  <div className="flex justify-between items-start">
-                    <h1 className="text-2xl font-bold text-gray-800">Fullstack</h1>
-                    <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
-                  </div>
-                  <div className="flex flex-col gap-4 mt-4">
-                    {/* First Row */}
-                    <div className="flex flex-row gap-3">
-                      <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                        Python Fullstack
-                      </button>
-                      <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                        Data Courses with AI
-                      </button>
-                      <p className="text-sm text-gray-600 self-center">+5</p>
-                    </div>
+                {/* Second Row */}
+                <div className="flex flex-row gap-1">
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
+                      alt="Course Duration"
+                      className="w-4 h-4"
+                    />
+                    4 Months Training
+                  </button>
 
-                    {/* Second Row */}
-                    <div className="flex flex-row gap-1">
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  4 Months Training
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
+                      alt="Course Duration"
+                      className="w-4 h-4"
+                    />
+                    2 Months Internship
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  2 Months Internship
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/aa811ecebf620f0d8790c489d7fa4019bbe44911.png?updatedAt=1759588563739"
+                      alt="AI Tools"
+                      className="w-4 h-4"
+                    />
+                    15 + AI Tools
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/aa811ecebf620f0d8790c489d7fa4019bbe44911.png?updatedAt=1759588563739"
-                    alt="AI Tools"
-                    className="w-4 h-4"
-                  />
-                  15 + AI Tools
-                </button>
-
-                {/* <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                  {/* <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
                   <img
                     src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
                     alt="Total Enrolled"
@@ -253,7 +385,7 @@ const Home = () => {
                   />
                   82
                 </button> */}
-              </div>
+                </div>
               </div>
             </div>
           </div>
@@ -288,34 +420,34 @@ const Home = () => {
 
                 {/* Second Row */}
                 <div className="flex flex-row gap-1">
-                <button className="flex items-center gap-1 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/dd633407c004d0747c47c11815a35f98692126fc.png?updatedAt=1759588354353"
-                    alt="All Levels Icon"
-                    className="w-4 h-4"
-                  />
-                  Paying for every Project
-                </button>
+                  <button className="flex items-center gap-1 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/dd633407c004d0747c47c11815a35f98692126fc.png?updatedAt=1759588354353"
+                      alt="All Levels Icon"
+                      className="w-4 h-4"
+                    />
+                    Paying for every Project
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  Flexible Timing
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
+                      alt="Course Duration"
+                      className="w-4 h-4"
+                    />
+                    Flexible Timing
+                  </button>
 
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
-                    alt="Total Enrolled"
-                    className="w-4 h-4"
-                  />
-                  12
-                </button>
+                  <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
+                    <img
+                      src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
+                      alt="Total Enrolled"
+                      className="w-4 h-4"
+                    />
+                    12
+                  </button>
+                </div>
               </div>
-          </div>
             </div>
           </div>
         </div>
@@ -328,7 +460,7 @@ const Home = () => {
       </div>
 
       <div className="flex flex-col min-h-screen bg-[#CCF6FF]">
-      {/* Category Buttons */}
+        {/* Category Buttons */}
         <div className="container mx-auto p-6">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Explore Online Courses</h1>
           <div className="flex flex-row justify-center flex-wrap gap-4 mb-8">
@@ -336,11 +468,10 @@ const Home = () => {
               <button
                 key={index}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 border border-black rounded-full transition ${
-                  selectedCategory === category
-                    ? 'bg-[#4dcff0] text-black'
-                    : 'bg-[#ccf6ff] text-black hover:bg-[#d3f6ff]'
-                }`}
+                className={`px-4 py-2 border border-black rounded-full transition ${selectedCategory === category
+                  ? 'bg-[#4dcff0] text-black'
+                  : 'bg-[#ccf6ff] text-black hover:bg-[#d3f6ff]'
+                  }`}
               >
                 {category}
               </button>
@@ -457,14 +588,14 @@ const Home = () => {
           </div>
         </div>
       </div>
-      
-      <CareerProspects/>
-      <LearnFromExperts/>
-      <StudentTestimonials/>
-      <FAQ/>
+
+      <CareerProspects />
+      <LearnFromExperts />
+      <StudentTestimonials />
+      <FAQ />
 
 
     </div>
- );     
+  );
 };
 export default Home;

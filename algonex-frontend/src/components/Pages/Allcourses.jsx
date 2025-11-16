@@ -110,7 +110,7 @@ const CoursesPage = () => {
     },
     {
       title: 'AI/ML ENGINEER',
-      image: 'https://ik.imagekit.io/ipo22webapp/Picture4.png?updatedAt=1759557479904',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
       tags: ['TensorFlow', 'PyTorch'],
       moreCount: 25,
       level: 'Advanced',
@@ -139,7 +139,7 @@ const CoursesPage = () => {
   const courses = [
     {
       title: 'PYTHON',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
       level: 'Beginner',
       duration: '6 months',
       modules: '56',
@@ -150,7 +150,7 @@ const CoursesPage = () => {
     },
     {
       title: 'JAVA',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
       level: 'Intermediate',
       duration: '8 months',
       modules: '64',
@@ -161,7 +161,7 @@ const CoursesPage = () => {
     },
     {
       title: 'REACT JS',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
       level: 'Intermediate',
       duration: '5 months',
       modules: '48',
@@ -172,7 +172,7 @@ const CoursesPage = () => {
     },
     {
       title: 'DATA SCIENCE',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/core_data_anl.png?updatedAt=1762693566687',
       level: 'Advanced',
       duration: '10 months',
       modules: '72',
@@ -183,7 +183,7 @@ const CoursesPage = () => {
     },
     {
       title: 'MACHINE LEARNING',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
       level: 'Advanced',
       duration: '12 months',
       modules: '80',
@@ -194,7 +194,7 @@ const CoursesPage = () => {
     },
     {
       title: 'NODE JS',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
       level: 'Intermediate',
       duration: '6 months',
       modules: '52',
@@ -205,7 +205,7 @@ const CoursesPage = () => {
     },
     {
       title: 'ANGULAR',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
       level: 'Intermediate',
       duration: '5 months',
       modules: '46',
@@ -216,7 +216,7 @@ const CoursesPage = () => {
     },
     {
       title: 'CYBER SECURITY',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cyber_sec.jpeg?updatedAt=1762710244604',
       level: 'Advanced',
       duration: '9 months',
       modules: '68',
@@ -227,7 +227,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Generative AI Mastery',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
       level: 'Advanced',
       duration: '8 months',
       modules: '75',
@@ -239,7 +239,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Full Stack Web3 Development',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
       level: 'Intermediate',
       duration: '10 months',
       modules: '88',
@@ -251,7 +251,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Advanced Python for AI',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
       level: 'Advanced',
       duration: '9 months',
       modules: '82',
@@ -263,7 +263,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Cloud Native DevOps',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
       level: 'Expert',
       duration: '11 months',
       modules: '92',
@@ -275,7 +275,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Data Engineering Pro',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/data-anl.png?updatedAt=1762691790858',
       level: 'Advanced',
       duration: '10 months',
       modules: '86',
@@ -287,7 +287,7 @@ const CoursesPage = () => {
     },
     {
       title: 'React Native Mobile Dev',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/rctnv.jpg?updatedAt=1762740153377',
       level: 'Intermediate',
       duration: '7 months',
       modules: '68',
@@ -299,7 +299,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Blockchain Development',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/algorithm.png?updatedAt=1762699425701',
       level: 'Advanced',
       duration: '9 months',
       modules: '78',
@@ -311,7 +311,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Kubernetes Expert',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/image%2031.png?updatedAt=1762699746797',
       level: 'Expert',
       duration: '8 months',
       modules: '72',
@@ -323,7 +323,7 @@ const CoursesPage = () => {
     },
     {
       title: 'Ethical Hacking Pro',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ethical-hacking.jpg?updatedAt=1762740952244',
       level: 'Advanced',
       duration: '10 months',
       modules: '84',
@@ -335,7 +335,7 @@ const CoursesPage = () => {
     },
     {
       title: 'AWS Solutions Architect',
-      image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
+      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
       level: 'Expert',
       duration: '9 months',
       modules: '80',

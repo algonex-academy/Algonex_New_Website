@@ -141,248 +141,657 @@ const EventsPage = () => {
 
   const eventTypes = ['all', 'Workshop', 'Webinar', 'Bootcamp', 'Masterclass', 'Summit', 'Hackathon', 'Career Fair'];
 
-  const filteredUpcoming = upcomingEvents.filter(event => 
+  const filteredUpcoming = upcomingEvents.filter(event =>
     (activeFilter === 'all' || event.type === activeFilter) &&
     (searchQuery === '' || event.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const filteredPast = pastEvents.filter(event => 
+  const filteredPast = pastEvents.filter(event =>
     (activeFilter === 'all' || event.type === activeFilter) &&
     (searchQuery === '' || event.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  const modePrices = {
+    basic: 200,
+    pro: 300,
+    premium: 500,
+  };
+
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    college: "",
+    mode: "",
+    amount: "",
+    paymentId: ""
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    let updatedValue = value;
+
+    // Auto update price when mode changes
+    if (name === "mode") {
+      updatedValue = value;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: updatedValue,
+      amount: name === "mode" ? modePrices[value] : prev.amount
+    }));
+
+    setErrors(prev => ({ ...prev, [name]: "" }));
+  };
+
+
+  // const handlePaymentSubmit = () => {
+  //   console.log("Form Submitted", formData);
+  //   alert("Registration submitted successfully!");
+  // };
+
+  // const handlePaymentSubmit = () => {
+  //   if (!formData.name || !formData.email || !formData.phone || !formData.mode || !formData.paymentId) {
+  //     alert("Please fill all required fields!");
+  //     return;
+  //   }
+
+  //   console.log("Form Data:", formData);
+
+  //   alert("Registration Submitted Successfully!");
+
+  //   // Close modal after submit
+  //   setShowModal(false);
+
+  //   // Clear form
+  //   setFormData({
+  //     name: "",
+  //     email: "",
+  //     phone: "",
+  //     college: "",
+  //     mode: "",
+  //     amount: "",
+  //     paymentId: ""
+  //   });
+  // };
+
+  // const handlePaymentSubmit = async () => {
+  //   setErrors({}); // clear old errors
+
+  //   if (!formData.name || !formData.email || !formData.phone || !formData.college) {
+  //     setErrors({ general: "Please fill all required fields" });
+  //     return;
+  //   }
+
+  //   if (!formData.mode) {
+  //     setErrors({ mode: "Please select a mode" });
+  //     return;
+  //   }
+
+  //   if (!formData.paymentId.trim()) {
+  //     setErrors({ paymentId: "Payment ID is required" });
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     eventId: selectedEvent?.id,
+  //     name: formData.name,
+  //     email: formData.email,
+  //     phone: formData.phone,
+  //     college: formData.college,
+  //     mode: formData.mode,
+  //     amount: formData.amount,
+  //     paymentId: formData.paymentId,
+  //   };
+
+  //   try {
+  //     const response = await fetch("http://localhost:8000/api/events/register/", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (response.ok) {
+  //       alert("Registration Successful 🎉");
+  //       setShowModal(false);
+  //       setFormData({
+  //         name: "",
+  //         email: "",
+  //         phone: "",
+  //         college: "",
+  //         mode: "",
+  //         amount: "",
+  //         paymentId: "",
+  //       });
+  //     } else {
+  //       setErrors(data);
+  //       console.log(data);
+
+  //     }
+  //   } catch (err) {
+  //     setErrors({ general: "Network error! Try again later." });
+  //   }
+  // };
+
+  // const handlePaymentSubmit = async () => {
+  //   setErrors({}); // clear old errors
+
+  //   // Frontend validation
+  //   if (!formData.name || !formData.email || !formData.phone || !formData.college) {
+  //     setErrors({ general: "Please fill all required fields" });
+  //     return;
+  //   }
+
+  //   if (!formData.mode) {
+  //     setErrors({ mode: "Please select a mode" });
+  //     return;
+  //   }
+
+  //   if (!formData.paymentId.trim()) {
+  //     setErrors({ paymentId: "Payment ID is required" });
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     eventId: selectedEvent?.id,
+  //     name: formData.name,
+  //     email: formData.email,
+  //     phone: formData.phone,
+  //     college: formData.college,
+  //     mode: formData.mode,
+  //     amount: formData.amount,
+  //     paymentId: formData.paymentId,
+  //   };
+
+  //   try {
+  //     const response = await fetch("http://localhost:8000/api/events/register/", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (response.ok) {
+  //       alert("Registration Successful 🎉");
+  //       setShowModal(false);
+  //       setFormData({
+  //         name: "",
+  //         email: "",
+  //         phone: "",
+  //         college: "",
+  //         mode: "",
+  //         amount: "",
+  //         paymentId: "",
+  //       });
+  //     } else {
+  //       const formattedErrors = {};
+  //       Object.keys(data).forEach(key => {
+  //         formattedErrors[key] = Array.isArray(data[key]) ? data[key][0] : data[key];
+  //       });
+  //       setErrors(formattedErrors);
+  //       console.log(formattedErrors);
+        
+  //     }
+  //   } catch (err) {
+  //     setErrors({ general: "Network error! Try again later." });
+  //   }
+  // };
+
+  const handlePaymentSubmit = async () => {
+  const newErrors = {};
+
+  // Field-wise validation
+  if (!formData.name.trim()) newErrors.name = "Name is required";
+  if (!formData.email.trim()) newErrors.email = "Email is required";
+  if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+  if (!formData.college.trim()) newErrors.college = "College is required";
+  if (!formData.mode) newErrors.mode = "Please select a mode";
+  if (!formData.paymentId.trim()) newErrors.paymentId = "Payment ID is required";
+
+  // If any errors, set them and stop
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  // Payload for backend
+  const payload = {
+    eventId: selectedEvent?.id,
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    college: formData.college,
+    mode: formData.mode,
+    amount: formData.amount,
+    paymentId: formData.paymentId,
+  };
+
+  try {
+    const response = await fetch("http://localhost:8000/api/events/register/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Registration Successful 🎉");
+      setShowModal(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        college: "",
+        mode: "",
+        amount: "",
+        paymentId: "",
+      });
+      setErrors({});
+    } else {
+      // Backend errors
+      const formattedErrors = {};
+      Object.keys(data).forEach(key => {
+        formattedErrors[key] = Array.isArray(data[key]) ? data[key].join(", ") : data[key];
+      });
+      setErrors(formattedErrors.error);
+    }
+  } catch (err) {
+    setErrors({ general: "Network error! Try again later." });
+  }
+};
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#CCF6FF] via-[#E0F7FF] to-[#B3E5FF]">
-      {/* Hero Banner */}
-      <div className="relative w-full h-[500px] md:h-[612px] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#00B4D8] to-[#0077B6] opacity-95"></div>
-        <img 
-          src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&auto=format&fit=crop" 
-          alt="Events Banner"
-          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-center drop-shadow-2xl">
-            Events & Workshops
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-center max-w-3xl leading-relaxed">
-            Join our community events, workshops, and networking sessions to accelerate your career growth
-          </p>
-          <div className="flex gap-4 flex-wrap justify-center">
-            <a href="https://www.google.com" target="_blank" rel="noopener noreferrer">
-              <button className="bg-white text-[#00B4D8] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105">
-                Register Now
+    <>
+      {showModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+
+          {/* Scrollable wrapper */}
+          <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+
+            {/* Inside padding */}
+            <div className="p-6">
+
+              {/* Close button */}
+              <button
+                className="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl"
+                onClick={() => setShowModal(false)}
+              >
+                ×
               </button>
-            </a>
 
-            <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#00B4D8] transition-all shadow-2xl">
-              View Calendar
-            </button>
-          </div>
-        </div>
-      </div>
+              {/* Title */}
+              <h2 className="text-2xl font-bold mb-6 text-center text-[#00B4D8]">
+                Register for {selectedEvent?.title}
+              </h2>
+                              {errors.general && <p className="text-red-500 text-sm mt-2 text-center">{errors.general}</p>}
 
-      {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-4 -mt-16 relative z-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">50+</div>
-            <div className="text-gray-600 font-semibold">Events Hosted</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">3000+</div>
-            <div className="text-gray-600 font-semibold">Participants</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">25+</div>
-            <div className="text-gray-600 font-semibold">Partner Venues</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">4.8/5</div>
-            <div className="text-gray-600 font-semibold">Avg Rating</div>
-          </div>
-        </div>
-      </div>
 
-      {/* Search and Filter */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-2xl p-6 shadow-xl">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1 relative w-full">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search events..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00B4D8] focus:outline-none"
-              />
+              {/* 2-column form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full border p-3 rounded-lg"
+                    placeholder="Enter name"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    className="w-full border p-3 rounded-lg"
+                    placeholder="Enter email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Phone</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    className="w-full border p-3 rounded-lg"
+                    placeholder="Phone number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    maxLength={10} // limits input to 10 characters
+                    pattern="[0-9]{10}" // optional: ensures only 10 digits
+                  />
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700">College</label>
+                  <input
+                    type="text"
+                    name="college"
+                    className="w-full border p-3 rounded-lg"
+                    placeholder="College name"
+                    value={formData.college}
+                    onChange={handleChange}
+                  />
+                  {errors.college && <p className="text-red-500 text-sm mt-2 text-center">{errors.college}</p>}
+                </div>
+              </div>
+
+              {/* Mode */}
+              <div className="mt-4">
+                <label className="text-sm font-medium text-gray-700">Mode</label>
+                <select
+                  name="mode"
+                  className="w-full border p-3 rounded-lg"
+                  value={formData.mode}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Mode</option>
+                  <option value="basic">Basic - ₹200</option>
+                  <option value="pro">Pro - ₹300</option>
+                  <option value="premium">Premium - ₹500</option>
+                </select>
+                
+              </div>
+              {errors.mode && <p className="text-red-500 text-sm mt-1">{errors.mode}</p>}
+
+              {/* QR */}
+              <div className="mt-6 text-center">
+                <p className="text-gray-700 font-semibold mb-2">Scan UPI QR to Pay</p>
+
+                <div className="flex justify-center">
+                  <img
+                    src="https://ik.imagekit.io/jfg6wtvbq/QR/qred.jpg"
+                    alt="UPI QR"
+                    className="w-40 h-auto border rounded-xl shadow-lg bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Payment ID */}
+              <div className="mt-6">
+                <label className="text-sm font-medium text-gray-700">Payment ID</label>
+                <input
+                  type="text"
+                  name="paymentId"
+                  className="w-full border p-3 rounded-lg"
+                  placeholder="UPI Transaction ID"
+                  value={formData.paymentId}
+                  onChange={handleChange}
+                />
+                {errors.paymentId && <p className="text-red-500 text-sm mt-1">{errors.paymentId}</p>}
+              </div>
+
+              {/* Submit */}
+              <button
+                className="mt-6 w-full bg-[#00B4D8] text-white py-3 rounded-lg font-bold hover:bg-[#0090b1]"
+                onClick={handlePaymentSubmit}
+              >
+                Submit Registration
+              </button>
+
             </div>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {eventTypes.map(type => (
-                <button
-                  key={type}
-                  onClick={() => setActiveFilter(type)}
-                  className={`px-4 py-2 rounded-xl font-semibold transition-all ${
-                    activeFilter === type
+          </div>
+        </div>
+      )}
+
+
+
+
+      <div className="min-h-screen bg-gradient-to-br from-[#CCF6FF] via-[#E0F7FF] to-[#B3E5FF]">
+        {/* Hero Banner */}
+        <div className="relative w-full h-[500px] md:h-[612px] overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#00B4D8] to-[#0077B6] opacity-95"></div>
+          <img
+            src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&auto=format&fit=crop"
+            alt="Events Banner"
+            className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-center drop-shadow-2xl">
+              Events & Workshops
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 text-center max-w-3xl leading-relaxed">
+              Join our community events, workshops, and networking sessions to accelerate your career growth
+            </p>
+            <div className="flex gap-4 flex-wrap justify-center">
+              <a href="https://www.google.com" target="_blank" rel="noopener noreferrer">
+                <button className="bg-white text-[#00B4D8] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                  Register Now
+                </button>
+              </a>
+
+              <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#00B4D8] transition-all shadow-2xl">
+                View Calendar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="max-w-7xl mx-auto px-4 -mt-16 relative z-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
+              <div className="text-4xl font-bold text-[#00B4D8] mb-2">50+</div>
+              <div className="text-gray-600 font-semibold">Events Hosted</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
+              <div className="text-4xl font-bold text-[#00B4D8] mb-2">3000+</div>
+              <div className="text-gray-600 font-semibold">Participants</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
+              <div className="text-4xl font-bold text-[#00B4D8] mb-2">25+</div>
+              <div className="text-gray-600 font-semibold">Partner Venues</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
+              <div className="text-4xl font-bold text-[#00B4D8] mb-2">4.8/5</div>
+              <div className="text-gray-600 font-semibold">Avg Rating</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="bg-white rounded-2xl p-6 shadow-xl">
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-1 relative w-full">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00B4D8] focus:outline-none"
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap justify-center">
+                {eventTypes.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setActiveFilter(type)}
+                    className={`px-4 py-2 rounded-xl font-semibold transition-all ${activeFilter === type
                       ? 'bg-[#00B4D8] text-white shadow-lg'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </button>
-              ))}
+                      }`}
+                  >
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Upcoming Events */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-4xl font-bold text-gray-800 mb-2">Upcoming Events</h2>
-          <p className="text-gray-600 text-lg">Register now to secure your spot</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          {filteredUpcoming.map(event => (
-            <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all transform hover:scale-[1.02] border-2 border-[#66E5FF]">
-              <div className="relative h-64 overflow-hidden">
-                <img 
-                  src={event.image} 
-                  alt={event.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4 bg-[#00B4D8] text-white px-4 py-2 rounded-xl font-bold shadow-lg">
-                  {event.type}
-                </div>
-                <div className="absolute top-4 left-4 bg-white text-[#00B4D8] px-4 py-2 rounded-xl font-bold shadow-lg">
-                  {event.mode}
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">{event.title}</h3>
-                <p className="text-gray-600 mb-4">{event.description}</p>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Calendar className="text-[#00B4D8]" size={20} />
-                    <span className="font-semibold">{event.date}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Clock className="text-[#00B4D8]" size={20} />
-                    <span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <MapPin className="text-[#00B4D8]" size={20} />
-                    <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Users className="text-[#00B4D8]" size={20} />
-                    <span>{event.spots} spots remaining</span>
-                  </div>
-                </div>
-
-                <button className="w-full bg-gradient-to-r from-[#00B4D8] to-[#0077B6] text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center gap-2">
-                  Register Now <ArrowRight size={20} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Past Events */}
-      <div className="bg-white/60 backdrop-blur-sm py-16 mt-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-2">Past Events</h2>
-            <p className="text-gray-600 text-lg">Explore our successful event history</p>
+        {/* Upcoming Events */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold text-gray-800 mb-2">Upcoming Events</h2>
+            <p className="text-gray-600 text-lg">Register now to secure your spot</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {filteredPast.map(event => (
-              <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-[#66E5FF]">
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={event.image} 
+          <div className="grid md:grid-cols-2 gap-8">
+            {filteredUpcoming.map(event => (
+              <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all transform hover:scale-[1.02] border-2 border-[#66E5FF]">
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={event.image}
                     alt={event.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-4 right-4 bg-gray-800 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                  <div className="absolute top-4 right-4 bg-[#00B4D8] text-white px-4 py-2 rounded-xl font-bold shadow-lg">
                     {event.type}
                   </div>
+                  <div className="absolute top-4 left-4 bg-white text-[#00B4D8] px-4 py-2 rounded-xl font-bold shadow-lg">
+                    {event.mode}
+                  </div>
                 </div>
-                
+
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{event.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{event.description}</p>
-                  
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">{event.title}</h3>
+                  <p className="text-gray-600 mb-4">{event.description}</p>
+
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="text-[#00B4D8]" size={16} />
-                      <span>{event.date}</span>
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Calendar className="text-[#00B4D8]" size={20} />
+                      <span className="font-semibold">{event.date}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <MapPin className="text-[#00B4D8]" size={16} />
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Clock className="text-[#00B4D8]" size={20} />
+                      <span>{event.time}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <MapPin className="text-[#00B4D8]" size={20} />
                       <span>{event.location}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Users className="text-[#00B4D8]" size={20} />
+                      <span>{event.spots} spots remaining</span>
                     </div>
                   </div>
 
-                  <div className="bg-[#E6FAFF] p-4 rounded-xl border-2 border-[#66E5FF]">
-                    <div className="font-semibold text-[#00B4D8] mb-2 text-sm">Highlights:</div>
-                    <div className="space-y-1">
-                      {event.highlights.map((highlight, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                          <span className="text-[#00B4D8] font-bold">•</span>
-                          <span>{highlight}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <button
+                    className="w-full bg-gradient-to-r from-[#00B4D8] to-[#0077B6] text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center gap-2" onClick={() => { setSelectedEvent(event); setShowModal(true); }}> Register Now <ArrowRight size={20} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Event Partners */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Event Partners</h2>
-          <p className="text-gray-600 text-lg">Collaborating with industry leaders</p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {['Microsoft', 'AWS', 'ThoughtWorks', 'Amadeus', 'Google Cloud'].map((partner, idx) => (
-            <div key={idx} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:scale-110 flex items-center justify-center border-2 border-[#66E5FF]">
-              <div className="text-2xl font-bold text-[#00B4D8]">{partner}</div>
+        {/* Past Events */}
+        <div className="bg-white/60 backdrop-blur-sm py-16 mt-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="mb-12">
+              <h2 className="text-4xl font-bold text-gray-800 mb-2">Past Events</h2>
+              <p className="text-gray-600 text-lg">Explore our successful event history</p>
             </div>
-          ))}
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {filteredPast.map(event => (
+                <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-[#66E5FF]">
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-gray-800 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                      {event.type}
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">{event.title}</h3>
+                    <p className="text-sm text-gray-600 mb-4">{event.description}</p>
+
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <Calendar className="text-[#00B4D8]" size={16} />
+                        <span>{event.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <MapPin className="text-[#00B4D8]" size={16} />
+                        <span>{event.location}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#E6FAFF] p-4 rounded-xl border-2 border-[#66E5FF]">
+                      <div className="font-semibold text-[#00B4D8] mb-2 text-sm">Highlights:</div>
+                      <div className="space-y-1">
+                        {event.highlights.map((highlight, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
+                            <span className="text-[#00B4D8] font-bold">•</span>
+                            <span>{highlight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-[#00B4D8] to-[#0077B6] text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Never Miss an Event!</h2>
-          <p className="text-xl mb-8 leading-relaxed">
-            Subscribe to our newsletter to get updates on upcoming workshops, webinars, and networking events
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="px-6 py-4 rounded-xl text-gray-800 font-semibold w-full md:w-96 focus:outline-none focus:ring-4 focus:ring-white"
-            />
-            <button className="bg-white text-[#00B4D8] px-10 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-              Subscribe
-            </button>
+
+        {/* Event Partners */}
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Event Partners</h2>
+            <p className="text-gray-600 text-lg">Collaborating with industry leaders</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+            {['Microsoft', 'AWS', 'ThoughtWorks', 'Amadeus', 'Google Cloud'].map((partner, idx) => (
+              <div key={idx} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:scale-110 flex items-center justify-center border-2 border-[#66E5FF]">
+                <div className="text-2xl font-bold text-[#00B4D8]">{partner}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-[#00B4D8] to-[#0077B6] text-white py-16">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-4xl font-bold mb-6">Never Miss an Event!</h2>
+            <p className="text-xl mb-8 leading-relaxed">
+              Subscribe to our newsletter to get updates on upcoming workshops, webinars, and networking events
+            </p>
+            <div className="flex gap-4 justify-center flex-wrap">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="px-6 py-4 rounded-xl text-gray-800 font-semibold w-full md:w-96 focus:outline-none focus:ring-4 focus:ring-white"
+              />
+              <button className="bg-white text-[#00B4D8] px-10 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                Subscribe
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
