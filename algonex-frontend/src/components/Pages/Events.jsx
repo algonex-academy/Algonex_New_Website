@@ -230,7 +230,7 @@ const EventsPage = () => {
     const data = await response.json();
 
     if (response.ok) {
-      alert("Registration Successful 🎉");
+      alert("Registration Successful");
       setShowModal(false);
       setFormData({
         name: "",
