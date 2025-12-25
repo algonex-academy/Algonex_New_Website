@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -21,173 +21,175 @@ const categories = [
   'Machine Learning', 'Power BI', 'Testing', 'Github'
 ];
 
-const allCourses = [
-  {
-    title: 'React for Beginners',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-    level: 'Beginner',
-    duration: '6 weeks',
-    modules: '12',
-    category: 'Frontend',
-    path: '/explore-course/frontend',
-    trending: true
-  },
-  {
-    title: 'Python Essentials',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
-    level: 'Beginner',
-    duration: '6 months',
-    modules: '56',
-    category: 'Python',
-    path: '/explore-course/python',
-    trending: true
-  },
-  {
-    title: 'Java Backend Bootcamp',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
-    level: 'Intermediate',
-    duration: '4 months',
-    modules: '40',
-    category: 'Backend',
-    path: '/explore-course/backend',
-    trending: true
-  },
-  {
-    title: 'Cloud Fundamentals',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
-    level: 'Beginner',
-    duration: '3 months',
-    modules: '20',
-    category: 'Cloud',
-    path: '/explore-course/cloud',
-    trending: true
-  },
-  {
-    title: 'Cloud Native DevOps',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
-    level: 'Expert',
-    duration: '11 months',
-    modules: '92',
-    category: 'DevOps',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'MACHINE LEARNING',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
-    level: 'Advanced',
-    duration: '12 months',
-    modules: '80',
-    category: 'Machine Learning',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'JAVA',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
-    level: 'Intermediate',
-    duration: '8 months',
-    modules: '64',
-    category: 'Java',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'CYBER SECURITY',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cyber_sec.jpeg?updatedAt=1762710244604',
-    level: 'Advanced',
-    duration: '9 months',
-    modules: '68',
-    category: 'Cyber Security',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'Generative AI Mastery',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
-    level: 'Advanced',
-    duration: '8 months',
-    modules: '75',
-    category: 'Gen AI',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'DATA SCIENCE',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/core_data_anl.png?updatedAt=1762693566687',
-    level: 'Advanced',
-    duration: '10 months',
-    modules: '72',
-    category: 'Data Courses',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'Data Engineering Pro',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/data-anl.png?updatedAt=1762691790858',
-    level: 'Advanced',
-    duration: '10 months',
-    modules: '86',
-    category: 'Data Engineer',
-    path: '/explore-course/',
-    trending: false
-  },
-  {
-    title: 'REACT JS',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-    level: 'Intermediate',
-    duration: '5 months',
-    modules: '48',
-    category: 'Frontend',
-    trending: false
-  },
-  {
-    title: 'Full Stack Web3 Development',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-    level: 'Intermediate',
-    duration: '10 months',
-    modules: '88',
-    category: 'Frontend',
-    trending: false
-  },
-  {
-    title: 'NODE JS',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-    level: 'Intermediate',
-    duration: '6 months',
-    modules: '52',
-    category: 'Backend',
-    trending: false
-  },
-  {
-    title: 'React Native Mobile Dev',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/rctnv.jpg?updatedAt=1762740153377',
-    level: 'Intermediate',
-    duration: '7 months',
-    modules: '68',
-    category: 'Frontend',
-    trending: false
-  },
-  {
-    title: 'Advanced Python for AI',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
-    level: 'Advanced',
-    duration: '9 months',
-    modules: '82',
-    category: 'Python',
-    trending: false
-  },
-  {
-    title: 'Kubernetes Expert',
-    image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/image%2031.png?updatedAt=1762699746797',
-    level: 'Expert',
-    duration: '8 months',
-    modules: '72',
-    category: 'Cloud',
-    trending: false
-  },
-  // Add more courses as needed
-];
+// const allCourses = [
+//   {
+//     title: 'React for Beginners',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+//     level: 'Beginner',
+//     duration: '6 weeks',
+//     modules: '12',
+//     category: 'Frontend',
+//     path: '/explore-course/frontend',
+//     trending: true
+//   },
+//   {
+//     title: 'Python Essentials',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
+//     level: 'Beginner',
+//     duration: '6 months',
+//     modules: '56',
+//     category: 'Python',
+//     path: '/explore-course/python',
+//     trending: true
+//   },
+//   {
+//     title: 'Java Backend Bootcamp',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
+//     level: 'Intermediate',
+//     duration: '4 months',
+//     modules: '40',
+//     category: 'Backend',
+//     path: '/explore-course/backend',
+//     trending: true
+//   },
+//   {
+//     title: 'Cloud Fundamentals',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
+//     level: 'Beginner',
+//     duration: '3 months',
+//     modules: '20',
+//     category: 'Cloud',
+//     path: '/explore-course/cloud',
+//     trending: true
+//   },
+//   {
+//     title: 'Cloud Native DevOps',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
+//     level: 'Expert',
+//     duration: '11 months',
+//     modules: '92',
+//     category: 'DevOps',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'MACHINE LEARNING',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
+//     level: 'Advanced',
+//     duration: '12 months',
+//     modules: '80',
+//     category: 'Machine Learning',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'JAVA',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
+//     level: 'Intermediate',
+//     duration: '8 months',
+//     modules: '64',
+//     category: 'Java',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'CYBER SECURITY',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cyber_sec.jpeg?updatedAt=1762710244604',
+//     level: 'Advanced',
+//     duration: '9 months',
+//     modules: '68',
+//     category: 'Cyber Security',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'Generative AI Mastery',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
+//     level: 'Advanced',
+//     duration: '8 months',
+//     modules: '75',
+//     category: 'Gen AI',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'DATA SCIENCE',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/core_data_anl.png?updatedAt=1762693566687',
+//     level: 'Advanced',
+//     duration: '10 months',
+//     modules: '72',
+//     category: 'Data Courses',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'Data Engineering Pro',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/data-anl.png?updatedAt=1762691790858',
+//     level: 'Advanced',
+//     duration: '10 months',
+//     modules: '86',
+//     category: 'Data Engineer',
+//     path: '/explore-course/',
+//     trending: false
+//   },
+//   {
+//     title: 'REACT JS',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+//     level: 'Intermediate',
+//     duration: '5 months',
+//     modules: '48',
+//     category: 'Frontend',
+//     trending: false
+//   },
+//   {
+//     title: 'Full Stack Web3 Development',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+//     level: 'Intermediate',
+//     duration: '10 months',
+//     modules: '88',
+//     category: 'Frontend',
+//     trending: false
+//   },
+//   {
+//     title: 'NODE JS',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+//     level: 'Intermediate',
+//     duration: '6 months',
+//     modules: '52',
+//     category: 'Backend',
+//     trending: false
+//   },
+//   {
+//     title: 'React Native Mobile Dev',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/rctnv.jpg?updatedAt=1762740153377',
+//     level: 'Intermediate',
+//     duration: '7 months',
+//     modules: '68',
+//     category: 'Frontend',
+//     trending: false
+//   },
+//   {
+//     title: 'Advanced Python for AI',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
+//     level: 'Advanced',
+//     duration: '9 months',
+//     modules: '82',
+//     category: 'Python',
+//     trending: false
+//   },
+//   {
+//     title: 'Kubernetes Expert',
+//     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/image%2031.png?updatedAt=1762699746797',
+//     level: 'Expert',
+//     duration: '8 months',
+//     modules: '72',
+//     category: 'Cloud',
+//     trending: false
+//   },
+//   // Add more courses as needed
+// ];
+
+
 
 const Home = () => {
   const settings = {
@@ -199,17 +201,40 @@ const Home = () => {
     autoplay: true,
     autoplaySpeed: 2000
   };
+  const [courses, setCourses] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('Trending');
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/courses")
+      .then(res => res.json())
+      .then(data => {
+        
+        console.log(data.data);
+        
+        const updatedCourses = data.data.map(course => ({
+          ...course,
+          path: `/explore-course/${course.category.toLowerCase().replace(/\s+/g, '-')}`
+        }));
+
+        setCourses(updatedCourses);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   // const filteredCourses =
   //   selectedCategory === 'Trending'
   //     ? allCourses
   //     : allCourses.filter(course => course.category === selectedCategory);
 
+  // const filteredCourses =
+  //   selectedCategory === 'Trending'
+  //     ? allCourses.filter(course => course.trending)
+  //     : allCourses.filter(course => course.category === selectedCategory);
+
   const filteredCourses =
-    selectedCategory === 'Trending'
-      ? allCourses.filter(course => course.trending)
-      : allCourses.filter(course => course.category === selectedCategory);
+  selectedCategory === "Trending"
+    ? courses.filter(c => c.trending).slice(0, 4)
+    : courses.filter(c => c.category === selectedCategory).slice(0, 4);
 
 
   return (

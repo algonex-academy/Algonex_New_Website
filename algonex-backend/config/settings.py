@@ -16,7 +16,6 @@ import dj_database_url
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 MAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-DEFAULT_FROM_MAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 MAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -51,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'eventform',
+    'courses',
 
 ]
 
@@ -99,21 +99,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=DATABASE_URL,
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
 
 
 # REST Framework settings
@@ -179,6 +179,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = MAIL_HOST_USER
-EMAIL_HOST_PASSWORD = MAIL_HOST_PASSWORD
-DEFAULT_FROM_EMAIL = DEFAULT_FROM_MAIL
+# EMAIL_HOST_USER = MAIL_HOST_USER
+# EMAIL_HOST_PASSWORD = MAIL_HOST_PASSWORD
+EMAIL_HOST_USER = 'samanwaysm7@gmail.com'
+EMAIL_HOST_PASSWORD = 'rygq cnxg wxnf cwpu'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

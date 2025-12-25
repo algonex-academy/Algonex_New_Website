@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, Users, Clock, ArrowRight, Search, Filter } from 'lucide-react';
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const EventsPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -221,7 +222,8 @@ const EventsPage = () => {
   };
 
   try {
-    const response = await fetch("https://algonex-backend.onrender.com/api/events/register/", {
+    // const response = await fetch("https://algonex-backend.onrender.com/api/events/register/", {\
+    const response = await fetch("http://localhost:8000/api/events/register/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

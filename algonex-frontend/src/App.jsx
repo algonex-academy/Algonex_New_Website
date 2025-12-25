@@ -13,6 +13,17 @@ import FrontendCourse from './components/ExploreCourses/FrontendCourse';
 import PythonCourse from './components/ExploreCourses/PythonCourse';
 import BackendCourse from './components/ExploreCourses/BackendCourse';
 import CloudCourse from './components/ExploreCourses/CloudCourse';
+import DataCourse from './components/ExploreCourses/DataCourse';
+import MachineLearningCourse from './components/ExploreCourses/MachineLearningCourse';
+import CyberSecurityCourse from './components/ExploreCourses/CyberSecurityCourse';
+import DataEngineerCourse from './components/ExploreCourses/DataEngineerCourse';
+import DevOpsCourse from './components/ExploreCourses/DevOpsCourse';
+import ExcelCourse from './components/ExploreCourses/ExcelCourse';
+import GenAICourse from './components/ExploreCourses/GenAICourse';
+import JavaCourse from './components/ExploreCourses/JavaCourse';
+import GithubCourse from './components/ExploreCourses/GithubCourse';
+import PowerBICourse from './components/ExploreCourses/PowerBICourse';
+import TestingCourse from './components/ExploreCourses/TestingCourse';
 
 const App = () => {
   return (
@@ -36,6 +47,17 @@ const App = () => {
           <Route path="/explore-course/python" element={<PythonCourse />} />
           <Route path="/explore-course/backend" element={<BackendCourse />} />
           <Route path="/explore-course/cloud" element={<CloudCourse />} />
+          <Route path="/explore-course/data-science" element={<DataCourse />} />
+          <Route path="/explore-course/data-engineer" element={<DataEngineerCourse />} />
+          <Route path="/explore-course/machine-learning" element={<MachineLearningCourse />} />
+          <Route path="/explore-course/cyber-security" element={<CyberSecurityCourse />} />
+          <Route path="/explore-course/devops" element={<DevOpsCourse />} />
+          <Route path="/explore-course/java" element={<JavaCourse />} />
+          <Route path="/explore-course/gen-ai" element={<GenAICourse />} />
+          <Route path="/explore-course/excel" element={<ExcelCourse />} />
+          <Route path="/explore-course/github" element={<GithubCourse />} />
+          <Route path="/explore-course/power-bi" element={<PowerBICourse />} />
+          <Route path="/explore-course/testing" element={<TestingCourse />} />
         </Routes>
         <Footer />
       </div>

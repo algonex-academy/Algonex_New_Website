@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from "react-router-dom";
+
 
 const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Courses');
@@ -9,9 +11,10 @@ const CoursesPage = () => {
   const [durationFilter, setDurationFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const scrollRef = useRef(null);
+  const [courses, setCourses] = useState([]);
 
   const categories = [
-    'All Courses', 'Trending', 'Frontend', 'Backend', 'Data Engineer', 'Java', 'Python', 
+    'All Courses', 'Trending', 'Frontend', 'Backend', 'Data Engineer', 'Java', 'Python',
     'Excel', 'Gen AI', 'Data Science', 'Cyber Security', 'DevOps', 'Cloud',
     'Machine Learning', 'Power BI', 'Testing', 'Github'
   ];
@@ -136,219 +139,257 @@ const CoursesPage = () => {
     }
   ];
 
-  const courses = [
-    {
-      title: 'PYTHON',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
-      level: 'Beginner',
-      duration: '6 months',
-      modules: '56',
-      gradient: 'linear-gradient(to bottom, #FFE608, #585900)',
-      category: 'Python',
-      rating: '4.8',
-      students: '25.4K'
-    },
-    {
-      title: 'JAVA',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
-      level: 'Intermediate',
-      duration: '8 months',
-      modules: '64',
-      gradient: 'linear-gradient(to bottom, #FF6B35, #8B2500)',
-      category: 'Java',
-      rating: '4.7',
-      students: '22.8K'
-    },
-    {
-      title: 'REACT JS',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-      level: 'Intermediate',
-      duration: '5 months',
-      modules: '48',
-      gradient: 'linear-gradient(to bottom, #61DAFB, #20232A)',
-      category: 'Frontend',
-      rating: '4.9',
-      students: '31.2K'
-    },
-    {
-      title: 'DATA SCIENCE',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/core_data_anl.png?updatedAt=1762693566687',
-      level: 'Advanced',
-      duration: '10 months',
-      modules: '72',
-      gradient: 'linear-gradient(to bottom, #4A90E2, #1A3A5C)',
-      category: 'Data Science',
-      rating: '4.8',
-      students: '28.9K'
-    },
-    {
-      title: 'MACHINE LEARNING',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
-      level: 'Advanced',
-      duration: '12 months',
-      modules: '80',
-      gradient: 'linear-gradient(to bottom, #9B59B6, #512E5F)',
-      category: 'Machine Learning',
-      rating: '4.9',
-      students: '26.7K'
-    },
-    {
-      title: 'NODE JS',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-      level: 'Intermediate',
-      duration: '6 months',
-      modules: '52',
-      gradient: 'linear-gradient(to bottom, #68A063, #2D5016)',
-      category: 'Backend',
-      rating: '4.7',
-      students: '24.3K'
-    },
-    {
-      title: 'ANGULAR',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-      level: 'Intermediate',
-      duration: '5 months',
-      modules: '46',
-      gradient: 'linear-gradient(to bottom, #DD0031, #5A0013)',
-      category: 'Frontend',
-      rating: '4.6',
-      students: '19.5K'
-    },
-    {
-      title: 'CYBER SECURITY',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cyber_sec.jpeg?updatedAt=1762710244604',
-      level: 'Advanced',
-      duration: '9 months',
-      modules: '68',
-      gradient: 'linear-gradient(to bottom, #E74C3C, #7B241C)',
-      category: 'Cyber Security',
-      rating: '4.8',
-      students: '21.6K'
-    },
-    {
-      title: 'Generative AI Mastery',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
-      level: 'Advanced',
-      duration: '8 months',
-      modules: '75',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      rating: '4.9',
-      students: '12.5K',
-      category: 'Gen AI',
-      trending: true
-    },
-    {
-      title: 'Full Stack Web3 Development',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
-      level: 'Intermediate',
-      duration: '10 months',
-      modules: '88',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      rating: '4.8',
-      students: '10.2K',
-      category: 'Frontend',
-      trending: true
-    },
-    {
-      title: 'Advanced Python for AI',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
-      level: 'Advanced',
-      duration: '9 months',
-      modules: '82',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      rating: '4.9',
-      students: '15.8K',
-      category: 'Python',
-      trending: true
-    },
-    {
-      title: 'Cloud Native DevOps',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
-      level: 'Expert',
-      duration: '11 months',
-      modules: '92',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-      rating: '4.7',
-      students: '8.9K',
-      category: 'DevOps',
-      trending: true
-    },
-    {
-      title: 'Data Engineering Pro',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/data-anl.png?updatedAt=1762691790858',
-      level: 'Advanced',
-      duration: '10 months',
-      modules: '86',
-      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-      rating: '4.8',
-      students: '11.3K',
-      category: 'Data Engineer',
-      trending: true
-    },
-    {
-      title: 'React Native Mobile Dev',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/rctnv.jpg?updatedAt=1762740153377',
-      level: 'Intermediate',
-      duration: '7 months',
-      modules: '68',
-      gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-      rating: '4.6',
-      students: '9.7K',
-      category: 'Frontend',
-      trending: true
-    },
-    {
-      title: 'Blockchain Development',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/algorithm.png?updatedAt=1762699425701',
-      level: 'Advanced',
-      duration: '9 months',
-      modules: '78',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-      rating: '4.8',
-      students: '7.5K',
-      category: 'Backend',
-      trending: true
-    },
-    {
-      title: 'Kubernetes Expert',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/image%2031.png?updatedAt=1762699746797',
-      level: 'Expert',
-      duration: '8 months',
-      modules: '72',
-      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-      rating: '4.9',
-      students: '6.8K',
-      category: 'Cloud',
-      trending: true
-    },
-    {
-      title: 'Ethical Hacking Pro',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ethical-hacking.jpg?updatedAt=1762740952244',
-      level: 'Advanced',
-      duration: '10 months',
-      modules: '84',
-      gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-      rating: '4.7',
-      students: '13.2K',
-      category: 'Cyber Security',
-      trending: true
-    },
-    {
-      title: 'AWS Solutions Architect',
-      image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
-      level: 'Expert',
-      duration: '9 months',
-      modules: '80',
-      gradient: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)',
-      rating: '4.8',
-      students: '14.6K',
-      category: 'Cloud',
-      trending: true
-    }
-  ];
+  // const courses = [
+  //   {
+  //     title: 'PYTHON',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
+  //     level: 'Beginner',
+  //     duration: '6 months',
+  //     modules: '56',
+  //     gradient: 'linear-gradient(to bottom, #FFE608, #585900)',
+  //     category: 'Python',
+  //     rating: '4.8',
+  //     students: '25.4K'
+  //   },
+  //   {
+  //     title: 'JAVA',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/java.png?updatedAt=1762691815444',
+  //     level: 'Intermediate',
+  //     duration: '8 months',
+  //     modules: '64',
+  //     gradient: 'linear-gradient(to bottom, #FF6B35, #8B2500)',
+  //     category: 'Java',
+  //     rating: '4.7',
+  //     students: '22.8K'
+  //   },
+  //   {
+  //     title: 'REACT JS',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+  //     level: 'Intermediate',
+  //     duration: '5 months',
+  //     modules: '48',
+  //     gradient: 'linear-gradient(to bottom, #61DAFB, #20232A)',
+  //     category: 'Frontend',
+  //     rating: '4.9',
+  //     students: '31.2K'
+  //   },
+  //   {
+  //     title: 'DATA SCIENCE',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/core_data_anl.png?updatedAt=1762693566687',
+  //     level: 'Advanced',
+  //     duration: '10 months',
+  //     modules: '72',
+  //     gradient: 'linear-gradient(to bottom, #4A90E2, #1A3A5C)',
+  //     category: 'Data Science',
+  //     rating: '4.8',
+  //     students: '28.9K'
+  //   },
+  //   {
+  //     title: 'MACHINE LEARNING',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
+  //     level: 'Advanced',
+  //     duration: '12 months',
+  //     modules: '80',
+  //     gradient: 'linear-gradient(to bottom, #9B59B6, #512E5F)',
+  //     category: 'Machine Learning',
+  //     rating: '4.9',
+  //     students: '26.7K'
+  //   },
+  //   {
+  //     title: 'NODE JS',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+  //     level: 'Intermediate',
+  //     duration: '6 months',
+  //     modules: '52',
+  //     gradient: 'linear-gradient(to bottom, #68A063, #2D5016)',
+  //     category: 'Backend',
+  //     rating: '4.7',
+  //     students: '24.3K'
+  //   },
+  //   {
+  //     title: 'ANGULAR',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+  //     level: 'Intermediate',
+  //     duration: '5 months',
+  //     modules: '46',
+  //     gradient: 'linear-gradient(to bottom, #DD0031, #5A0013)',
+  //     category: 'Frontend',
+  //     rating: '4.6',
+  //     students: '19.5K'
+  //   },
+  //   {
+  //     title: 'CYBER SECURITY',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cyber_sec.jpeg?updatedAt=1762710244604',
+  //     level: 'Advanced',
+  //     duration: '9 months',
+  //     modules: '68',
+  //     gradient: 'linear-gradient(to bottom, #E74C3C, #7B241C)',
+  //     category: 'Cyber Security',
+  //     rating: '4.8',
+  //     students: '21.6K'
+  //   },
+  //   {
+  //     title: 'Generative AI Mastery',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ai_tools.png?updatedAt=1762691802536',
+  //     level: 'Advanced',
+  //     duration: '8 months',
+  //     modules: '75',
+  //     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  //     rating: '4.9',
+  //     students: '12.5K',
+  //     category: 'Gen AI',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Full Stack Web3 Development',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/web_dev.png?updatedAt=1762690852879',
+  //     level: 'Intermediate',
+  //     duration: '10 months',
+  //     modules: '88',
+  //     gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  //     rating: '4.8',
+  //     students: '10.2K',
+  //     category: 'Frontend',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Advanced Python for AI',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/python.png?updatedAt=1762691811249',
+  //     level: 'Advanced',
+  //     duration: '9 months',
+  //     modules: '82',
+  //     gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  //     rating: '4.9',
+  //     students: '15.8K',
+  //     category: 'Python',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Cloud Native DevOps',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
+  //     level: 'Expert',
+  //     duration: '11 months',
+  //     modules: '92',
+  //     gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  //     rating: '4.7',
+  //     students: '8.9K',
+  //     category: 'DevOps',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Data Engineering Pro',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/data-anl.png?updatedAt=1762691790858',
+  //     level: 'Advanced',
+  //     duration: '10 months',
+  //     modules: '86',
+  //     gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  //     rating: '4.8',
+  //     students: '11.3K',
+  //     category: 'Data Engineer',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'React Native Mobile Dev',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/rctnv.jpg?updatedAt=1762740153377',
+  //     level: 'Intermediate',
+  //     duration: '7 months',
+  //     modules: '68',
+  //     gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+  //     rating: '4.6',
+  //     students: '9.7K',
+  //     category: 'Frontend',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Blockchain Development',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/algorithm.png?updatedAt=1762699425701',
+  //     level: 'Advanced',
+  //     duration: '9 months',
+  //     modules: '78',
+  //     gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+  //     rating: '4.8',
+  //     students: '7.5K',
+  //     category: 'Backend',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Kubernetes Expert',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/image%2031.png?updatedAt=1762699746797',
+  //     level: 'Expert',
+  //     duration: '8 months',
+  //     modules: '72',
+  //     gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+  //     rating: '4.9',
+  //     students: '6.8K',
+  //     category: 'Cloud',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'Ethical Hacking Pro',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/ethical-hacking.jpg?updatedAt=1762740952244',
+  //     level: 'Advanced',
+  //     duration: '10 months',
+  //     modules: '84',
+  //     gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+  //     rating: '4.7',
+  //     students: '13.2K',
+  //     category: 'Cyber Security',
+  //     trending: true
+  //   },
+  //   {
+  //     title: 'AWS Solutions Architect',
+  //     image: 'https://ik.imagekit.io/jfg6wtvbq/Algonex/cloud.png?updatedAt=1762693563511',
+  //     level: 'Expert',
+  //     duration: '9 months',
+  //     modules: '80',
+  //     gradient: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)',
+  //     rating: '4.8',
+  //     students: '14.6K',
+  //     category: 'Cloud',
+  //     trending: true
+  //   }
+  // ];
+
+
 
   // Combined courses array
+  // useEffect(() => {
+  //   const fetchCourses = async () => {
+  //     try {
+  //       const response = await fetch("http://127.0.0.1:8000/api/courses");
+  //       const data = await response.json();
+  //       setCourses(data.data);
+  //     } catch (error) {
+  //       console.error("Error fetching courses:", error);
+  //     }
+  //   };
+  //   fetchCourses();
+  // },[]);
+  // const allCourses = [...courses];
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/courses");
+        const result = await response.json();
+
+        const updatedCourses = result.data.map(course => ({
+          ...course,
+          path: `/explore-course/${course.category.toLowerCase().replace(/ /g, '-')}`
+        }));
+
+        setCourses(updatedCourses);
+
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
   const allCourses = [...courses];
+
 
   // Auto-scroll for trending section
   useEffect(() => {
@@ -379,8 +420,8 @@ const CoursesPage = () => {
       if (selectedCategory === 'Trending') {
         filtered = filtered.filter(course => course.trending === true);
       } else {
-        filtered = filtered.filter(course => 
-          course.category === selectedCategory || 
+        filtered = filtered.filter(course =>
+          course.category === selectedCategory ||
           course.title.toLowerCase().includes(selectedCategory.toLowerCase())
         );
       }
@@ -394,7 +435,7 @@ const CoursesPage = () => {
         const categoryMatch = course.category?.toLowerCase().includes(query);
         const levelMatch = course.level.toLowerCase().includes(query);
         const tagsMatch = course.tags?.some(tag => tag.toLowerCase().includes(query));
-        
+
         return titleMatch || categoryMatch || levelMatch || tagsMatch;
       });
     }
@@ -459,11 +500,10 @@ const CoursesPage = () => {
               <button
                 key={index}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 border-2 rounded-full transition-all duration-300 font-semibold ${
-                  selectedCategory === category
+                className={`px-6 py-3 border-2 rounded-full transition-all duration-300 font-semibold ${selectedCategory === category
                     ? 'bg-[#00B4D8] text-white border-[#00B4D8] shadow-lg scale-105'
                     : 'bg-white text-gray-700 border-gray-300 hover:border-[#00B4D8] hover:text-[#00B4D8]'
-                }`}
+                  }`}
               >
                 {category}
               </button>
@@ -508,14 +548,14 @@ const CoursesPage = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     <h2 className="text-2xl font-bold text-white mb-3 drop-shadow-lg">{course.title}</h2>
 
                     {course.students && (
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-white/90 text-sm flex items-center gap-1">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                           </svg>
                           {course.students}
                         </span>
@@ -533,10 +573,11 @@ const CoursesPage = () => {
                         {course.modules} Modules
                       </span>
                     </div>
-
-                    <button className="w-full px-6 py-3 bg-white text-gray-800 font-bold rounded-xl hover:bg-gray-100 transition shadow-md hover:shadow-lg transform hover:scale-105">
-                      Explore Course
-                    </button>
+                    <Link to={course.path}>
+                      <button className="w-full px-6 py-3 bg-white text-gray-800 font-bold rounded-xl hover:bg-gray-100 transition shadow-md hover:shadow-lg transform hover:scale-105">
+                        Explore Course
+                      </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -579,13 +620,13 @@ const CoursesPage = () => {
               <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm p-5 rounded-2xl shadow-2xl">
                 <div className="flex justify-between items-start mb-4">
                   <h2 className="text-2xl font-bold text-gray-800">{accelerator.title}</h2>
-                  <svg 
-                    className="text-[#66E5FF] cursor-pointer hover:text-[#4dcff0] transition" 
-                    width="28" 
-                    height="28" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
+                  <svg
+                    className="text-[#66E5FF] cursor-pointer hover:text-[#4dcff0] transition"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
                   >
                     <path d="M7 7h10v10M7 17L17 7" />
@@ -659,9 +700,9 @@ const CoursesPage = () => {
             <h2 className="text-5xl font-bold text-white mb-3">Trending Courses</h2>
             <p className="text-xl text-white/90">Most popular courses chosen by professionals worldwide</p>
           </div>
-          
+
           <div className="relative overflow-hidden py-6">
-            <div 
+            <div
               ref={scrollRef}
               className="flex gap-8 overflow-x-hidden"
               style={{ scrollBehavior: 'smooth' }}
@@ -689,13 +730,13 @@ const CoursesPage = () => {
                         Trending
                       </div>
                     </div>
-                    
+
                     <h2 className="text-2xl font-bold text-white mb-3 drop-shadow-lg">{course.title}</h2>
-                    
+
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-white/90 text-sm flex items-center gap-1">
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                         </svg>
                         {course.students} Students
                       </span>
@@ -724,7 +765,7 @@ const CoursesPage = () => {
         </div>
       </div>
 
-      
+
     </div>
   );
 };
