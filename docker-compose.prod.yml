@@ -6,6 +6,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
     volumes:
+      - ./algonex-backend:/app
       - media_data:/app/media
       - static_data:/app/staticfiles
     expose:
