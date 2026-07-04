@@ -24,13 +24,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from common.models import Gallery
 
-        # If gallery already has data, skip
-        if Gallery.objects.exists():
-            self.stdout.write(self.style.SUCCESS(
-                f"Gallery already has {Gallery.objects.count()} images. Skipping seed."
-            ))
-            return
-
         seed_dir = os.path.join(settings.BASE_DIR, "fixtures", "gallery_seed")
         media_uploads = os.path.join(settings.MEDIA_ROOT, "uploads")
 
@@ -54,12 +47,16 @@ class Command(BaseCommand):
             if not os.path.exists(dst):
                 shutil.copy2(src, dst)
 
-            # Create database record
-            Gallery.objects.create(
-                title=item["title"],
-                image=f"uploads/{item['file']}",
+            # Check if this image already exists in database using get_or_create
+            db_path = f"uploads/{item['file']}"
+            gallery_item, created = Gallery.objects.get_or_create(
+                image=db_path,
+                defaults={"title": item["title"]}
             )
-            count += 1
-            self.stdout.write(f"  ✓ Added: {item['title']} ({item['file']})")
+            if created:
+                count += 1
+                self.stdout.write(f"  ✓ Added: {item['title']} ({item['file']})")
+            else:
+                self.stdout.write(f"  - Already exists: {item['title']} ({item['file']})")
 
-        self.stdout.write(self.style.SUCCESS(f"\nSeeded {count} gallery images."))
+        self.stdout.write(self.style.SUCCESS(f"\nSeeded {count} new gallery images."))
