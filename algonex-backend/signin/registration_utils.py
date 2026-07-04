@@ -11,12 +11,28 @@ logger = logging.getLogger(__name__)
 # Paths
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "logo.png")
 
-def generate_student_id() -> str:
-    """Generates a unique student ID in format ALG + YYYYMMDD + 4 random digits"""
+def generate_student_id(course: str = None, batch_type: str = None) -> str:
+    """Generates a unique student ID in format:
+    [Course Initial] + [YYMM] + [Batch Initial] + [4 random digits]
+    e.g., P2607I1234 for Python course in July 2026, Internship batch.
+    """
+    if course:
+        course_clean = course.strip()
+        course_prefix = course_clean[0].upper() if course_clean else "P"
+    else:
+        course_prefix = "P"
+
     now = datetime.now()
-    date_str = now.strftime("%Y%m%d")
+    date_str = now.strftime("%y%m")
+
+    if batch_type:
+        batch_clean = batch_type.strip()
+        batch_prefix = batch_clean[0].upper() if batch_clean else "I"
+    else:
+        batch_prefix = "I"
+
     rand_digits = "".join(str(random.randint(0, 9)) for _ in range(4))
-    return f"ALG{date_str}{rand_digits}"
+    return f"{course_prefix}{date_str}{batch_prefix}{rand_digits}"
 
 def get_system_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
     """Tries to load a clean system font (Segoe UI or Arial), falling back to default PIL font"""

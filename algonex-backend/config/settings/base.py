@@ -231,7 +231,8 @@ UNFOLD = {
                     {"title": "Jobs", "link": "/admin/careers/job/", "icon": "business_center"},
                     {"title": "Applications", "link": "/admin/careers/application/", "icon": "description"},
                     {"title": "Case Studies", "link": "/admin/portfolio/casestudy/", "icon": "cases"},
-                    {"title": "Media", "link": "/admin/common/media/", "icon": "photo_library"},
+                    {"title": "Media", "link": "/admin/common/media/", "icon": "perm_media"},
+                    {"title": "Gallery", "link": "/admin/common/gallery/", "icon": "photo_library"},
                 ],
             },
             {

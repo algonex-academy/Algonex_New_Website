@@ -73,3 +73,17 @@ class SiteConfig(models.Model):
     def load(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+
+class Gallery(models.Model):
+    title = models.CharField(max_length=255, blank=True, help_text="Optional title for the image")
+    image = models.ImageField(upload_to="uploads/", help_text="Upload the image file here")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Gallery"
+        verbose_name_plural = "Gallery"
+        ordering = ["-uploaded_at"]
+
+    def __str__(self):
+        return self.title or f"Gallery Image #{self.pk} ({self.image.name})"

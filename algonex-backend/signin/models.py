@@ -81,6 +81,12 @@ class StudentRegistration(models.Model):
     def phone(self):
         return self.user.phone
 
+    def save(self, *args, **kwargs):
+        if not self.student_id:
+            from .registration_utils import generate_student_id
+            self.student_id = generate_student_id(self.course_selected, self.batch_type)
+        super().save(*args, **kwargs)
+
 
 class Payment(TimestampMixin, models.Model):
     PAYMENT_STATUS = [

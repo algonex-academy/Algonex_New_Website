@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin
-from .models import Media, SiteConfig
+from .models import Media, SiteConfig, Gallery
 
 
 class MediaInline(GenericTabularInline):
@@ -60,3 +60,17 @@ class SiteConfigAdmin(ImportExportModelAdmin, ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Gallery)
+class GalleryAdmin(ImportExportModelAdmin, ModelAdmin):
+    list_display = ["image_preview", "title", "image", "uploaded_at"]
+    list_filter = ["uploaded_at"]
+    search_fields = ["title", "image"]
+    readonly_fields = ["image_preview"]
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height:80px; border-radius:4px;" />', obj.image.url)
+        return "-"
+    image_preview.short_description = "Preview"

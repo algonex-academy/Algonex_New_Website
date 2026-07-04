@@ -248,21 +248,21 @@ class GalleryImageListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        from .models import SiteConfig
-        config = SiteConfig.load()
-        images = config.gallery_images or []
-
-        if request.query_params.get("featured") == "true":
-            images = [img for img in images if img.get("is_featured", False)]
-
-        images = [img for img in images if img.get("is_active", True)]
-
-        try:
-            images = sorted(images, key=lambda x: x.get("order", 0))
-        except Exception:
-            pass
-
-        return Response({"status": "success", "data": images})
+        from .models import Gallery
+        queryset = Gallery.objects.all().order_by("-uploaded_at")
+        
+        data = []
+        for item in queryset:
+            if item.image:
+                image_url = request.build_absolute_uri(item.image.url) if request else item.image.url
+                data.append({
+                    "id": item.id,
+                    "title": item.title or "",
+                    "image": image_url,
+                    "uploaded_at": item.uploaded_at
+                })
+        
+        return Response({"status": "success", "data": data})
 
 
 from django.contrib.admin.views.decorators import staff_member_required

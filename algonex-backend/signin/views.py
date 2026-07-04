@@ -99,7 +99,7 @@ class StudentRegisterView(APIView):
 
             # Generate student ID if not provided
             if not student_id:
-                student_id = generate_student_id()
+                student_id = generate_student_id(course_selected, batch_type)
 
             # Convert fees to Decimal
             try:

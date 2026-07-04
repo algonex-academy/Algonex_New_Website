@@ -28,6 +28,8 @@ import ProjectsSection from "../home/ProjectsSection";
 import ReviewsSection from "../home/ReviewsSection";
 import GallerySection from "../home/GallerySection";
 import FAQSection from "../home/FAQSection";
+import CircularGallery from "../home/CircularGallery";
+import { commonAPI } from "../../api/common";
 
 const stats = [
   { value: "5,000+", label: "Students Trained" },
@@ -67,6 +69,33 @@ const features = [
     title: "Growing Community",
     desc: "Join 5,000+ trained professionals working at top companies across India.",
   },
+];
+
+const GALLERY_ITEMS = [
+  {
+    image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&auto=format&fit=crop",
+    text: "Python Full Stack"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800&auto=format&fit=crop",
+    text: "MERN Stack"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop",
+    text: "Data Analytics"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1618401471353-b98aedd07871?w=800&auto=format&fit=crop",
+    text: "DevOps & Cloud"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1527474305487-b87b222841cc?w=800&auto=format&fit=crop",
+    text: "Machine Learning"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop",
+    text: "Career Mentorship"
+  }
 ];
 
 // Static fallback data for each slide type
@@ -561,7 +590,15 @@ export default function Home() {
     program: FALLBACK_PROGRAM,
   });
 
+  const [galleryImages, setGalleryImages] = useState([]);
+
   useEffect(() => {
+    commonAPI.getGallery()
+      .then((res) => {
+        const results = res.data?.data || res.data || [];
+        setGalleryImages(results);
+      })
+      .catch(() => {});
     // Fetch top items for each slide — fire all in parallel, fall back silently
     coursesAPI.list()
       .then((res) => {
@@ -635,6 +672,36 @@ export default function Home() {
               </Col>
             ))}
           </Row>
+        </div>
+      </section>
+
+      {/* Explore Learning Paths (WebGL Circular Gallery) */}
+      <section style={{ background: "#0f172a", padding: "48px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center", marginBottom: 32 }}>
+          <Tag color="cyan" style={{ marginBottom: 12, padding: "2px 12px", borderRadius: 16, textTransform: "uppercase", fontSize: 12, fontWeight: 600 }}>
+            Interactive Showcase
+          </Tag>
+          <h2 style={{ fontSize: 32, fontWeight: 700, color: "#ffffff", marginBottom: 8 }}>
+            Explore Our Learning Paths
+          </h2>
+          <p style={{ color: "#94a3b8", fontSize: 16 }}>
+            Drag left/right or scroll to navigate through our top career-building paths
+          </p>
+        </div>
+        <div style={{ height: "380px", position: "relative", width: "100%" }}>
+          <CircularGallery
+            items={
+              galleryImages.length > 0
+                ? galleryImages.map((img) => ({ image: img.image, text: img.title || "Gallery Image" }))
+                : GALLERY_ITEMS
+            }
+            bend={3}
+            textColor="#00B4D8"
+            borderRadius={0.05}
+            scrollEase={0.02}
+            fontUrl="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+            font="bold 24px Orbitron"
+          />
         </div>
       </section>
 
