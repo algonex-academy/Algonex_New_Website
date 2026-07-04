@@ -682,10 +682,10 @@ export default function Home() {
             Interactive Showcase
           </Tag>
           <h2 style={{ fontSize: 32, fontWeight: 700, color: "#ffffff", marginBottom: 8 }}>
-            Explore Our Learning Paths
+            Explore Our Gallery
           </h2>
           <p style={{ color: "#94a3b8", fontSize: 16 }}>
-            Drag left/right or scroll to navigate through our top career-building paths
+            Drag left/right or scroll to browse through our campus events and highlights
           </p>
         </div>
         <div style={{ height: "380px", position: "relative", width: "100%" }}>
