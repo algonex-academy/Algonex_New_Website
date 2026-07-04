@@ -12,6 +12,7 @@ node_modules/
 dist/
 staticfiles/
 media/
+!algonex-backend/fixtures/
 
 # Playwright
 test-results/
