@@ -74,43 +74,36 @@ const ProjectsSection = () => {
                                     transition={{ delay: index * 0.1 }}
                                     whileHover={{ y: -10 }}
                                 >
-                                    <Link to={`/alumni/projects/${project.slug}`}>
                                     <Card
                                         hoverable
                                         className="h-full rounded-2xl overflow-hidden border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500"
                                         cover={
-                                            <div className="relative h-48 overflow-hidden group">
-                                                <img 
-                                                    alt={project.title} 
-                                                    src={getImageUrl(project.thumbnail)} 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60" />
-                                                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                                                    <div className="flex gap-2" onClick={(e) => e.preventDefault()}>
-                                                        {project.github_url && (
-                                                            <Button shape="circle" icon={<GithubOutlined />} href={project.github_url} target="_blank" className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white hover:text-slate-900" />
-                                                        )}
-                                                        {project.demo_url && (
-                                                            <Button shape="circle" icon={<LinkOutlined />} href={project.demo_url} target="_blank" className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white hover:text-slate-900" />
-                                                        )}
-                                                    </div>
+                                            <Link to={`/alumni/projects/${project.slug}`}>
+                                                <div className="relative h-48 overflow-hidden group">
+                                                    <img 
+                                                        alt={project.title} 
+                                                        src={getImageUrl(project.thumbnail)} 
+                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60" />
                                                 </div>
-                                            </div>
+                                            </Link>
                                         }
                                     >
                                         <div className="mb-4">
                                             <div className="text-xs font-semibold text-[#00B4D8] uppercase tracking-widest mb-1">
                                                 By {project.student_name}
                                             </div>
-                                            <h3 className="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-[#00B4D8] transition-colors">
-                                                {project.title}
-                                            </h3>
+                                            <Link to={`/alumni/projects/${project.slug}`} className="hover:text-[#00B4D8] transition-colors">
+                                                <h3 className="text-xl font-bold text-slate-800 line-clamp-1">
+                                                    {project.title}
+                                                </h3>
+                                            </Link>
                                         </div>
                                         <p className="text-slate-500 text-sm line-clamp-2 mb-4 leading-relaxed">
                                             {project.description}
                                         </p>
-                                        <div className="flex flex-wrap gap-2 mt-auto">
+                                        <div className="flex flex-wrap gap-2 mb-4">
                                             {project.tech_tags?.slice(0, 3).map(tag => (
                                                 <Tag key={tag.id} className="m-0 border-none bg-slate-50 text-slate-600 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">
                                                     {tag.name}
@@ -120,8 +113,29 @@ const ProjectsSection = () => {
                                                 <span className="text-[10px] text-slate-400 font-bold">+{project.tech_tags.length - 3}</span>
                                             )}
                                         </div>
+                                        {/* Always-visible button bar */}
+                                        <div className="flex gap-2 pt-3 border-t border-slate-100">
+                                            {project.github_url && (
+                                                <a href={project.github_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                                    <Button size="small" icon={<GithubOutlined />} className="rounded-lg text-xs font-semibold">
+                                                        GitHub
+                                                    </Button>
+                                                </a>
+                                            )}
+                                            {project.demo_url && (
+                                                <a href={project.demo_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                                    <Button size="small" type="primary" icon={<LinkOutlined />} className="rounded-lg text-xs font-semibold">
+                                                        Live Demo
+                                                    </Button>
+                                                </a>
+                                            )}
+                                            <Link to={`/alumni/projects/${project.slug}`} className="ml-auto">
+                                                <Button size="small" type="link" className="text-xs font-semibold p-0">
+                                                    Details <ArrowRightOutlined />
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     </Card>
-                                    </Link>
                                 </motion.div>
                             </Col>
                         ))}

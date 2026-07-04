@@ -57,7 +57,7 @@ export default function Footer() {
                   ALGONEX
                 </span>
                 <span style={{
-                  fontSize: 13,
+                  fontSize: 19,
                   fontWeight: 600,
                   color: 'rgba(255,255,255,0.7)',
                   letterSpacing: '0.3px',

@@ -301,7 +301,7 @@ function StackedImageGallery({ images = [], primaryImage, alt = "", onHoverStart
 function MainHeroSlide() {
   return (
     <div>
-      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.82) 0%, rgba(10, 37, 64, 0.82) 50%, rgba(14, 58, 94, 0.82) 100%), url(${heroBg1}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
+      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.55) 0%, rgba(10, 37, 64, 0.55) 50%, rgba(14, 58, 94, 0.55) 100%), url(${heroBg1}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
         <div style={slideGlow} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, width: "100%" }}>
           <Row gutter={[48, 48]} align="middle">
@@ -373,7 +373,7 @@ function CourseSlide({ course, onHoverStart, onHoverEnd }) {
   const c = course || FALLBACK_COURSE;
   return (
     <div>
-      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.82) 0%, rgba(10, 37, 64, 0.82) 50%, rgba(14, 58, 94, 0.82) 100%), url(${heroBg2}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
+      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.55) 0%, rgba(10, 37, 64, 0.55) 50%, rgba(14, 58, 94, 0.55) 100%), url(${heroBg2}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
         <div style={slideGlow} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, width: "100%" }}>
           <Row gutter={[48, 32]} align="middle">
@@ -436,9 +436,9 @@ function EventSlide({ event, onHoverStart, onHoverEnd }) {
   const spotsLeft = e.spots_left ?? (e.capacity - (e.registered || 0));
   return (
     <div>
-      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.55) 0%, rgba(10, 37, 64, 0.55) 50%, rgba(14, 58, 94, 0.55) 100%), url(${heroBg3}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
         <div style={slideGlow} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, width: "100%" }}>
           <Row gutter={[48, 32]} align="middle">
             <Col xs={24} lg={14}>
               <Tag color="magenta" style={{ marginBottom: 16, fontSize: 13 }}>
@@ -499,9 +499,9 @@ function ProgramSlide({ program, onHoverStart, onHoverEnd }) {
   const deadline = p.application_deadline ? new Date(p.application_deadline) : null;
   return (
     <div>
-      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.55) 0%, rgba(10, 37, 64, 0.55) 50%, rgba(14, 58, 94, 0.55) 100%), url(${heroBg4}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
         <div style={slideGlow} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, width: "100%" }}>
           <Row gutter={[48, 32]} align="middle">
             <Col xs={24} lg={14}>
               <Tag color="purple" style={{ marginBottom: 16, fontSize: 13, textTransform: "capitalize" }}>
