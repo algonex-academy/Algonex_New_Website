@@ -30,6 +30,10 @@ import GallerySection from "../home/GallerySection";
 import FAQSection from "../home/FAQSection";
 import CircularGallery from "../home/CircularGallery";
 import { commonAPI } from "../../api/common";
+import heroBg1 from "../../Public/hero section_1.jpeg";
+import heroBg2 from "../../Public/hero secttion-2.png";
+import heroBg3 from "../../Public/hero section_3.png";
+import heroBg4 from "../../Public/hero section_4.png";
 
 const stats = [
   { value: "5,000+", label: "Students Trained" },
@@ -132,6 +136,16 @@ const FALLBACK_PROGRAM = {
 
 // Shared slide background
 const SLIDE_BG = "linear-gradient(135deg, #0c1222 0%, #0a2540 50%, #0e3a5e 100%)";
+
+const HERO_SECTION_STYLE = {
+  minHeight: "560px",
+  display: "flex",
+  alignItems: "center",
+  boxSizing: "border-box",
+  position: "relative",
+  overflow: "hidden",
+  width: "100%",
+};
 
 const slideGlow = {
   position: "absolute",
@@ -287,9 +301,9 @@ function StackedImageGallery({ images = [], primaryImage, alt = "", onHoverStart
 function MainHeroSlide() {
   return (
     <div>
-      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.82) 0%, rgba(10, 37, 64, 0.82) 50%, rgba(14, 58, 94, 0.82) 100%), url(${heroBg1}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
         <div style={slideGlow} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, width: "100%" }}>
           <Row gutter={[48, 48]} align="middle">
             <Col xs={24} lg={14}>
               <div
@@ -359,9 +373,9 @@ function CourseSlide({ course, onHoverStart, onHoverEnd }) {
   const c = course || FALLBACK_COURSE;
   return (
     <div>
-      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+      <section style={{ ...HERO_SECTION_STYLE, background: `linear-gradient(135deg, rgba(12, 18, 34, 0.82) 0%, rgba(10, 37, 64, 0.82) 50%, rgba(14, 58, 94, 0.82) 100%), url(${heroBg2}) center/cover no-repeat`, padding: "clamp(32px, 5vw, 64px) 24px" }}>
         <div style={slideGlow} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, width: "100%" }}>
           <Row gutter={[48, 32]} align="middle">
             <Col xs={24} lg={14}>
               <Tag color="cyan" style={{ marginBottom: 16, fontSize: 13 }}>
