@@ -80,6 +80,7 @@ def migrate_data_phase4(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('courses', '0007_tag_delete_skill_certificate_course_and_more'),
