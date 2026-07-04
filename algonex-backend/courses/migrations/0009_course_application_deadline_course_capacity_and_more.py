@@ -86,6 +86,7 @@ def migrate_programs_and_curriculum(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('courses', '0008_alter_coursereview_unique_together_and_more'),
