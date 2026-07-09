@@ -81,9 +81,6 @@ export default function LoginPage() {
           >
             Continue with Google
           </Button>
-          <div style={{ fontSize: 12, color: "#888", textAlign: "center", marginTop: 4 }}>
-            Note: Google Auth requires configuring VITE_GOOGLE_CLIENT_ID in your .env file.
-          </div>
         </div>
 
         <div style={{ textAlign: "center", marginTop: 16 }}>

@@ -712,7 +712,8 @@ export default function Home() {
             bend={3}
             textColor="#00B4D8"
             borderRadius={0.05}
-            scrollEase={0.02}
+            scrollEase={0.07}
+            scrollSpeed={3}
             fontUrl="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
             font="bold 24px Orbitron"
           />

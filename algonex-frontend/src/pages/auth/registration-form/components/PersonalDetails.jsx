@@ -85,6 +85,19 @@ const PersonalDetails = ({
         />
 
         <FormField
+          id="parentPhone"
+          name="parentPhone"
+          label="Parent/Guardian Contact"
+          type="tel"
+          icon="fa-solid fa-users"
+          value={formData.parentPhone}
+          onChange={onChange}
+          error={errors.parentPhone}
+          required
+          placeholder="e.g. 9876543210"
+        />
+
+        <FormField
           id="dob"
           name="dob"
           label="Date of Birth"

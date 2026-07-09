@@ -42,6 +42,16 @@ export function validateAllFields(formData, photo) {
     }
   }
 
+  // Parent/Guardian Phone
+  if (!formData.parentPhone || !formData.parentPhone.trim()) {
+    errors.parentPhone = 'Parent/Guardian Contact is required.';
+  } else {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(formData.parentPhone.trim().replace(/\s+/g, ''))) {
+      errors.parentPhone = 'Please enter a valid 10-digit mobile number.';
+    }
+  }
+
   // Date of Birth
   if (!formData.dob) {
     errors.dob = 'Date of Birth is required.';
@@ -117,6 +127,11 @@ export function validateAllFields(formData, photo) {
     errors.paidFee = 'Paid Fee cannot exceed Total Course Fee.';
   }
 
+  // Agree Terms
+  if (!formData.agreeTerms) {
+    errors.agreeTerms = 'You must agree to the Terms & Conditions.';
+  }
+
   return errors;
 }
 
@@ -138,6 +153,13 @@ export function validateField(name, value) {
     }
     case 'phone': {
       if (!value.trim()) return 'Phone Number is required.';
+      const phoneRegex = /^[6-9]\d{9}$/;
+      return !phoneRegex.test(value.trim().replace(/\s+/g, ''))
+        ? 'Please enter a valid 10-digit mobile number.'
+        : '';
+    }
+    case 'parentPhone': {
+      if (!value || !value.trim()) return 'Parent/Guardian Contact is required.';
       const phoneRegex = /^[6-9]\d{9}$/;
       return !phoneRegex.test(value.trim().replace(/\s+/g, ''))
         ? 'Please enter a valid 10-digit mobile number.'
@@ -181,6 +203,8 @@ export function validateField(name, value) {
       if (!value || isNaN(val) || val <= 0) return 'Paying Amount must be a valid positive number.';
       return '';
     }
+    case 'agreeTerms':
+      return !value ? 'You must agree to the Terms & Conditions.' : '';
     default:
       return '';
   }

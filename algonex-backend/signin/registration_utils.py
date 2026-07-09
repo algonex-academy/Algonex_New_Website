@@ -13,8 +13,8 @@ LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "logo.png")
 
 def generate_student_id(course: str = None, batch_type: str = None) -> str:
     """Generates a unique student ID in format:
-    [Course Initial] + [YYMM] + [Batch Initial] + [4 random digits]
-    e.g., P2607I1234 for Python course in July 2026, Internship batch.
+    [Course Initial] + [YYMM] + [Batch Initial] + [4 sequential digits]
+    e.g., P2607I0001 for Python course in July 2026, Internship batch.
     """
     if course:
         course_clean = course.strip()
@@ -31,8 +31,17 @@ def generate_student_id(course: str = None, batch_type: str = None) -> str:
     else:
         batch_prefix = "I"
 
-    rand_digits = "".join(str(random.randint(0, 9)) for _ in range(4))
-    return f"{course_prefix}{date_str}{batch_prefix}{rand_digits}"
+    prefix = f"{course_prefix}{date_str}{batch_prefix}"
+    
+    from signin.models import StudentRegistration
+    count = StudentRegistration.objects.filter(student_id__startswith=prefix).count()
+    
+    next_num = count + 1
+    while True:
+        candidate = f"{prefix}{next_num:04d}"
+        if not StudentRegistration.objects.filter(student_id=candidate).exists():
+            return candidate
+        next_num += 1
 
 def get_system_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
     """Tries to load a clean system font (Segoe UI or Arial), falling back to default PIL font"""

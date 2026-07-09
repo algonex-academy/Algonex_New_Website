@@ -397,6 +397,8 @@ class App {
     this.container = container;
     this.scrollSpeed = scrollSpeed;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
+    this.lastInteractionTime = Date.now();
+    this.isHovered = false;
     this.onCheckDebounce = debounce(this.onCheck, 200);
     this.createRenderer();
     this.createCamera();
@@ -471,25 +473,30 @@ class App {
   }
   onTouchDown(e) {
     this.isDown = true;
+    this.lastInteractionTime = Date.now();
     this.scroll.position = this.scroll.current;
     this.start = e.touches ? e.touches[0].clientX : e.clientX;
   }
   onTouchMove(e) {
     if (!this.isDown) return;
+    this.lastInteractionTime = Date.now();
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = this.scroll.position + distance;
   }
   onTouchUp() {
     this.isDown = false;
+    this.lastInteractionTime = Date.now();
     this.onCheck();
   }
   onWheel(e) {
+    this.lastInteractionTime = Date.now();
     const delta = e.deltaY || e.wheelDelta || e.detail;
     this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
     this.onCheckDebounce();
   }
   onKeyDown(e) {
+    this.lastInteractionTime = Date.now();
     switch (e.key) {
       case 'ArrowRight':
         e.preventDefault();
@@ -583,6 +590,9 @@ class App {
     }
   }
   update() {
+    if (!this.isDown && !this.isHovered && Date.now() - this.lastInteractionTime > 1500) {
+      this.scroll.target += this.scrollSpeed * 0.025;
+    }
     this.scroll.current = lerp(this.scroll.current, this.scroll.target, this.scroll.ease);
     const direction = this.scroll.current > this.scroll.last ? 'right' : 'left';
     if (this.medias) {
@@ -599,6 +609,9 @@ class App {
     this.boundOnTouchMove = this.onTouchMove.bind(this);
     this.boundOnTouchUp = this.onTouchUp.bind(this);
     this.boundOnKeyDown = this.onKeyDown.bind(this);
+    
+    this.boundOnMouseEnter = () => { this.isHovered = true; };
+    this.boundOnMouseLeave = () => { this.isHovered = false; };
 
     window.addEventListener('resize', this.boundOnResize);
     window.addEventListener('mousewheel', this.boundOnWheel);
@@ -611,6 +624,8 @@ class App {
     window.addEventListener('touchend', this.boundOnTouchUp);
 
     this.container?.addEventListener('keydown', this.boundOnKeyDown);
+    this.container?.addEventListener('mouseenter', this.boundOnMouseEnter);
+    this.container?.addEventListener('mouseleave', this.boundOnMouseLeave);
   }
   destroy() {
     window.cancelAnimationFrame(this.raf);
@@ -629,6 +644,8 @@ class App {
 
     if (this.container) {
       this.container.removeEventListener('keydown', this.boundOnKeyDown);
+      this.container.removeEventListener('mouseenter', this.boundOnMouseEnter);
+      this.container.removeEventListener('mouseleave', this.boundOnMouseLeave);
     }
   }
 }

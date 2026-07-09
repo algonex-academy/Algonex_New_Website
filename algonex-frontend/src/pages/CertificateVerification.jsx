@@ -7,6 +7,7 @@ import algonexLogo from '../Public/algonex_logo.png';
 import ceoSign from '../Public/CEO Sign.png';
 import algonexStamp from '../Public/Algonex Stamp.png';
 import msmeLogo from '../Public/MSME.png';
+import { toPng } from 'html-to-image';
 
 const CertificateVerification = () => {
   let { id } = useParams();
@@ -39,35 +40,24 @@ const CertificateVerification = () => {
     }
   }, [id]);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadImage = async () => {
     const element = certificateRef.current;
     if (!element) return;
 
-    // Dynamically load html2canvas and jsPDF if not already loaded
-    const loadScript = (src) => new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)) {
-        resolve();
-        return;
-      }
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = reject;
-      document.body.appendChild(s);
-    });
-
-    try {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-      
-      // Wait for all fonts to be fully loaded before capturing
-      if (document.fonts) {
-        await document.fonts.ready;
-      }
-    } catch (e) {
-      console.error('Failed to load PDF libraries or fonts:', e);
-      return;
+    // Wait for all fonts to be fully loaded before capturing
+    if (document.fonts) {
+      await document.fonts.ready;
     }
+
+    // Wait for all images in the certificate to be fully loaded
+    const images = Array.from(element.querySelectorAll('img'));
+    await Promise.all(images.map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
 
     // Save and reset scroll position
     const outerContainer = document.querySelector('.cert-container-outer');
@@ -75,33 +65,30 @@ const CertificateVerification = () => {
     if (outerContainer) outerContainer.scrollLeft = 0;
 
     try {
-      // Render the certificate element to a canvas
-      const canvas = await window.html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        logging: false,
+      // Use html-to-image (SVG foreignObject approach) — this uses the browser's
+      // native rendering engine instead of re-painting the DOM like html2canvas.
+      // This gives pixel-perfect output for fonts, SVGs, gradients, and CSS.
+      const dataUrl = await toPng(element, {
         width: 1123,
         height: 794,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 1123
+        pixelRatio: 3,
+        cacheBust: true,
+        skipAutoScale: true,
+        style: {
+          transform: 'none',
+          transformOrigin: 'top left',
+        }
       });
 
-      // Create a single-page landscape PDF that exactly fits the canvas
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new window.jspdf.jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [1123, 794],
-        hotfixes: ['px_scaling']
-      });
-
-      // Place the image to fill the entire page with zero margins
-      pdf.addImage(imgData, 'JPEG', 0, 0, 1123, 794);
-      pdf.save(`Algonex_Certificate_${certificate.certificate_id}.pdf`);
+      // Trigger download
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `Algonex_Certificate_${certificate.certificate_id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (err) {
-      console.error('PDF generation failed:', err);
+      console.error('Certificate image download failed:', err);
     } finally {
       // Restore scroll position
       if (outerContainer) outerContainer.scrollLeft = savedScrollLeft;
@@ -202,7 +189,7 @@ const CertificateVerification = () => {
               type="primary"
               size="large"
               icon={<DownloadOutlined />}
-              onClick={handleDownloadPDF}
+              onClick={handleDownloadImage}
               style={{
                 height: 48,
                 borderRadius: 8,
@@ -211,7 +198,7 @@ const CertificateVerification = () => {
                 boxShadow: '0 4px 10px rgba(22, 119, 255, 0.2)'
               }}
             >
-              Download PDF Certificate
+              Download Certificate Image
             </Button>
           </div>
         </Card>
@@ -516,7 +503,7 @@ const CertificateVerification = () => {
 
               {/* Company Logo & Name */}
               <div style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
-                <img src={algonexLogo} alt="Algonex Logo" style={{ height: 48, marginRight: 14, objectFit: 'contain' }} />
+                <img src={algonexLogo} alt="Algonex Logo" style={{ height: 48, width: 'auto', marginRight: 14 }} />
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                   <div className="font-sans-bold" style={{ fontSize: 24, color: '#000', letterSpacing: '0.8px', lineHeight: '1.1' }}>
                     ALGONEX IT SOLUTIONS
@@ -552,26 +539,26 @@ const CertificateVerification = () => {
                     strokeDasharray="3,3"
                   />
                   {/* Ribbon text */}
-                  <text 
-                    x="90" 
-                    y="28" 
-                    fill="#ffffff" 
-                    fontSize="9.5" 
-                    fontWeight="700" 
-                    textAnchor="middle" 
-                    fontFamily="'Outfit', sans-serif" 
+                  <text
+                    x="90"
+                    y="28"
+                    fill="#ffffff"
+                    fontSize="9.5"
+                    fontWeight="700"
+                    textAnchor="middle"
+                    fontFamily="'Outfit', sans-serif"
                     letterSpacing="1"
                   >
                     {badgeLine1}
                   </text>
-                  <text 
-                    x="90" 
-                    y="47" 
-                    fill="#ffffff" 
-                    fontSize="13" 
-                    fontStyle="italic" 
-                    textAnchor="middle" 
-                    fontFamily="'Playfair Display', serif" 
+                  <text
+                    x="90"
+                    y="47"
+                    fill="#ffffff"
+                    fontSize="13"
+                    fontStyle="italic"
+                    textAnchor="middle"
+                    fontFamily="'Playfair Display', serif"
                     fontWeight="600"
                   >
                     {badgeLine2}
@@ -698,26 +685,28 @@ const CertificateVerification = () => {
               We appreciate the efforts and all the best for the future.
             </div>
 
-            {/* Footer Row (Signatures, QR Code, MSME, Stamp) - equally spaced with symmetric margins */}
+            {/* Footer Row (Signatures, QR Code, MSME, Stamp) - absolutely positioned for html2canvas consistency */}
             <div style={{
+              position: 'absolute',
+              bottom: '30px',
+              left: '55px',
+              right: '55px',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              marginTop: 'auto',
-              padding: '0 55px 10px 55px'
+              alignItems: 'flex-end'
             }}>
 
               {/* Left Side: CEO Sign & ID */}
               <div style={{ textAlign: 'left', width: '220px', zIndex: 12 }}>
                 <div style={{ height: 45, display: 'flex', alignItems: 'flex-end', paddingBottom: 2 }}>
-                  <img src={ceoSign} alt="CEO Signature" style={{ height: 42, objectFit: 'contain' }} />
+                  <img src={ceoSign} alt="CEO Signature" style={{ height: 42, width: 'auto' }} />
                 </div>
                 <div style={{ height: '1px', backgroundColor: '#333', width: '180px', marginBottom: 6 }}></div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1f1f1f' }}>
                   Founder, CEO of ALGONEX
                 </div>
                 <div style={{ fontSize: 12, color: '#555', marginTop: 6, fontWeight: 600 }}>
-                  Trainee ID: <span className="font-sans-bold" style={{ color: '#000' }}>{certificate.certificate_id}</span>
+                  Certificate ID: <span className="font-sans-bold" style={{ color: '#000' }}>{certificate.certificate_id}</span>
                 </div>
               </div>
 
@@ -736,7 +725,7 @@ const CertificateVerification = () => {
 
               {/* Center-Right: MSME certified block */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 12, width: '220px' }}>
-                <img src={msmeLogo} alt="Certified by MSME" style={{ height: 75, objectFit: 'contain' }} />
+                <img src={msmeLogo} alt="Certified by MSME" style={{ height: 75, width: 'auto' }} />
                 <div style={{ fontSize: 11.5, color: '#333', fontWeight: 700, marginTop: 6 }}>
                   Certified by MSME
                 </div>
@@ -744,20 +733,19 @@ const CertificateVerification = () => {
 
               {/* Right Side: Algonex Stamp */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 12, width: '220px', marginRight: '25px' }}>
-                <img 
-                  src={algonexStamp} 
-                  alt="Algonex Stamp" 
-                  style={{ 
-                    width: 95, 
-                    height: 95, 
-                    objectFit: 'contain'
-                  }} 
+                <img
+                  src={algonexStamp}
+                  alt="Algonex Stamp"
+                  style={{
+                    width: 95,
+                    height: 95
+                  }}
                 />
-                <div style={{ 
-                  fontSize: 11.5, 
-                  color: '#333', 
-                  fontWeight: 700, 
-                  marginTop: 4, 
+                <div style={{
+                  fontSize: 11.5,
+                  color: '#333',
+                  fontWeight: 700,
+                  marginTop: 4,
                   letterSpacing: '0.5px',
                   fontFamily: '"Outfit", "Inter", sans-serif'
                 }}>
@@ -852,7 +840,7 @@ const CertificateVerification = () => {
           {/* Right Side: CTA Button */}
           <div style={{ zIndex: 2 }}>
             <Link to="/courses">
-              <button 
+              <button
                 style={{
                   background: 'linear-gradient(90deg, #0284c7 0%, #0369a1 100%)',
                   color: '#ffffff',

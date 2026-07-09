@@ -56,6 +56,7 @@ const TrainingDetails = ({ formData, errors, onChange, shake, courseOptions }) =
             { value: 'Training', label: 'Training' },
             { value: 'Internship', label: 'Internship' },
             { value: 'Fellowship', label: 'Fellowship' },
+            { value: 'Job Support', label: 'Job Support' },
           ]}
         />
 
@@ -103,6 +104,33 @@ const TrainingDetails = ({ formData, errors, onChange, shake, courseOptions }) =
             error={errors.whyJoinAlgonex}
             placeholder="Tell us why you want to enroll in this program (Optional)"
           />
+        </div>
+
+        <div style={{ gridColumn: '1 / -1', marginTop: '8px' }}>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', userSelect: 'none' }}>
+            <input
+              type="checkbox"
+              id="agreeTerms"
+              name="agreeTerms"
+              checked={formData.agreeTerms}
+              onChange={onChange}
+              style={{
+                width: '18px',
+                height: '18px',
+                accentColor: '#0ea5e9',
+                marginTop: '3px',
+                cursor: 'pointer'
+              }}
+            />
+            <span style={{ fontSize: '14px', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+              I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#0ea5e9', textDecoration: 'underline', fontWeight: 600 }}>Terms and Conditions</a> and verify that all information provided is accurate and correct. <span style={{ color: '#f43f5e' }}>*</span>
+            </span>
+          </label>
+          {errors.agreeTerms && (
+            <span className="error-msg visible" style={{ display: 'block', marginTop: '6px', color: '#f43f5e', fontSize: '12px' }}>
+              {errors.agreeTerms}
+            </span>
+          )}
         </div>
       </div>
     </section>

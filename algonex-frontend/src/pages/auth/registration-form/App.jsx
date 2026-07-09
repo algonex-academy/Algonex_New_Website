@@ -15,6 +15,7 @@ const INITIAL_FORM = {
   email: '',
   password: '',
   phone: '',
+  parentPhone: '',
   dob: '',
   gender: '',
   collegeName: '',
@@ -30,6 +31,7 @@ const INITIAL_FORM = {
   paidFee: '',
   upiTransactionId: '',
   whyJoinAlgonex: '',
+  agreeTerms: false,
 };
 
 function App() {
@@ -56,10 +58,10 @@ function App() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/courses/`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/courses/`);
         if (response.ok) {
           const data = await response.json();
-          const courses = Array.isArray(data) ? data : (data.results || []);
+          const courses = Array.isArray(data) ? data : (data.results || (data.data && data.data.results) || []);
           if (courses.length > 0) {
             const apiOptions = courses.map(c => ({ value: c.name, label: c.name }));
             setCourseOptions([
@@ -75,7 +77,8 @@ function App() {
     };
     fetchCourses();
   }, []);  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    const finalValue = type === 'checkbox' ? checked : value;
 
     // Filter out negative inputs for numeric fee fields
     if (name === 'totalFee' || name === 'paidFee') {
@@ -87,12 +90,12 @@ function App() {
       }
     }
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
 
     // If user changes Section A or B fields after QR was revealed, reset QR
     const sectionABFields = [
-      'fullName', 'email', 'phone', 'dob', 'gender', 'collegeName',
+      'fullName', 'email', 'phone', 'parentPhone', 'dob', 'gender', 'collegeName',
       'branch', 'currentYear', 'city', 'state',
       'courseSelected', 'otherCourse', 'batchType', 'joiningDate', 'totalFee', 'paidFee',
     ];
@@ -134,9 +137,9 @@ function App() {
   }, []);
 
   // Called when user clicks "Pay Now" — validates Sections A & B, then generates ID and reveals QR
-  const handlePayNow = useCallback(() => {
-    const personalFields = ['fullName', 'email', 'phone', 'dob', 'gender', 'collegeName', 'branch', 'currentYear', 'city', 'state'];
-    const trainingFields = ['courseSelected', 'otherCourse', 'batchType', 'joiningDate', 'totalFee'];
+  const handlePayNow = useCallback(async () => {
+    const personalFields = ['fullName', 'email', 'phone', 'parentPhone', 'dob', 'gender', 'collegeName', 'branch', 'currentYear', 'city', 'state'];
+    const trainingFields = ['courseSelected', 'otherCourse', 'batchType', 'joiningDate', 'totalFee', 'agreeTerms'];
     const paymentFields = ['paidFee'];
 
     const validationErrors = validateAllFields(formData, photo);
@@ -171,9 +174,25 @@ function App() {
       return;
     }
 
-    const studentId = generateStudentId();
-    setGeneratedStudentId(studentId);
-    setIsQrRevealed(true);
+    setIsLoading(true);
+    try {
+      const course = formData.courseSelected === 'Others' ? formData.otherCourse : formData.courseSelected;
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/register/next-id/?course=${encodeURIComponent(course || '')}&batchType=${encodeURIComponent(formData.batchType || '')}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setGeneratedStudentId(data.student_id);
+        setIsQrRevealed(true);
+      } else {
+        throw new Error('Failed to generate sequential ID');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to connect to server for generating sequential Student ID. Please ensure backend is running.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [formData, photo]);
 
   const handleSubmit = async (e) => {
@@ -184,8 +203,8 @@ function App() {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
 
-      const personalFields = ['fullName', 'email', 'phone', 'dob', 'gender', 'collegeName', 'branch', 'currentYear', 'city', 'state', 'photo'];
-      const trainingFields = ['courseSelected', 'otherCourse', 'batchType', 'joiningDate', 'totalFee'];
+      const personalFields = ['fullName', 'email', 'phone', 'parentPhone', 'dob', 'gender', 'collegeName', 'branch', 'currentYear', 'city', 'state', 'photo'];
+      const trainingFields = ['courseSelected', 'otherCourse', 'batchType', 'joiningDate', 'totalFee', 'agreeTerms'];
       const paymentFields = ['upiTransactionId', 'paidFee'];
 
       const firstError = Object.keys(validationErrors)[0];
@@ -230,7 +249,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/register/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/register/`, {
         method: 'POST',
         body: submitData,
       });

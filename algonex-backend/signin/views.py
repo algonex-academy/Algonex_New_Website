@@ -89,6 +89,7 @@ class StudentRegisterView(APIView):
             photo = request.FILES.get("photo")
             password = request.data.get("password")
             why_join = request.data.get("whyJoinAlgonex") or ""
+            parent_phone = request.data.get("parentPhone")
 
             # Validate required fields
             if not all([full_name, email, phone, upi_transaction_id, photo, password]):
@@ -163,6 +164,7 @@ class StudentRegisterView(APIView):
                     user=user,
                     defaults={
                         "student_id": student_id,
+                        "parent_phone": parent_phone or "",
                         "dob": dob or "",
                         "gender": gender or "",
                         "city": city or "",
@@ -209,12 +211,12 @@ class StudentRegisterView(APIView):
                 course=course_selected,
                 batch_type=batch_type,
                 joining_date=joining_date,
-                total_fee=float(registration.total_fee),
-                paid_fee=float(registration.paid_fee),
-                balance_fee=float(registration.balance_fee),
+                total_fee=float(total_fee),
+                paid_fee=float(paid_fee),
+                balance_fee=float(total_fee - paid_fee),
                 transaction_id=upi_transaction_id,
                 registration_date=registration.registration_date.isoformat(),
-                amount_paid_now=None
+                amount_paid_now=float(paid_fee)
             )
 
             return Response({
@@ -333,3 +335,13 @@ class SubmitPaymentView(APIView):
             },
             "message": "Payment submitted successfully and is pending verification."
         }, status=status.HTTP_201_CREATED)
+
+
+class NextStudentIdView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        course = request.query_params.get("course")
+        batch_type = request.query_params.get("batchType")
+        next_id = generate_student_id(course, batch_type)
+        return Response({"student_id": next_id}, status=status.HTTP_200_OK)

@@ -14,6 +14,7 @@ class StudentRegistration(models.Model):
         null=True, blank=True
     )
     student_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    parent_phone = models.CharField(max_length=20, blank=True)
     
     # Personal details
     dob = models.CharField(max_length=20, blank=True)
