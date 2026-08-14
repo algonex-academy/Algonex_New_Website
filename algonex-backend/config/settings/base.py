@@ -131,12 +131,13 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.ScopedRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "30/minute",
-        "user": "120/minute",
-        "registration": "5/minute",
-        "auth_check": "5/minute",
-        "dj_rest_auth": "30/minute",
+        "anon": "60/minute",
+        "user": "300/minute",
+        "registration": "60/minute",
+        "auth_check": "30/minute",
+        "dj_rest_auth": "60/minute",
     },
+
 }
 
 # Simple JWT

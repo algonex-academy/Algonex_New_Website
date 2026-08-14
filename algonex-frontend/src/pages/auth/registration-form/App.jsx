@@ -280,12 +280,14 @@ function App() {
         setGeneratedStudentId(null);
         setIsQrRevealed(false);
       } else {
-        throw new Error(data.detail || 'Registration failed. Please check inputs.');
+        const errMsg = data.error || data.detail || (typeof data === 'string' ? data : 'Registration failed. Please check inputs.');
+        throw new Error(typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg);
       }
     } catch (err) {
       setIsLoading(false);
-      alert(`Error: ${err.message}`);
+      alert(`Registration Error: ${err.message}`);
     }
+
   };
 
   const handleCloseSuccess = () => {
