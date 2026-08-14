@@ -47,7 +47,7 @@ const CertificateSearchPage = () => {
             Certificate Verification
           </h1>
           <p style={{ color: '#94a3b8', fontSize: 17, margin: 0, maxWidth: 500, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
-            Search and verify your Algonex certificate by entering your Trainee ID or Intern ID below.
+            Search and verify your Algonex certificate by entering your Certificate ID or Intern ID below.
           </p>
         </div>
       </div>
@@ -88,7 +88,7 @@ const CertificateSearchPage = () => {
 
             <div>
               <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: '#475569' }}>
-                Trainee ID / Intern ID
+                Certificate ID / Intern ID
               </label>
               <Input
                 placeholder="e.g. ALG26FCPF04296"

@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import { ConfigProvider, App as AntApp } from 'antd';
 import { theme } from './theme/theme';
 import { AuthProvider } from './context/AuthContext';
@@ -36,6 +37,9 @@ import ProgramDetailPage from './pages/programs/ProgramDetailPage';
 import TrainingPage from './pages/programs/TrainingPage';
 import InternshipPage from './pages/programs/InternshipPage';
 import FellowshipPage from './pages/programs/FellowshipPage';
+import CampusCrewPage from './pages/programs/CampusCrewPage';
+import CampusCrewRegistrationPage from './pages/programs/CampusCrewRegistrationPage';
+
 
 // Protected pages
 import MyCoursesPage from './pages/courses/MyCoursesPage';
@@ -71,8 +75,9 @@ const App = () => {
                     <Route path="/allcourses" element={<CourseListPage />} />
                     <Route path="/courses/:slug" element={<CourseDetailPage />} />
                     <Route path="/stack/:id" element={<CourseDetailPage />} />
-                    <Route path="/events" element={<Events />} />
+                    <Route path="/events" element={<Navigate to="/campus-crew" replace />} />
                     <Route path="/events/:slug" element={<EventDetailPage />} />
+
                     <Route path="/aboutus" element={<AboutUs />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/careers" element={<JobListPage />} />
@@ -84,6 +89,12 @@ const App = () => {
                     <Route path="/training" element={<TrainingPage />} />
                     <Route path="/internship" element={<InternshipPage />} />
                     <Route path="/fellowship" element={<FellowshipPage />} />
+                    <Route path="/campus-crew" element={<CampusCrewPage />} />
+                    <Route path="/campus-crew/register" element={<Navigate to="/campus-crew/register/student" replace />} />
+                    <Route path="/campus-crew/register/:type" element={<CampusCrewRegistrationPage />} />
+
+
+
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/quiz" element={<SkillQuiz />} />
                     <Route path="/alumni" element={<AlumniPage />} />

@@ -7,14 +7,15 @@ import algonexLogo from '../Public/algonex_logo.png';
 
 const navLinks = [
   { to: '/', label: 'Home' },
+  { to: '/campus-crew', label: 'Campus Crew' },
   { to: '/allcourses', label: 'Courses' },
   { to: '/programs', label: 'Programs' },
-  { to: '/events', label: 'Events' },
   { to: '/careers', label: 'Careers' },
   { to: '/aboutus', label: 'About' },
   { to: '/alumni', label: 'Alumni' },
   { to: '/contact', label: 'Contact' },
 ];
+
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();

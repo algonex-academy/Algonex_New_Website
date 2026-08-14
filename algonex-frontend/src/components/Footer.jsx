@@ -12,6 +12,7 @@ import {
 
 const navLinks = [
   { label: "Home", to: "/" },
+  { label: "Campus Crew", to: "/campus-crew" },
   { label: "Courses", to: "/allcourses" },
   { label: "Events", to: "/events" },
   { label: "About Us", to: "/aboutus" },

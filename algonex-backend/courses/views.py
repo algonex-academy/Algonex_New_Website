@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
+from django.db import models
 from django.shortcuts import get_object_or_404
 
 from .models import Course, Enrollment, FAQ, Certificate
@@ -199,6 +200,23 @@ class CertificateViewSet(ModelViewSet):
     """
     serializer_class = CertificateSerializer
     lookup_field = "certificate_id"
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        val = self.kwargs[lookup_url_kwarg]
+        
+        # Try finding by certificate_id first, then fallback to intern_id (case-insensitive)
+        obj = queryset.filter(
+            models.Q(certificate_id__iexact=val) | models.Q(intern_id__iexact=val)
+        ).first()
+        
+        if not obj:
+            from rest_framework.exceptions import NotFound
+            raise NotFound(f"No certificate found with ID or Intern ID '{val}'.")
+            
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get_queryset(self):
         if self.action == "retrieve":

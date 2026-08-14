@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Program
+from .models import Program, CampusCrewRegistration
+
 
 
 class ProgramListSerializer(serializers.ModelSerializer):
@@ -51,3 +52,108 @@ class ProgramCreateUpdateSerializer(serializers.ModelSerializer):
             "application_deadline", "start_date", "end_date",
             "capacity", "is_published", "is_featured",
         ]
+
+
+class CampusCrewStudentSerializer(serializers.ModelSerializer):
+    website_hp = serializers.CharField(required=False, allow_blank=True, write_only=True)
+
+    class Meta:
+        model = CampusCrewRegistration
+        fields = [
+            "full_name",
+            "email",
+            "phone",
+            "college_name",
+            "department",
+            "year_of_study",
+            "student_primary_interest",
+            "privacy_acknowledged",
+            "city",
+            "whatsapp_opt_in",
+            "website_hp",
+        ]
+
+    def validate_website_hp(self, value):
+        if value:
+            raise serializers.ValidationError("Bot submission detected.")
+        return value
+
+    def validate_full_name(self, value):
+        cleaned = value.strip()
+        if not cleaned:
+            raise serializers.ValidationError("Full name is required.")
+        return cleaned
+
+    def validate_email(self, value):
+        return value.strip().lower()
+
+    def validate_phone(self, value):
+        cleaned = value.strip()
+        if not cleaned:
+            raise serializers.ValidationError("Mobile number is required.")
+        return cleaned
+
+    def validate_privacy_acknowledged(self, value):
+        if not value:
+            raise serializers.ValidationError("You must acknowledge the Privacy Policy to proceed.")
+        return value
+
+
+class CampusCrewCollegeSerializer(serializers.ModelSerializer):
+    website_hp = serializers.CharField(required=False, allow_blank=True, write_only=True)
+
+    class Meta:
+        model = CampusCrewRegistration
+        fields = [
+            "institution_name",
+            "full_name",
+            "designation",
+            "official_email",
+            "phone",
+            "city",
+            "college_primary_interest",
+            "authority_confirmed",
+            "privacy_acknowledged",
+            "message",
+            "whatsapp_opt_in",
+            "website_hp",
+        ]
+
+    def validate_website_hp(self, value):
+        if value:
+            raise serializers.ValidationError("Bot submission detected.")
+        return value
+
+    def validate_institution_name(self, value):
+        cleaned = value.strip()
+        if not cleaned:
+            raise serializers.ValidationError("Institution name is required.")
+        return cleaned
+
+    def validate_full_name(self, value):
+        cleaned = value.strip()
+        if not cleaned:
+            raise serializers.ValidationError("Full name is required.")
+        return cleaned
+
+    def validate_official_email(self, value):
+        return value.strip().lower()
+
+    def validate_authority_confirmed(self, value):
+        if not value:
+            raise serializers.ValidationError("You must confirm authority to inquire on behalf of the institution.")
+        return value
+
+    def validate_privacy_acknowledged(self, value):
+        if not value:
+            raise serializers.ValidationError("You must acknowledge the Privacy Policy to proceed.")
+        return value
+
+
+class CampusCrewAdminSerializer(serializers.ModelSerializer):
+    owner_email = serializers.EmailField(source="owner.email", read_only=True, allow_null=True)
+
+    class Meta:
+        model = CampusCrewRegistration
+        fields = "__all__"
+
