@@ -222,9 +222,26 @@ export default function EventsPage() {
       .finally(() => setEventsLoading(false));
   }, []);
 
-  const activeEvents = apiEvents || upcomingEvents;
+  const upcomingEventsList = useMemo(() => {
+    if (!apiEvents || apiEvents.length === 0) return upcomingEvents;
+    const upcoming = apiEvents.filter((e) => e.status !== "past");
+    return upcoming.length > 0 ? upcoming : upcomingEvents;
+  }, [apiEvents]);
 
-  const handleRegister = (event) => {
+  const pastEventsList = useMemo(() => {
+    if (!apiEvents || apiEvents.length === 0) return pastEvents;
+    const past = apiEvents.filter((e) => e.status === "past");
+    return past.length > 0 ? past : pastEvents;
+  }, [apiEvents]);
+
+  const filteredUpcoming = useMemo(() => {
+    return upcomingEventsList.filter((e) => {
+      const matchesSearch = !search || e.title.toLowerCase().includes(search.toLowerCase());
+      const eventType = e.type || e.event_type || "";
+      const matchesType = typeFilter === "All" || eventType.toLowerCase() === typeFilter.toLowerCase();
+      return matchesSearch && matchesType;
+    });
+  }, [upcomingEventsList, search, typeFilter]);  const handleRegister = (event) => {
     if (!isAuthenticated) {
       setShowSigninModal(true);
       return;
@@ -250,21 +267,9 @@ export default function EventsPage() {
     }
   };
 
-  const filtered = useMemo(() => {
-    return activeEvents.filter((e) => {
-      const matchesSearch = !search || e.title.toLowerCase().includes(search.toLowerCase());
-      const eventType = e.type || e.event_type || "";
-      const matchesType = typeFilter === "All" || eventType === typeFilter;
-      return matchesSearch && matchesType;
-    });
-  }, [activeEvents, search, typeFilter]);
-
-  const [pastEventModal, setPastEventModal] = useState(null);
-
   return (
     <div>
       {/* Upcoming Events */}
-
       <section style={{ padding: "48px 24px", maxWidth: 1200, margin: "0 auto" }}>
         <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2c3e50", marginBottom: 24 }}>
           Upcoming Events
@@ -284,14 +289,14 @@ export default function EventsPage() {
           <Segmented options={EVENT_TYPES} value={typeFilter} onChange={setTypeFilter} size="large" />
         </div>
 
-        {filtered.length > 0 ? (
+        {filteredUpcoming.length > 0 ? (
           <Row gutter={[16, 16]}>
-            {filtered.map((event) => {
+            {filteredUpcoming.map((event) => {
               const spotsLeft = event.spots_left ?? (event.spots != null ? event.spots - (event.registered || 0) : null);
               const eventImages = (event.images && event.images.length > 0)
                 ? event.images
                 : (event.image ? [event.image] : ["https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop"]);
-              const colSpan = (filtered.length === 4 || filtered.length === 2) ? { xs: 24, sm: 12, md: 12 } : { xs: 24, sm: 12, md: 8 };
+              const colSpan = (filteredUpcoming.length === 4 || filteredUpcoming.length === 2) ? { xs: 24, sm: 12, md: 12 } : { xs: 24, sm: 12, md: 8 };
               return (
                 <Col key={event.id} {...colSpan}>
                   <Card
@@ -313,7 +318,6 @@ export default function EventsPage() {
                         </Carousel>
 
                         <Tag
-
                           color={(event.event_type || event.type) === "hackathon" ? "magenta" : (event.event_type || event.type) === "webinar" ? "blue" : "cyan"}
                           style={{ position: "absolute", top: 6, left: 6, margin: 0, fontSize: 9, fontWeight: 700, padding: "0 4px", lineHeight: "16px", zIndex: 2 }}
                         >
@@ -335,7 +339,7 @@ export default function EventsPage() {
                       {event.summary || (event.description || "").substring(0, 75) + (event.description?.length > 75 ? "..." : "")}
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2, color: "#888", fontSize: 10, marginBottom: 8 }}>
-                      <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.date || (event.start_date && new Date(event.start_date).toLocaleDateString())}</div>
+                      <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.date || (event.start_date && new Date(event.start_date).toLocaleDateString())} {event.time_range ? `(${event.time_range})` : ""}</div>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><EnvironmentOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.location}</div>
                     </div>
                     <div style={{ display: "flex", gap: 4, marginTop: "auto" }}>
@@ -378,7 +382,7 @@ export default function EventsPage() {
             </p>
           </div>
           <Row gutter={[16, 16]}>
-            {pastEvents.map((event) => (
+            {pastEventsList.map((event) => (
               <Col key={event.id} xs={24} sm={12} lg={8}>
                 <Card
                   hoverable
@@ -387,14 +391,14 @@ export default function EventsPage() {
                   cover={
                     <div style={{ position: "relative", height: 120, overflow: "hidden" }}>
                       <Carousel autoplay autoplaySpeed={3500} dots={false} fade effect="fade">
-                        {(event.images || [event.image]).map((imgUrl, idx) => (
+                        {(event.images && event.images.length > 0 ? event.images : (event.image ? [event.image] : ["https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&auto=format&fit=crop"])).map((imgUrl, idx) => (
                           <div key={idx} style={{ height: 120 }}>
                             <img alt={event.title} src={imgUrl} style={{ width: "100%", height: 120, objectFit: "cover" }} />
                           </div>
                         ))}
                       </Carousel>
                       <Tag color="default" style={{ position: "absolute", top: 8, right: 8, margin: 0, fontWeight: 600, zIndex: 2 }}>
-                        {event.type}
+                        {event.event_type || event.type}
                       </Tag>
                     </div>
                   }
@@ -403,11 +407,11 @@ export default function EventsPage() {
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: "#2c3e50", margin: 0, lineHeight: 1.3 }}>{event.title}</h4>
                   </div>
                   <div style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>
-                    <CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.date}
+                    <CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.date || (event.start_date && new Date(event.start_date).toLocaleDateString())}
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 8, marginTop: 4 }}>
                     <span style={{ color: "#00B4D8", fontWeight: 600, fontSize: 12 }}>
-                      <TeamOutlined style={{ marginRight: 4 }} /> {event.attendees} attended
+                      <TeamOutlined style={{ marginRight: 4 }} /> {event.attendees || event.confirmed_count || 0} attended
                     </span>
                     <span style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>
                       View Details <InfoCircleOutlined style={{ marginLeft: 2 }} />
@@ -421,6 +425,7 @@ export default function EventsPage() {
       </section>
 
       {/* CTA */}
+
       <section style={{ background: "linear-gradient(135deg, #00B4D8, #0891b2)", padding: "48px 24px", textAlign: "center" }}>
         <h2 style={{ fontSize: 28, fontWeight: 700, color: "white", marginBottom: 12 }}>
           Want to Host an Event with Us?

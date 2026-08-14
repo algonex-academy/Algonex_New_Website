@@ -25,8 +25,13 @@ class Event(TimestampMixin, SlugMixin, models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     capacity = models.PositiveIntegerField()
-    is_published = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=True)
+    speaker = models.CharField(max_length=255, blank=True, help_text="Speaker or host name/title")
+    time_range = models.CharField(max_length=100, blank=True, help_text="Custom display time e.g. 10:00 AM - 4:00 PM")
+    highlights = models.JSONField(default=list, blank=True, help_text="List of event highlights/takeaways strings")
     media = GenericRelation("common.Media")
+
+
 
     # SlugMixin uses `name` or `title` — we have `title`
 

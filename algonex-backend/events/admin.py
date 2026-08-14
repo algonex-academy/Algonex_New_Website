@@ -13,12 +13,28 @@ class RegistrationInline(TabularInline):
 
 @admin.register(Event)
 class EventAdmin(ImportExportModelAdmin, ModelAdmin):
-    list_display = ("title", "event_type", "start_date", "location", "capacity", "is_published")
+    list_display = ("title", "event_type", "start_date", "location", "speaker", "capacity", "is_published")
     list_filter = ("event_type", "is_published", "start_date")
-    search_fields = ("title", "description")
+    search_fields = ("title", "description", "speaker")
     prepopulated_fields = {"slug": ("title",)}
     list_editable = ("is_published",)
-    inlines = [RegistrationInline, MediaInline]
+    inlines = [MediaInline, RegistrationInline]
+
+    fieldsets = (
+        ("Basic Information", {
+            "fields": ("title", "slug", "event_type", "is_published")
+        }),
+        ("Event Details & Speaker", {
+            "fields": ("summary", "description", "speaker", "location", "meeting_link", "time_range")
+        }),
+        ("Schedule & Capacity", {
+            "fields": ("start_date", "end_date", "capacity")
+        }),
+        ("Cover Photo & Highlights", {
+            "fields": ("image", "highlights")
+        }),
+    )
+
 
 
 @admin.register(Registration)
