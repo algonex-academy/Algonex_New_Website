@@ -91,7 +91,7 @@ const CertificateSearchPage = () => {
                 Certificate ID / Intern ID
               </label>
               <Input
-                placeholder="e.g. ALG26FCPF04296"
+                placeholder="e.g. P2607I0000"
                 value={certificateId}
                 onChange={(e) => setCertificateId(e.target.value)}
                 size="large"
