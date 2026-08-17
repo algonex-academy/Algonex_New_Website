@@ -1,5 +1,6 @@
 import csv
 from decimal import Decimal
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from signin.models import StudentRegistration, Payment
@@ -109,3 +110,8 @@ class Command(BaseCommand):
                 reg.save(update_fields=["paid_fee", "balance_fee"])
 
             self.stdout.write(self.style.SUCCESS("✅ Synced paid & balance fee totals."))
+
+        # Rows were inserted with explicit ids, which does NOT advance Postgres
+        # identity sequences — without this, the next admin/API insert gets an
+        # already-used id and fails with a duplicate-key IntegrityError.
+        call_command("resync_sequences")

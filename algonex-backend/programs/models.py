@@ -153,3 +153,15 @@ class CampusCrewRegistration(models.Model):
         target = self.college_name if self.registration_type == "student" else self.institution_name
         return f"{self.reference_id} | {self.get_registration_type_display()} | {self.full_name} ({target})"
 
+    def save(self, *args, **kwargs):
+        # reference_id is readonly in the admin form, so admin-created rows
+        # arrive here without one; unique="" would collide from the 2nd add.
+        if not self.reference_id:
+            import secrets
+            prefix = "ACC-S" if self.registration_type == "student" else "ACC-C"
+            ref_id = f"{prefix}-{secrets.token_hex(4).upper()}"
+            while CampusCrewRegistration.objects.filter(reference_id=ref_id).exists():
+                ref_id = f"{prefix}-{secrets.token_hex(4).upper()}"
+            self.reference_id = ref_id
+        super().save(*args, **kwargs)
+

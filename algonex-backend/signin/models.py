@@ -107,7 +107,9 @@ class Payment(TimestampMixin, models.Model):
         related_name="payments"
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    upi_transaction_id = models.CharField(max_length=100, unique=True)
+    # blank/null allowed so cash/manual payments can be recorded in admin;
+    # empty values are normalized to NULL in save() so unique= doesn't collide on "".
+    upi_transaction_id = models.CharField(max_length=100, unique=True, blank=True, null=True)
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default="pending")
     remarks = models.TextField(blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
@@ -119,6 +121,10 @@ class Payment(TimestampMixin, models.Model):
         return f"{self.student_registration.student_id or 'No ID'} - ₹{self.amount} ({self.status})"
 
     def save(self, *args, **kwargs):
+        # Unique constraint must not collide on empty strings (cash payments)
+        if not self.upi_transaction_id:
+            self.upi_transaction_id = None
+
         is_new = self.pk is None
         old_status = None
         if not is_new:
@@ -138,7 +144,7 @@ class Payment(TimestampMixin, models.Model):
             reg.balance_fee = max(0, reg.total_fee - reg.paid_fee)
             reg.save(update_fields=["paid_fee", "balance_fee"])
 
-            if self.status == "approved" and old_status == "pending":
+            if self.status == "approved" and old_status != "approved":
                 try:
                     from .registration_utils import create_invoice, send_confirmation_email, send_payment_receipt_email
                     from django.conf import settings
@@ -158,10 +164,18 @@ class Payment(TimestampMixin, models.Model):
                         amount_paid_now=float(self.amount)
                     )
                     
+                    if not (reg.user and reg.user.email):
+                        import logging
+                        logging.getLogger(__name__).warning(
+                            f"Payment {self.pk} approved but registration {reg.pk} has no linked "
+                            f"user/email — invoice generated, confirmation email skipped."
+                        )
+                        return
+
                     # Determine if this is the initial registration payment or a subsequent payment
                     first_payment = reg.payments.order_by("payment_date").first()
                     is_initial = (first_payment.id == self.id) if first_payment else True
-                    
+
                     if is_initial:
                         card_path = f"{settings.MEDIA_ROOT}/cards/{reg.student_id}.png"
                         send_confirmation_email(

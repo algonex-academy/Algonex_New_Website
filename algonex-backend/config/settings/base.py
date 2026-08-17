@@ -104,9 +104,13 @@ SITE_ID = 1
 
 # REST Framework
 REST_FRAMEWORK = {
+    # NOTE: SessionAuthentication must NOT be a global default — it forces CSRF
+    # checks on every unsafe request whenever a Django admin session cookie is
+    # present, which 403s SPA logins/registrations ("CSRF Failed: CSRF token
+    # missing"). Views that need session auth (admin backup API) declare it
+    # explicitly via authentication_classes.
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
