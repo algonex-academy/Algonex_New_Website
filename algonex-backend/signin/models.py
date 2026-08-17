@@ -82,6 +82,11 @@ class StudentRegistration(models.Model):
     def phone(self):
         return self.user.phone
 
+    def __str__(self):
+        sid = self.student_id or f"Reg #{self.pk}"
+        name = self.full_name or (self.user.email if self.user else "")
+        return f"{sid} - {name} ({self.course_selected})" if name else sid
+
     def save(self, *args, **kwargs):
         if not self.student_id:
             from .registration_utils import generate_student_id

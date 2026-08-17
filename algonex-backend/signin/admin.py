@@ -92,6 +92,7 @@ class PaymentInline(TabularInline):
 class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
     resource_classes = [StudentRegistrationResource]
     list_display = ["student_id", "full_name", "email", "phone", "parent_phone", "course_selected", "batch_type", "total_fee", "paid_fee", "balance_fee", "registration_date", "status"]
+    list_display_links = ["student_id", "full_name"]
     list_filter = ["course_selected", "batch_type", "status"]
     search_fields = ["student_id", "user__email", "user__first_name", "upi_transaction_id", "college_name"]
     readonly_fields = ["registration_date", "balance_fee"]
