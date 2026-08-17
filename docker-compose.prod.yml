@@ -18,15 +18,19 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  frontend-build:
+  frontend:
     build:
       context: ./algonex-frontend
-      target: prod
       args:
         VITE_API_URL: /api/v1
-    volumes:
-      - frontend_build:/app/dist
-    restart: "no"
+    expose:
+      - "80"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   caddy:
     image: caddy:2-alpine
@@ -36,7 +40,6 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./certs:/etc/caddy/certs:ro
-      - frontend_build:/srv/frontend:ro
       - static_data:/srv/static:ro
       - media_data:/srv/media:ro
       - caddy_data:/data
@@ -45,10 +48,8 @@ services:
       - DOMAIN=${DOMAIN:-localhost}
       - STAGING_DOMAIN=${STAGING_DOMAIN:-}
     depends_on:
-      backend:
-        condition: service_started
-      frontend-build:
-        condition: service_completed_successfully
+      - backend
+      - frontend
     restart: unless-stopped
     logging:
       driver: json-file
@@ -77,6 +78,5 @@ volumes:
   postgres_data:
   media_data:
   static_data:
-  frontend_build:
   caddy_data:
   caddy_config:
