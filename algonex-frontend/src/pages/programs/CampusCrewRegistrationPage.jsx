@@ -53,7 +53,7 @@ export default function CampusCrewRegistrationPage() {
   // Prefill authenticated user details safely
   useEffect(() => {
     if (user) {
-      const name = `${user.first_name || ''} ${user.last_name || ''}`.strip() || '';
+      const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || '';
       setStudentForm((prev) => ({
         ...prev,
         full_name: prev.full_name || name,

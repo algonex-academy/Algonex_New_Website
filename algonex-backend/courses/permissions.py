@@ -4,7 +4,7 @@ from rest_framework.permissions import BasePermission
 class IsInstructorOwner(BasePermission):
     """
     Allow access only if the user is the course instructor or an admin.
-    For object-level permissions on courses, modules, and topics.
+    For object-level permissions on courses and course-related objects (e.g. FAQs).
     """
 
     def has_permission(self, request, view):
@@ -19,17 +19,13 @@ class IsInstructorOwner(BasePermission):
             return True
         # Navigate to the course regardless of object type
         course = _get_course(obj)
-        return course.instructor == request.user
+        return course is not None and course.instructor == request.user
 
 
 def _get_course(obj):
-    """Extract the course from an object (Course, Module, or Topic)."""
-    from .models import Course, Module, Topic
+    """Extract the course from an object (a Course itself, or anything with a course FK)."""
+    from .models import Course
 
     if isinstance(obj, Course):
         return obj
-    if isinstance(obj, Module):
-        return obj.course
-    if isinstance(obj, Topic):
-        return obj.module.course
-    return obj
+    return getattr(obj, "course", None)

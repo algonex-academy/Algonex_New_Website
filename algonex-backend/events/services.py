@@ -17,13 +17,16 @@ def register_for_event(*, user, event):
     if not event.is_published:
         raise EventNotOpen()
 
-    existing = Registration.objects.filter(
-        event=event, user=user
-    ).exclude(status="cancelled").first()
-    if existing:
+    existing = Registration.objects.filter(event=event, user=user).first()
+    if existing and existing.status != "cancelled":
         raise AlreadyRegistered()
 
     status = "confirmed" if event.spots_left > 0 else "waitlisted"
+    if existing:
+        # Reuse the cancelled row — unique_together('event', 'user') forbids a new one
+        existing.status = status
+        existing.save()
+        return existing
     return Registration.objects.create(event=event, user=user, status=status)
 
 
