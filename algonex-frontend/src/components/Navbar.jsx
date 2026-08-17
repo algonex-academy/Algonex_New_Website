@@ -44,7 +44,7 @@ const Navbar = () => {
       ...(user?.role === 'admin' || user?.is_staff
         ? [
             { type: 'divider' },
-            { key: 'admin-backups', label: <Link to="/admin/backups" style={{ fontWeight: 600, color: '#0284c7' }}>☁️ S3 Backups & Restore</Link> },
+            { key: 'admin-backups', label: <Link to="/dashboard/backups" style={{ fontWeight: 600, color: '#0284c7' }}>☁️ S3 Backups & Restore</Link> },
             { key: 'django-admin', label: <a href="/admin/" target="_blank" rel="noreferrer" style={{ fontWeight: 600, color: '#4f46e5' }}>⚙️ Django Admin</a> },
           ]
         : []),

@@ -119,7 +119,7 @@ const App = () => {
                     <Route path="/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
                     <Route path="/my-events" element={<ProtectedRoute><MyEventsPage /></ProtectedRoute>} />
                     <Route path="/my-applications" element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} />
-                    <Route path="/admin/backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
+                    <Route path="/dashboard/backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
                     <Route path="/admin-backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
 
                     {/* 404 */}
