@@ -3,10 +3,25 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 <style>
   .material-symbols-outlined {
     font-family: 'Material Symbols Outlined' !important;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
   }
 </style>
 {% endblock %}
@@ -16,8 +31,10 @@
     <!-- Header Title Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-gray-200 dark:border-gray-800 mb-8 gap-4">
         <div class="flex items-center gap-4">
-            <div class="shrink-0 w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                <span class="material-symbols-outlined text-white text-2xl">cloud_sync</span>
+            <div class="shrink-0 w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                </svg>
             </div>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">S3 Database Backups & Restore</h1>
@@ -26,7 +43,9 @@
         </div>
         <div class="flex items-center gap-3">
             <button type="button" id="btn_create_snapshot" class="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md cursor-pointer">
-                <span class="material-symbols-outlined text-sm">backup</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
                 <span id="btn_create_text">Create Backup Snapshot Now</span>
             </button>
             <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl border {% if s3_connected %}bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900 text-emerald-700 dark:text-emerald-400{% else %}bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900 text-rose-700 dark:text-rose-400{% endif %}">
@@ -36,14 +55,16 @@
         </div>
     </div>
 
-    <!-- Alert status banner if needed -->
+    <!-- Alert status banner -->
     <div id="status_alert" class="hidden mb-6 p-4 rounded-xl text-sm font-medium border"></div>
 
     <!-- Stats Widgets -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
             <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <span class="material-symbols-outlined">inventory_2</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
             </div>
             <div>
                 <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total Snapshots</h3>
@@ -52,7 +73,9 @@
         </div>
         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
             <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <span class="material-symbols-outlined">schedule</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </div>
             <div>
                 <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Latest Snapshot</h3>
@@ -61,7 +84,9 @@
         </div>
         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
             <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                <span class="material-symbols-outlined">data_usage</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                </svg>
             </div>
             <div>
                 <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total S3 Storage</h3>
@@ -74,11 +99,15 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700/60 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-gray-400">storage</span>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white">Available Snapshots in S3</h2>
             </div>
             <button onclick="window.location.reload()" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 cursor-pointer">
-                <span class="material-symbols-outlined text-xs">refresh</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
                 Refresh
             </button>
         </div>
@@ -97,7 +126,9 @@
                     {% for backup in backups %}
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
                         <td class="px-6 py-4 font-mono font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary-500 text-base">description</span>
+                            <svg class="w-4 h-4 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                             {{ backup.filename }}
                         </td>
                         <td class="px-6 py-4">
@@ -109,8 +140,10 @@
                             {{ backup.last_modified }}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <button type="button" onclick="openRestoreModal('{{ backup.filename }}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900 hover:bg-amber-100 transition-all cursor-pointer">
-                                <span class="material-symbols-outlined text-xs">settings_backup_restore</span>
+                            <button type="button" onclick="openRestoreModal('{{ backup.filename }}')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900 hover:bg-amber-100 transition-all cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
                                 Restore This
                             </button>
                         </td>
@@ -118,7 +151,9 @@
                     {% empty %}
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center text-gray-400">
-                            <span class="material-symbols-outlined text-4xl block mb-2 opacity-50">cloud_off</span>
+                            <svg class="w-10 h-10 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
                             No backup snapshots found in S3 yet. Click "Create Backup Snapshot Now" above.
                         </td>
                     </tr>
@@ -134,7 +169,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-3 mb-4 text-rose-600 dark:text-rose-400">
             <div class="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center">
-                <span class="material-symbols-outlined text-2xl">warning</span>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
             </div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Confirm Database Restore</h3>
         </div>
@@ -179,6 +216,7 @@ document.getElementById('btn_create_snapshot').addEventListener('click', async f
     try {
         const res = await fetch('/api/v1/admin/backups/create/', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCsrfToken()
@@ -189,7 +227,8 @@ document.getElementById('btn_create_snapshot').addEventListener('click', async f
             showStatus('🎉 ' + data.message, 'success');
             setTimeout(() => window.location.reload(), 1500);
         } else {
-            showStatus('❌ ' + (data.message || 'Backup failed'), 'error');
+            const errMsg = data.error?.message || data.message || 'Backup failed';
+            showStatus('❌ ' + errMsg, 'error');
             btn.disabled = false;
             btn.classList.remove('opacity-70');
             textSpan.innerText = 'Create Backup Snapshot Now';
@@ -228,6 +267,7 @@ document.getElementById('btn_confirm_restore').addEventListener('click', async f
     try {
         const res = await fetch('/api/v1/admin/backups/restore/', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCsrfToken()
@@ -243,7 +283,8 @@ document.getElementById('btn_confirm_restore').addEventListener('click', async f
             showStatus('🎉 ' + data.message, 'success');
             setTimeout(() => window.location.reload(), 2000);
         } else {
-            alert('Restore failed: ' + (data.message || 'Invalid password or error'));
+            const errMsg = data.error?.message || data.message || 'Invalid password or error';
+            alert('Restore failed: ' + errMsg);
             btn.disabled = false;
             btn.innerText = 'Confirm & Restore';
         }

@@ -35,18 +35,18 @@ class TestUserDetailSerializer(TestCase):
         updated = serializer.save()
         self.assertEqual(updated.bio, "Updated bio")
 
-    def test_email_and_role_are_read_only(self):
+    def test_email_is_editable_and_role_is_read_only(self):
         user = User.objects.create_user(
-            email="readonly@test.com",
+            email="original@test.com",
             password="testpass123",
             role="student",
         )
         serializer = UserDetailSerializer(
-            user, data={"email": "hacked@test.com", "role": "admin"}, partial=True
+            user, data={"email": "newemail@test.com", "role": "admin"}, partial=True
         )
-        serializer.is_valid()
+        self.assertTrue(serializer.is_valid())
         updated = serializer.save()
-        self.assertEqual(updated.email, "readonly@test.com")
+        self.assertEqual(updated.email, "newemail@test.com")
         self.assertEqual(updated.role, "student")
 
 
