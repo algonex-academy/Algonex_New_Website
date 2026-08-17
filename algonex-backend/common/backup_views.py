@@ -240,7 +240,26 @@ class AdminBackupRestoreView(APIView):
             s3.upload_file(safety_path, bucket_name, safety_key)
             os.remove(safety_path)
 
+            # A restore means "overwrite the database with the snapshot", and
+            # older snapshots carry no DROP statements — so reset the schema
+            # first. The pre-restore safety snapshot above is the way back.
             cmd = f"psql -v ON_ERROR_STOP=1 -h {db_host} -p {db_port} -U {db_user} -d {db_name}"
+            reset_sql = (
+                "DROP SCHEMA public CASCADE; CREATE SCHEMA public; "
+                f"GRANT ALL ON SCHEMA public TO \"{db_user}\"; "
+                "GRANT ALL ON SCHEMA public TO public;"
+            ).encode()
+            p_reset = subprocess.Popen(cmd, shell=True, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            _, reset_err = p_reset.communicate(input=reset_sql)
+            if p_reset.returncode != 0:
+                return Response(
+                    {
+                        "status": "error",
+                        "message": f"Restore aborted before loading data (schema reset failed): {reset_err.decode()[:1000]}",
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
             p_restore = subprocess.Popen(cmd, shell=True, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             restore_out, restore_err = p_restore.communicate(input=sql_content)
 
