@@ -10,7 +10,7 @@ export const getImageUrl = (url, fallback = 'https://images.unsplash.com/photo-1
     // Ensure url has leading slash
     const formattedUrl = url.startsWith('/') ? url : `/${url}`;
     return `${baseUrl}${formattedUrl}`;
-  } catch (e) {
+  } catch (_e) {
     const baseUrl = "http://localhost:8000";
     const formattedUrl = url.startsWith('/') ? url : `/${url}`;
     return `${baseUrl}${formattedUrl}`;

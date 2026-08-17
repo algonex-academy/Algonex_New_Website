@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, Tag, Button, Empty, Spin, Modal, App, Row, Col } from "antd";
 import {
@@ -27,7 +27,7 @@ export default function EventDetailPage() {
   const [regStatus, setRegStatus] = useState(null); // "confirmed" | "waitlisted" | null
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchEvent = () => {
+  const fetchEvent = useCallback(() => {
     setLoading(true);
     eventsAPI.detail(slug)
       .then((res) => {
@@ -37,9 +37,9 @@ export default function EventDetailPage() {
       })
       .catch(() => setEvent(null))
       .finally(() => setLoading(false));
-  };
+  }, [slug]);
 
-  useEffect(() => { fetchEvent(); }, [slug]);
+  useEffect(() => { fetchEvent(); }, [fetchEvent]);
 
   const handleRegister = async () => {
     if (!isAuthenticated) {

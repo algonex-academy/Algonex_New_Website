@@ -60,7 +60,7 @@ test.describe("Event Registration", () => {
   test("success toast shown on registration", async ({ page }) => {
     test.skip(!eventSlug, "No seeded events");
     // Use a fresh user to guarantee first registration
-    const freshCreds = await registerUser(page, { prefix: "auth_evt_toast" });
+    await registerUser(page, { prefix: "auth_evt_toast" });
     await page.goto(`/events/${eventSlug}`);
     await page.waitForSelector("h1", { timeout: 10000 });
 
@@ -84,7 +84,7 @@ test.describe("Event Registration", () => {
   test("'Cancel Registration' from event detail", async ({ page }) => {
     test.skip(!eventSlug, "No seeded events");
     // Register first
-    const freshCreds = await registerUser(page, { prefix: "auth_evt_cancel" });
+    await registerUser(page, { prefix: "auth_evt_cancel" });
     await page.goto(`/events/${eventSlug}`);
     await page.waitForSelector("h1", { timeout: 10000 });
 
@@ -105,7 +105,7 @@ test.describe("Event Registration", () => {
   test("'Cancel Registration' from My Events page", async ({ page }) => {
     test.skip(!eventSlug, "No seeded events");
     // Register first
-    const freshCreds = await registerUser(page, { prefix: "auth_evt_mycancel" });
+    await registerUser(page, { prefix: "auth_evt_mycancel" });
     await page.goto(`/events/${eventSlug}`);
     await page.waitForSelector("h1", { timeout: 10000 });
 

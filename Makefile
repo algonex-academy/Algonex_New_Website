@@ -9,7 +9,7 @@ dev: ## Start development environment (hot reload)
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 prod: ## Start production environment
-	docker compose up --build -d
+	docker compose -f docker-compose.prod.yml up --build --force-recreate -d
 
 down: ## Stop all containers
 	docker compose down

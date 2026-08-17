@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Tag, Skeleton, Modal } from 'antd';
 import { PlusOutlined, ZoomInOutlined } from '@ant-design/icons';
-import { motion, AnimatePresence } from 'framer-motion';
 import { commonAPI } from '../../api/common';
 
 const GallerySection = () => {

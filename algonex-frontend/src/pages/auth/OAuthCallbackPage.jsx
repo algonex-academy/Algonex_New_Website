@@ -31,7 +31,7 @@ export default function OAuthCallbackPage() {
         setError("OAuth login failed. Please try again.");
         message.error("OAuth login failed.");
       });
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, message]);
 
   if (error) {
     return (

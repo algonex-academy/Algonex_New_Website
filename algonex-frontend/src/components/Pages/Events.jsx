@@ -205,7 +205,8 @@ export default function EventsPage() {
   const [modalEvent, setModalEvent] = useState(null);
   const [showSigninModal, setShowSigninModal] = useState(false);
   const [apiEvents, setApiEvents] = useState(null);
-  const [eventsLoading, setEventsLoading] = useState(true);
+  const [, setEventsLoading] = useState(true);
+  const [pastEventModal, setPastEventModal] = useState(null);
   const [registerLoading, setRegisterLoading] = useState(false);
   const { isAuthenticated } = useAuth();
   const { message } = App.useApp();

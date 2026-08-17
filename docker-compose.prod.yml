@@ -1,12 +1,10 @@
 services:
   backend:
-    image: ghcr.io/${GITHUB_REPO:-algonex}/backend:${IMAGE_TAG:-latest}
     build: ./algonex-backend
     env_file: .env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
     volumes:
-      - ./algonex-backend:/app
       - media_data:/app/media
       - static_data:/app/staticfiles
     expose:
@@ -21,7 +19,6 @@ services:
         max-file: "3"
 
   frontend-build:
-    image: ghcr.io/${GITHUB_REPO:-algonex}/frontend:${IMAGE_TAG:-latest}
     build:
       context: ./algonex-frontend
       target: prod
@@ -48,8 +45,10 @@ services:
       - DOMAIN=${DOMAIN:-localhost}
       - STAGING_DOMAIN=${STAGING_DOMAIN:-}
     depends_on:
-      - backend
-      - frontend-build
+      backend:
+        condition: service_started
+      frontend-build:
+        condition: service_completed_successfully
     restart: unless-stopped
     logging:
       driver: json-file

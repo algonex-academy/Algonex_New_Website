@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import { Avatar, Rate, Tag, Skeleton } from 'antd';
 import { CommentOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
 import { alumniAPI } from '../../api/alumni';
 
 import "slick-carousel/slick/slick.css";
@@ -77,7 +76,7 @@ const ReviewsSection = () => {
                 ) : (
                     <div className="reviews-slider-container -mx-4">
                         <Slider {...settings}>
-                            {reviews.map((review, index) => (
+                            {reviews.map((review) => (
                                 <div key={review.id} className="px-3 pb-8">
                                     <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 h-full relative group">
                                         <div className="absolute top-6 right-6 text-cyan-100 group-hover:text-cyan-200 transition-colors">

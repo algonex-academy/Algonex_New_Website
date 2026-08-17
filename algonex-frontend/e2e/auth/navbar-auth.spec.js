@@ -10,14 +10,14 @@ test.describe("Navbar Authentication States", () => {
   });
 
   test("authenticated: avatar dropdown shown", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav", firstName: "NavUser" });
+    await registerUser(page, { prefix: "auth_nav", firstName: "NavUser" });
     // After register, already on "/" and logged in
     await expect(page.locator(".ant-avatar").first()).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("NavUser")).toBeVisible({ timeout: 5000 });
   });
 
   test("dropdown: Profile link → /profile", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav_prof" });
+    await registerUser(page, { prefix: "auth_nav_prof" });
     await page.goto("/");
 
     // Open dropdown
@@ -27,7 +27,7 @@ test.describe("Navbar Authentication States", () => {
   });
 
   test("dropdown: My Courses link → /my-courses", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav_courses" });
+    await registerUser(page, { prefix: "auth_nav_courses" });
     await page.goto("/");
 
     await page.locator(".ant-dropdown-trigger").first().click();
@@ -36,7 +36,7 @@ test.describe("Navbar Authentication States", () => {
   });
 
   test("dropdown: My Events link → /my-events", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav_events" });
+    await registerUser(page, { prefix: "auth_nav_events" });
     await page.goto("/");
 
     await page.locator(".ant-dropdown-trigger").first().click();
@@ -45,7 +45,7 @@ test.describe("Navbar Authentication States", () => {
   });
 
   test("dropdown: My Applications link → /my-applications", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav_apps" });
+    await registerUser(page, { prefix: "auth_nav_apps" });
     await page.goto("/");
 
     await page.locator(".ant-dropdown-trigger").first().click();
@@ -54,7 +54,7 @@ test.describe("Navbar Authentication States", () => {
   });
 
   test("dropdown: Logout clears session", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav_logout" });
+    await registerUser(page, { prefix: "auth_nav_logout" });
     await page.goto("/");
 
     await page.locator(".ant-dropdown-trigger").first().click();
@@ -72,7 +72,7 @@ test.describe("Navbar Authentication States", () => {
   });
 
   test("after logout, protected routes redirect", async ({ page }) => {
-    const creds = await registerUser(page, { prefix: "auth_nav_logprot" });
+    await registerUser(page, { prefix: "auth_nav_logprot" });
     await logoutUser(page);
 
     await page.goto("/profile");
@@ -81,7 +81,7 @@ test.describe("Navbar Authentication States", () => {
 
   test("mobile: drawer shows auth links when logged in", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    const creds = await registerUser(page, { prefix: "auth_nav_mobile" });
+    await registerUser(page, { prefix: "auth_nav_mobile" });
     await page.goto("/");
 
     // Open hamburger drawer
@@ -97,7 +97,7 @@ test.describe("Navbar Authentication States", () => {
 
   test("mobile: logout from drawer", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    const creds = await registerUser(page, { prefix: "auth_nav_moblout" });
+    await registerUser(page, { prefix: "auth_nav_moblout" });
 
     await page.locator(".mobile-nav-trigger button").click();
     await expect(page.locator(".ant-drawer")).toBeVisible();

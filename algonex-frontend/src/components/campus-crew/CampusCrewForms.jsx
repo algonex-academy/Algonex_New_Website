@@ -44,7 +44,7 @@ export const CampusCrewModalForm = ({ isOpen, onClose, initialType = 'student' }
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setStatus('success');
-    } catch (err) {
+    } catch (_err) {
       setStatus('error');
       setErrorMessage('Failed to submit application. Please try again.');
     }

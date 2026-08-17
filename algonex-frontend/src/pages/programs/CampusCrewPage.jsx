@@ -28,19 +28,14 @@ import {
   classroomVsIndustry,
   fivePillars,
   studentBenefits,
-  studentJourneyTimeline,
   immersionDaySchedule,
   engineeringPipeline,
-  techTracks,
-  industryExperts,
-  collegeBenefits,
-  leadershipRoles,
   verifiedFaqs
 } from '../../data/campusCrewData';
 
 export default function CampusCrewPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalFormType, setModalFormType] = useState('student');
+  const [, setModalFormType] = useState('student');
   const [activeAudience, setActiveAudience] = useState('student');
   const [faqSearch, setFaqSearch] = useState('');
   const [form] = Form.useForm();

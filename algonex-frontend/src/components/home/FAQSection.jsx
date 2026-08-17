@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Collapse, Tag, Skeleton, Typography } from 'antd';
 import { PlusOutlined, MinusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
 import { commonAPI } from '../../api/common';
 import { ALGONEX_FAQS } from '../../constants/constant';
 import { useNavigate } from 'react-router-dom';

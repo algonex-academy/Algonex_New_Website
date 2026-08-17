@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import './index.css';
 import Header from './components/Header';
 import PersonalDetails from './components/PersonalDetails';
@@ -8,7 +8,6 @@ import SubmitButton from './components/SubmitButton';
 import LoadingModal from './components/LoadingModal';
 import SuccessModal from './components/SuccessModal';
 import { validateAllFields } from './utils/validation';
-import { generateStudentId } from './utils/studentId';
 
 const INITIAL_FORM = {
   fullName: '',

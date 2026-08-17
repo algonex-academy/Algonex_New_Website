@@ -84,7 +84,7 @@ export default function TrainingPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleCallbackSubmit = (values) => {
+  const handleCallbackSubmit = (_values) => {
     message.success("Thank you! Our academic counselor will call you within 24 hours.");
     form.resetFields();
   };

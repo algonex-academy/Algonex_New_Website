@@ -37,7 +37,7 @@ export default function ProfilePage() {
     try {
       const res = await paymentsAPI.getSummary();
       setPaymentSummary(res.data);
-    } catch (err) {
+    } catch (_err) {
       console.log("No student registration found or error fetching payment summary.");
     } finally {
       setFetchingSummary(false);

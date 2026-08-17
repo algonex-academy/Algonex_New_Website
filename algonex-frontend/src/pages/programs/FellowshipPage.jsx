@@ -123,7 +123,7 @@ export default function FellowshipPage() {
   const [fellowships, setFellowships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState("");
+  const [, setSelectedTrack] = useState("");
   const [form] = Form.useForm();
 
   useEffect(() => {

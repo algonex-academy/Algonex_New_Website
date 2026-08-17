@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Trash2, Sparkles, ChevronDown } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import { sendBuddyMessage } from "../../api/buddy";
@@ -117,7 +117,7 @@ export default function BuddyChatbot() {
             cards: response.cards || [],
           },
         ]);
-      } catch (err) {
+      } catch (_err) {
         setMessages((prev) => [
           ...prev,
           {

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Tag, Button, Empty, Skeleton } from 'antd';
 import { GithubOutlined, LinkOutlined, ArrowRightOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
 import { projectsAPI } from '../../api/alumni';
 import { getImageUrl } from '../../utils/image';
 import { Link } from 'react-router-dom';

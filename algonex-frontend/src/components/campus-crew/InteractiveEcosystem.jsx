@@ -43,7 +43,7 @@ const InteractiveEcosystem = () => {
     };
   }, [animate]);
 
-  const activeNodeObj = NODES.find(n => n.id === activeNode);
+  const _activeNodeObj = NODES.find(n => n.id === activeNode);
   const orbitRadiusPct = 36; // % radius from center (50%, 50%)
 
   return (
