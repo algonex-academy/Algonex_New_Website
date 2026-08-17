@@ -3,8 +3,12 @@ import subprocess
 import gzip
 import tempfile
 from datetime import datetime
-import boto3
-from botocore.exceptions import ClientError
+try:
+    import boto3
+    from botocore.exceptions import ClientError
+except ImportError:
+    boto3 = None
+    ClientError = Exception
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import permissions, status
