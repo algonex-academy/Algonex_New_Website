@@ -5,9 +5,14 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies.
+# postgresql-client is pinned to major version 16 (via the PGDG repo) to match
+# the postgres:16 server — a newer pg_dump writes settings the server rejects
+# on restore (e.g. pg17's transaction_timeout).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libpq-dev postgresql-client && \
+    gcc libpq-dev ca-certificates curl gnupg postgresql-common && \
+    /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
+    apt-get install -y --no-install-recommends postgresql-client-16 && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies

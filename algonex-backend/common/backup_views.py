@@ -197,6 +197,15 @@ class AdminBackupRestoreView(APIView):
 
             os.remove(tmp_path)
 
+            # Dumps made by a newer pg_dump carry SET parameters an older
+            # server rejects (e.g. pg17's transaction_timeout on a pg16
+            # server), and with ON_ERROR_STOP that aborts the whole restore.
+            # Strip them so existing snapshots stay restorable.
+            sql_content = b"\n".join(
+                line for line in sql_content.splitlines()
+                if not line.strip().startswith(b"SET transaction_timeout")
+            )
+
             # Restore into PostgreSQL
             db_conf = settings.DATABASES["default"]
             db_name = db_conf.get("NAME", "algonex")
