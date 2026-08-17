@@ -21,7 +21,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "bio",
             "date_joined",
         ]
-        read_only_fields = ["id", "email", "role", "date_joined"]
+        read_only_fields = ["id", "role", "date_joined"]
+
+    def validate_email(self, value):
+        user = self.instance
+        if User.objects.exclude(pk=user.pk if user else None).filter(email=value).exists():
+            raise serializers.ValidationError("This email address is already in use.")
+        return value
 
 
 class CustomRegisterSerializer(RegisterSerializer):
@@ -74,11 +80,12 @@ class SetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
         return data
 
+
 class RequestPasswordResetOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
 
 class VerifyPasswordResetOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
     new_password = serializers.CharField(write_only=True, min_length=8)
-

@@ -191,12 +191,24 @@ export default function ProfilePage() {
           layout="vertical"
           onFinish={onFinish}
           initialValues={{
+            email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,
             phone: user.phone,
             bio: user.bio,
           }}
         >
+          <Form.Item
+            name="email"
+            label="Email Address"
+            rules={[
+              { required: true, message: "Please enter your email" },
+              { type: "email", message: "Please enter a valid email address" },
+            ]}
+          >
+            <Input placeholder="your.email@gmail.com" />
+          </Form.Item>
+
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Form.Item name="first_name" label="First Name" style={{ flex: "1 1 180px", minWidth: 0 }}>
               <Input />
