@@ -13,6 +13,8 @@ node_modules/
 dist/
 staticfiles/
 media/
+data/
+backups/
 !algonex-backend/fixtures/
 
 # Playwright
