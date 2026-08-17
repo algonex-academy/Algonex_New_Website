@@ -206,3 +206,54 @@ class AdminBackupRestoreView(APIView):
                 {"status": "error", "message": f"Restore failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+def admin_system_backup_page_view(request):
+    """Render Unfold Admin page for S3 Backups & Restore."""
+    from django.shortcuts import render
+    from django.contrib import admin
+    from django.contrib.admin.views.decorators import staff_member_required
+
+    if not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser or getattr(request.user, "role", "") == "admin")):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+    s3, bucket_name = get_s3_client()
+    backups = []
+    total_bytes = 0
+    s3_connected = True
+    error_message = None
+
+    try:
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix="backups/")
+        for obj in response.get("Contents", []):
+            key = obj["Key"]
+            if key.endswith(".sql.gz") or key.endswith(".sql"):
+                size = obj["Size"]
+                total_bytes += size
+                backups.append({
+                    "filename": key.replace("backups/", ""),
+                    "full_key": key,
+                    "size_bytes": size,
+                    "size_formatted": f"{round(size / 1024, 1)} KB" if size < 1024*1024 else f"{round(size / (1024*1024), 2)} MB",
+                    "last_modified": obj["LastModified"].strftime("%Y-%m-%d %H:%M:%S UTC"),
+                })
+        # Sort latest first
+        backups.sort(key=lambda b: b["last_modified"], reverse=True)
+    except Exception as e:
+        s3_connected = False
+        error_message = str(e)
+
+    context = admin.site.each_context(request)
+    context.update({
+        "title": "S3 Database Backups & Restore",
+        "backups": backups,
+        "backup_count": len(backups),
+        "total_storage_formatted": f"{round(total_bytes / 1024, 1)} KB" if total_bytes < 1024*1024 else f"{round(total_bytes / (1024*1024), 2)} MB",
+        "latest_backup": backups[0]["last_modified"] if backups else "Never",
+        "bucket_name": bucket_name,
+        "s3_connected": s3_connected,
+        "error_message": error_message,
+    })
+    return render(request, "admin/system/backups.html", context)
+

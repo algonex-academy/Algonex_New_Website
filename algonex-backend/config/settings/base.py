@@ -249,6 +249,7 @@ UNFOLD = {
                 "items": [
                     {"title": "Site Config", "link": "/admin/common/siteconfig/", "icon": "tune"},
                     {"title": "Contact Submissions", "link": "/admin/contactform/contactform/", "icon": "mail"},
+                    {"title": "S3 Backups & Restore", "link": "/admin/system/backups/", "icon": "cloud_sync"},
                 ],
             },
         ],

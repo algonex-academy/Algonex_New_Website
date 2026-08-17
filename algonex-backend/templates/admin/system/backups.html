@@ -1,0 +1,272 @@
+{% extends "admin/base_site.html" %}
+{% load i18n unfold %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<style>
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="unfold-dashboard px-4 py-6 max-w-[1600px] mx-auto">
+    <!-- Header Title Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-gray-200 dark:border-gray-800 mb-8 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="shrink-0 w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+                <span class="material-symbols-outlined text-white text-2xl">cloud_sync</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">S3 Database Backups & Restore</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Amazon S3 Automated Snapshots & 1-Click PostgreSQL Disaster Recovery</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button type="button" id="btn_create_snapshot" class="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md cursor-pointer">
+                <span class="material-symbols-outlined text-sm">backup</span>
+                <span id="btn_create_text">Create Backup Snapshot Now</span>
+            </button>
+            <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl border {% if s3_connected %}bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900 text-emerald-700 dark:text-emerald-400{% else %}bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900 text-rose-700 dark:text-rose-400{% endif %}">
+                <span class="w-2.5 h-2.5 rounded-full {% if s3_connected %}bg-emerald-500 animate-pulse{% else %}bg-rose-500{% endif %}"></span>
+                <span class="text-xs font-semibold">{% if s3_connected %}s3://{{ bucket_name }}{% else %}S3 Disconnected{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert status banner if needed -->
+    <div id="status_alert" class="hidden mb-6 p-4 rounded-xl text-sm font-medium border"></div>
+
+    <!-- Stats Widgets -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total Snapshots</h3>
+                <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white" id="stat_count">{{ backup_count }}</p>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Latest Snapshot</h3>
+                <p class="text-sm font-bold mt-1 text-emerald-600 dark:text-emerald-400 truncate max-w-[200px]" id="stat_latest">{{ latest_backup }}</p>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <span class="material-symbols-outlined">data_usage</span>
+            </div>
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total S3 Storage</h3>
+                <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white" id="stat_storage">{{ total_storage_formatted }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backups Table Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/60 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700/60 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-gray-400">storage</span>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Available Snapshots in S3</h2>
+            </div>
+            <button onclick="window.location.reload()" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-xs">refresh</span>
+                Refresh
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                <thead class="bg-gray-50 dark:bg-gray-900/50 text-xs uppercase text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-gray-700/60">
+                    <tr>
+                        <th class="px-6 py-3.5 font-semibold">Snapshot File</th>
+                        <th class="px-6 py-3.5 font-semibold">Size</th>
+                        <th class="px-6 py-3.5 font-semibold">Timestamp</th>
+                        <th class="px-6 py-3.5 font-semibold text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700/60" id="backups_tbody">
+                    {% for backup in backups %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
+                        <td class="px-6 py-4 font-mono font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-500 text-base">description</span>
+                            {{ backup.filename }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                                {{ backup.size_formatted }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-xs text-gray-500 dark:text-gray-400">
+                            {{ backup.last_modified }}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button type="button" onclick="openRestoreModal('{{ backup.filename }}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900 hover:bg-amber-100 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-xs">settings_backup_restore</span>
+                                Restore This
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+                            <span class="material-symbols-outlined text-4xl block mb-2 opacity-50">cloud_off</span>
+                            No backup snapshots found in S3 yet. Click "Create Backup Snapshot Now" above.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Restore Confirmation Modal -->
+<div id="restore_modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3 mb-4 text-rose-600 dark:text-rose-400">
+            <div class="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">warning</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Confirm Database Restore</h3>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
+            Restoring from <strong id="modal_filename" class="font-mono text-gray-900 dark:text-white"></strong> will overwrite the current live database with the snapshot state.
+        </p>
+        <div class="mb-5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Enter Admin Password to Proceed</label>
+            <input type="password" id="admin_password_input" placeholder="Enter your admin password" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-900 text-sm focus:ring-2 focus:ring-rose-500 dark:text-white outline-none" />
+        </div>
+        <div class="flex items-center justify-end gap-3">
+            <button type="button" onclick="closeRestoreModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">Cancel</button>
+            <button type="button" id="btn_confirm_restore" class="px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 hover:bg-rose-700 text-white shadow transition cursor-pointer">
+                Confirm & Restore
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedBackupFile = null;
+
+function showStatus(msg, type='success') {
+    const alert = document.getElementById('status_alert');
+    alert.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+    if (type === 'success') {
+        alert.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+    } else {
+        alert.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+    }
+    alert.innerHTML = msg;
+}
+
+// 1. Create Snapshot AJAX
+document.getElementById('btn_create_snapshot').addEventListener('click', async function() {
+    const btn = this;
+    const textSpan = document.getElementById('btn_create_text');
+    btn.disabled = true;
+    btn.classList.add('opacity-70');
+    textSpan.innerText = 'Creating S3 Snapshot...';
+
+    try {
+        const res = await fetch('/api/v1/admin/backups/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            }
+        });
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+            showStatus('🎉 ' + data.message, 'success');
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showStatus('❌ ' + (data.message || 'Backup failed'), 'error');
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+            textSpan.innerText = 'Create Backup Snapshot Now';
+        }
+    } catch (err) {
+        showStatus('❌ Network error: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.classList.remove('opacity-70');
+        textSpan.innerText = 'Create Backup Snapshot Now';
+    }
+});
+
+// 2. Open / Close Restore Modal
+function openRestoreModal(filename) {
+    selectedBackupFile = filename;
+    document.getElementById('modal_filename').innerText = filename;
+    document.getElementById('admin_password_input').value = '';
+    document.getElementById('restore_modal').classList.remove('hidden');
+}
+
+function closeRestoreModal() {
+    document.getElementById('restore_modal').classList.add('hidden');
+}
+
+// 3. Confirm Restore AJAX
+document.getElementById('btn_confirm_restore').addEventListener('click', async function() {
+    const pwd = document.getElementById('admin_password_input').value;
+    if (!pwd) {
+        alert('Please enter your admin password.');
+        return;
+    }
+    const btn = this;
+    btn.disabled = true;
+    btn.innerText = 'Restoring...';
+
+    try {
+        const res = await fetch('/api/v1/admin/backups/restore/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                filename: selectedBackupFile,
+                admin_password: pwd
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+            closeRestoreModal();
+            showStatus('🎉 ' + data.message, 'success');
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            alert('Restore failed: ' + (data.message || 'Invalid password or error'));
+            btn.disabled = false;
+            btn.innerText = 'Confirm & Restore';
+        }
+    } catch (err) {
+        alert('Error: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = 'Confirm & Restore';
+    }
+});
+
+function getCsrfToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, 10) === 'csrftoken=') {
+                cookieValue = decodeURIComponent(cookie.substring(10));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

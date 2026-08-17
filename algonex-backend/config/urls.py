@@ -8,12 +8,14 @@ from common.views import (
     send_enrollment_email_view, admin_communication_view
 )
 from common.backup_views import (
-    AdminBackupListView, AdminBackupCreateView, AdminBackupRestoreView
+    AdminBackupListView, AdminBackupCreateView, AdminBackupRestoreView,
+    admin_system_backup_page_view
 )
 from signin.views import PaymentSummaryView, SubmitPaymentView
 
 
 urlpatterns = [
+    path("admin/system/backups/", admin_system_backup_page_view, name="admin_system_backups"),
     path("admin/courses/communication/", admin_communication_view, name="admin_courses_communication"),
     path("admin/send-enrollment-email/", send_enrollment_email_view, name="admin_send_enrollment_email"),
     path("admin/", admin.site.urls),
