@@ -62,14 +62,24 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: SSH and Deploy Application
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          script: |
+      - name: Deploy via SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+        run: |
+          # 1. Setup SSH Directory and Key
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Add newline if missing
+          sed -i -e '$a\' ~/.ssh/deploy_key
+
+          # 2. Connect and Run Deployment Commands on Server
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
             echo "🚀 Connecting to server and updating Algonex..."
             cd /opt/algonex
@@ -91,3 +101,4 @@ jobs:
             docker image prune -f
 
             echo "✅ Deployment completed successfully!"
+          EOF
