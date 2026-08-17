@@ -86,3 +86,7 @@ X_FRAME_OPTIONS = "DENY"
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://algonex.co.in")
 
+# OAuth redirect URI — must exactly match the redirect_uri the SPA authorizes
+# with (window.location.origin + "/auth/callback").
+OAUTH_CALLBACK_URL = os.environ.get("OAUTH_CALLBACK_URL", f"{FRONTEND_URL}/auth/callback")
+

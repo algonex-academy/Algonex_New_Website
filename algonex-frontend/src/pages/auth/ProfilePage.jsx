@@ -23,6 +23,10 @@ export default function ProfilePage() {
   const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentForm] = Form.useForm();
+
+  // Change Password State
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordForm] = Form.useForm();
   
   // Dynamic QR Code generation state and ref
   const qrRef = useRef(null);
@@ -47,8 +51,8 @@ export default function ProfilePage() {
   const fetchCertificates = async () => {
     try {
       const res = await certificatesAPI.myCertificates();
-      const certs = Array.isArray(res.data) ? res.data : (res.data.results || []);
-      setCertificates(certs);
+      const certs = res.data?.data?.results || res.data?.data || [];
+      setCertificates(Array.isArray(certs) ? certs : []);
     } catch (err) {
       console.log("Error fetching certificates:", err);
     } finally {
@@ -114,6 +118,28 @@ export default function ProfilePage() {
       message.error("Failed to update profile.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async (values) => {
+    setPasswordLoading(true);
+    try {
+      await authAPI.changePassword({
+        new_password1: values.new_password1,
+        new_password2: values.new_password2,
+      });
+      message.success("Password changed successfully!");
+      passwordForm.resetFields();
+    } catch (err) {
+      const data = err.response?.data;
+      const detail =
+        data?.error?.new_password2?.[0] ||
+        data?.error?.new_password1?.[0] ||
+        data?.new_password2?.[0] ||
+        data?.new_password1?.[0];
+      message.error(detail || "Failed to change password.");
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -323,6 +349,47 @@ export default function ProfilePage() {
           locale={{ emptyText: "No certificates found. Complete a course/internship to receive a certificate." }}
           size="small"
         />
+      </Card>
+
+      {/* Change Password Section */}
+      <Card title="Change Password" bordered={false} style={{ marginTop: 24 }}>
+        <Form layout="vertical" form={passwordForm} onFinish={handleChangePassword}>
+          <Form.Item
+            name="new_password1"
+            label="New Password"
+            rules={[
+              { required: true, message: "Please enter a new password" },
+              { min: 8, message: "Password must be at least 8 characters" },
+            ]}
+          >
+            <Input.Password placeholder="Enter new password" />
+          </Form.Item>
+
+          <Form.Item
+            name="new_password2"
+            label="Confirm New Password"
+            dependencies={["new_password1"]}
+            rules={[
+              { required: true, message: "Please confirm your new password" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("new_password1") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Passwords do not match"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="Re-enter new password" />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Button type="primary" htmlType="submit" loading={passwordLoading}>
+              Change Password
+            </Button>
+          </Form.Item>
+        </Form>
       </Card>
 
       <Modal
