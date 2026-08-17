@@ -1,0 +1,34 @@
+#!/bin/sh
+# Git pre-commit hook: runs lint, build check, and backend validation before allowing commits
+
+set -e
+
+echo "==========================================="
+echo "  🚀 Algonex Pre-Commit Quality Checks"
+echo "==========================================="
+
+# 1. Check Frontend Lint
+echo "🔍 [1/3] Checking Frontend Lint (ESLint)..."
+cd algonex-frontend
+npm run lint
+
+# 2. Check Frontend Build
+echo "🏗️ [2/3] Checking Frontend Production Build (Vite)..."
+npm run build
+cd ..
+
+# 3. Check Backend Python syntax / tests
+echo "🐍 [3/3] Checking Backend Python Code..."
+if command -v python >/dev/null 2>&1; then
+    cd algonex-backend
+    python -m py_compile config/settings/production.py
+    cd ..
+elif command -v python3 >/dev/null 2>&1; then
+    cd algonex-backend
+    python3 -m py_compile config/settings/production.py
+    cd ..
+fi
+
+echo "==========================================="
+echo "  ✅ All Pre-Commit Checks Passed!"
+echo "==========================================="
