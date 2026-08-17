@@ -83,7 +83,7 @@ jobs:
             git reset --hard origin/main
 
             echo "🐳 Building and updating Docker containers..."
-            docker compose -f docker-compose.prod.yml up --build -d --remove-orphans
+            docker compose -f docker-compose.prod.yml up --build -d --remove-orphans --force-recreate
 
             echo "🗄️ Running database migrations..."
             docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
