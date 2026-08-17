@@ -117,7 +117,9 @@ class Payment(TimestampMixin, models.Model):
         is_new = self.pk is None
         old_status = None
         if not is_new:
-            old_status = Payment.objects.get(pk=self.pk).status
+            existing = Payment.objects.filter(pk=self.pk).first()
+            if existing:
+                old_status = existing.status
 
         super().save(*args, **kwargs)
 
