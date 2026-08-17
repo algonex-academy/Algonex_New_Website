@@ -412,6 +412,7 @@ document.getElementById('btn_confirm_restore').addEventListener('click', async f
             },
             body: JSON.stringify({
                 filename: selectedBackupFile,
+                password: pwd,
                 admin_password: pwd
             })
         });

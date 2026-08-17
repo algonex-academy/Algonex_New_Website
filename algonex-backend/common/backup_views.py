@@ -130,7 +130,7 @@ class AdminBackupRestoreView(APIView):
 
     def post(self, request):
         """Restore database from S3 backup after validating admin password"""
-        password = request.data.get("password")
+        password = request.data.get("password") or request.data.get("admin_password")
         filename = request.data.get("filename")
 
         if not password:
