@@ -14,7 +14,9 @@ const GallerySection = () => {
     useEffect(() => {
         commonAPI.getGallery(true) // Fetch only featured gallery images for home
             .then(res => {
-                setImages(res.data?.data?.results || res.data?.results || []);
+                // Wrapped + paginated shape: { status, data: { results: [...] } }
+                const payload = res.data?.data?.results ?? res.data?.results;
+                setImages(Array.isArray(payload) ? payload : []);
             })
             .catch(err => console.error("Failed to fetch gallery images:", err))
             .finally(() => setLoading(false));

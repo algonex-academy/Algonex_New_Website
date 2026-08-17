@@ -11,6 +11,7 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import { coursesAPI } from "../../api/courses";
+import { programsAPI, getApiErrorMessage } from "../../api/programs";
 import { STACKS } from "../../constants/constant";
 import CourseCard from "../../components/courses/CourseCard";
 
@@ -65,6 +66,7 @@ export default function TrainingPage() {
   const [loading, setLoading] = useState(true);
   const [usingApi, setUsingApi] = useState(false);
   const [search, setSearch] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -84,9 +86,23 @@ export default function TrainingPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleCallbackSubmit = (_values) => {
-    message.success("Thank you! Our academic counselor will call you within 24 hours.");
-    form.resetFields();
+  const handleCallbackSubmit = async (values) => {
+    setSubmitting(true);
+    try {
+      await programsAPI.submitLead({
+        full_name: values.name,
+        email: values.email,
+        phone: values.phone,
+        subject: "Training Callback Request",
+        message: "Requested a callback from an academic advisor about the training programs.",
+      });
+      message.success("Thank you! Our academic counselor will call you within 24 hours.");
+      form.resetFields();
+    } catch (err) {
+      message.error(getApiErrorMessage(err, "Could not submit your request. Please try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const filteredCourses = courses.filter((c) =>
@@ -281,7 +297,7 @@ export default function TrainingPage() {
                     <Input placeholder="Phone Number" size="large" style={{ borderRadius: 8 }} />
                   </Form.Item>
                   <Form.Item style={{ marginBottom: 0 }}>
-                    <Button type="primary" htmlType="submit" block size="large" style={{ height: 46, borderRadius: 8, fontWeight: 600 }}>
+                    <Button type="primary" htmlType="submit" block size="large" loading={submitting} style={{ height: 46, borderRadius: 8, fontWeight: 600 }}>
                       Request Callback
                     </Button>
                   </Form.Item>
