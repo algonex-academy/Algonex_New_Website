@@ -67,24 +67,24 @@ class StudentRegistration(models.Model):
     class Meta:
         ordering = ["-registration_date"]
 
-    def __str__(self):
-        return f"{self.user.email} ({self.student_id or 'No ID'}) - {self.course_selected}"
-
     @property
     def full_name(self):
-        return f"{self.user.first_name} {self.user.last_name}".strip() or self.user.email
+        if not self.user:
+            return ""
+        name = f"{self.user.first_name} {self.user.last_name}".strip()
+        return name or self.user.email
 
     @property
     def email(self):
-        return self.user.email
+        return self.user.email if self.user else ""
 
     @property
     def phone(self):
-        return self.user.phone
+        return self.user.phone if self.user else ""
 
     def __str__(self):
         sid = self.student_id or f"Reg #{self.pk}"
-        name = self.full_name or (self.user.email if self.user else "")
+        name = self.full_name or self.email
         return f"{sid} - {name} ({self.course_selected})" if name else sid
 
     def save(self, *args, **kwargs):
