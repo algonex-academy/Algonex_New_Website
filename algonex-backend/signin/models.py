@@ -91,6 +91,14 @@ class StudentRegistration(models.Model):
         if not self.student_id:
             from .registration_utils import generate_student_id
             self.student_id = generate_student_id(self.course_selected, self.batch_type)
+        # Keep balance in sync whenever fees change (e.g. admin edits total_fee)
+        self.balance_fee = max(0, self.total_fee - self.paid_fee)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            update_fields = set(update_fields)
+            if {"total_fee", "paid_fee"} & update_fields:
+                update_fields.add("balance_fee")
+            kwargs["update_fields"] = update_fields
         super().save(*args, **kwargs)
 
 
