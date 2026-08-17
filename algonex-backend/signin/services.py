@@ -7,12 +7,13 @@ User = get_user_model()
 
 
 def register_step1(*, first_name, last_name, email, phone, password=None):
-    """Create or find a user by email. Sets password if provided."""
+    """Create or find a user by email. Sets password only for new users."""
     try:
         user = User.objects.get(email=email)
-        if password and not user.has_usable_password():
-            user.set_password(password)
-            user.save(update_fields=['password'])
+        # SECURITY: never set a password on an already-existing account from
+        # this unauthenticated endpoint — doing so would let anyone who knows
+        # the email hijack password-less (imported/OAuth) accounts. First-time
+        # passwords must go through the setup-email token link or OTP reset.
         return {
             "is_new": False,
             "has_password": user.has_usable_password(),

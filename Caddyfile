@@ -33,9 +33,13 @@
         file_server
     }
 
-    # Media files (uploads) — served directly by Caddy
+    # Media files (uploads) — served directly by Caddy.
+    # Uploads are untrusted: force download and disable MIME sniffing so a
+    # file can never execute as HTML/JS on the app origin (stored-XSS guard).
     handle /media/* {
         root * /srv
+        header X-Content-Type-Options "nosniff"
+        header Content-Disposition "attachment"
         file_server
     }
 
