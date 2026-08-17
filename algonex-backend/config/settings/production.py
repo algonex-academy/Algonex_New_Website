@@ -7,8 +7,20 @@ from .base import *  # noqa: F401,F403
 DEBUG = False
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "https://algonex.co.in,https://www.algonex.co.in").split(",")
+raw_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [h.strip() for h in raw_hosts if h.strip()]
+for default_host in ["algonex.co.in", "www.algonex.co.in", ".algonex.co.in", "localhost", "127.0.0.1", "backend"]:
+    if default_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(default_host)
+
+raw_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "https://algonex.co.in,https://www.algonex.co.in").split(",")
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in raw_origins if origin.strip()]
+for default_origin in ["https://algonex.co.in", "https://www.algonex.co.in"]:
+    if default_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(default_origin)
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 DATABASES = {
     "default": {

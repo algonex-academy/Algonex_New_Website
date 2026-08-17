@@ -7,6 +7,9 @@ from common.views import (
     PlatformSettingsView, GeneralFAQListView, GalleryImageListView,
     send_enrollment_email_view, admin_communication_view
 )
+from common.backup_views import (
+    AdminBackupListView, AdminBackupCreateView, AdminBackupRestoreView
+)
 from signin.views import PaymentSummaryView, SubmitPaymentView
 
 
@@ -32,6 +35,9 @@ urlpatterns = [
     path("api/v1/banner/", ActiveBannerView.as_view(), name="active-banner"),
     path("api/v1/search/", SearchView.as_view(), name="global-search"),
     path("api/v1/admin/stats/", AdminStatsView.as_view(), name="admin-stats"),
+    path("api/v1/admin/backups/", AdminBackupListView.as_view(), name="admin-backups-list"),
+    path("api/v1/admin/backups/create/", AdminBackupCreateView.as_view(), name="admin-backups-create"),
+    path("api/v1/admin/backups/restore/", AdminBackupRestoreView.as_view(), name="admin-backups-restore"),
     path("api/v1/faqs/", GeneralFAQListView.as_view(), name="faqs"),
     path("api/v1/gallery/", GalleryImageListView.as_view(), name="gallery"),
     path("api/v1/buddy/", include("buddy.urls")),

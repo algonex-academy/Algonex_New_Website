@@ -41,6 +41,13 @@ const Navbar = () => {
       { key: 'my-courses', label: <Link to="/my-courses">My Courses</Link> },
       { key: 'my-events', label: <Link to="/my-events">My Events</Link> },
       { key: 'my-applications', label: <Link to="/my-applications">My Applications</Link> },
+      ...(user?.role === 'admin' || user?.is_staff
+        ? [
+            { type: 'divider' },
+            { key: 'admin-backups', label: <Link to="/admin/backups" style={{ fontWeight: 600, color: '#0284c7' }}>☁️ S3 Backups & Restore</Link> },
+            { key: 'django-admin', label: <a href="/admin/" target="_blank" rel="noreferrer" style={{ fontWeight: 600, color: '#4f46e5' }}>⚙️ Django Admin</a> },
+          ]
+        : []),
       { type: 'divider' },
       { key: 'logout', label: 'Logout', icon: <LogoutOutlined />, danger: true, onClick: handleLogout },
     ],

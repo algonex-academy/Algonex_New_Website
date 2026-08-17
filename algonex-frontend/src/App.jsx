@@ -55,6 +55,7 @@ import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CertificateVerification from './pages/CertificateVerification';
 import CertificateSearchPage from './pages/CertificateSearchPage';
+import AdminBackupPage from './pages/admin/AdminBackupPage';
 
 const App = () => {
   return (
@@ -118,6 +119,8 @@ const App = () => {
                     <Route path="/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
                     <Route path="/my-events" element={<ProtectedRoute><MyEventsPage /></ProtectedRoute>} />
                     <Route path="/my-applications" element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} />
+                    <Route path="/admin/backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
+                    <Route path="/admin-backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
 
                     {/* 404 */}
                     <Route path="*" element={<NotFoundPage />} />
