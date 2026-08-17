@@ -12,8 +12,15 @@ except ImportError:
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import permissions, status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+# Session auth is intentionally scoped to these views only (the Django admin
+# backups page calls them with a session cookie + X-CSRFToken). It must not be
+# a global DRF default — see config/settings/base.py.
+BACKUP_AUTH_CLASSES = [JWTAuthentication, SessionAuthentication]
 
 
 def get_s3_client():
@@ -42,6 +49,7 @@ class IsAdminRole(permissions.BasePermission):
 
 
 class AdminBackupListView(APIView):
+    authentication_classes = BACKUP_AUTH_CLASSES
     permission_classes = [IsAdminRole]
 
     def get(self, request):
@@ -73,6 +81,7 @@ class AdminBackupListView(APIView):
 
 
 class AdminBackupCreateView(APIView):
+    authentication_classes = BACKUP_AUTH_CLASSES
     permission_classes = [IsAdminRole]
 
     def post(self, request):
@@ -96,8 +105,10 @@ class AdminBackupCreateView(APIView):
             with tempfile.NamedTemporaryFile(suffix=".sql.gz", delete=False) as tmp_file:
                 tmp_path = tmp_file.name
 
-            # Run pg_dump and gzip
-            cmd = f"pg_dump -h {db_host} -p {db_port} -U {db_user} {db_name}"
+            # Run pg_dump and gzip. --clean --if-exists makes the dump DROP
+            # existing objects first, so restoring over a non-empty database
+            # actually replaces it instead of erroring on every CREATE.
+            cmd = f"pg_dump --clean --if-exists -h {db_host} -p {db_port} -U {db_user} {db_name}"
             p_dump = subprocess.Popen(cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             dump_out, dump_err = p_dump.communicate()
 
@@ -130,6 +141,7 @@ class AdminBackupCreateView(APIView):
 
 
 class AdminBackupRestoreView(APIView):
+    authentication_classes = BACKUP_AUTH_CLASSES
     permission_classes = [IsAdminRole]
 
     def post(self, request):
@@ -174,8 +186,9 @@ class AdminBackupRestoreView(APIView):
             # Download backup from S3
             s3.download_file(bucket_name, s3_key, tmp_path)
 
-            # Decompress SQL
-            if tmp_path.endswith(".gz") or s3_key.endswith(".gz"):
+            # Decompress SQL (decide by the S3 key, not tmp_path — the temp file
+            # always has a .gz suffix even for plain .sql backups)
+            if s3_key.endswith(".gz"):
                 with gzip.open(tmp_path, "rb") as f:
                     sql_content = f.read()
             else:
@@ -196,14 +209,46 @@ class AdminBackupRestoreView(APIView):
             if db_password:
                 env["PGPASSWORD"] = db_password
 
-            cmd = f"psql -h {db_host} -p {db_port} -U {db_user} -d {db_name}"
+            # Safety net: snapshot the CURRENT database to S3 before overwriting
+            # it, so a bad restore is itself recoverable. Abort if this fails.
+            safety_ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+            safety_key = f"backups/pre_restore_{safety_ts}.sql.gz"
+            dump_cmd = f"pg_dump --clean --if-exists -h {db_host} -p {db_port} -U {db_user} {db_name}"
+            p_safety = subprocess.Popen(dump_cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            safety_out, safety_err = p_safety.communicate()
+            if p_safety.returncode != 0:
+                return Response(
+                    {
+                        "status": "error",
+                        "message": f"Aborted: could not take a pre-restore safety snapshot ({safety_err.decode()[:500]})",
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            with tempfile.NamedTemporaryFile(suffix=".sql.gz", delete=False) as safety_file:
+                safety_path = safety_file.name
+            with gzip.open(safety_path, "wb") as f:
+                f.write(safety_out)
+            s3.upload_file(safety_path, bucket_name, safety_key)
+            os.remove(safety_path)
+
+            cmd = f"psql -v ON_ERROR_STOP=1 -h {db_host} -p {db_port} -U {db_user} -d {db_name}"
             p_restore = subprocess.Popen(cmd, shell=True, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             restore_out, restore_err = p_restore.communicate(input=sql_content)
 
+            if p_restore.returncode != 0:
+                return Response(
+                    {
+                        "status": "error",
+                        "message": f"Restore FAILED (psql exit {p_restore.returncode}): {restore_err.decode()[:2000]}",
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
             return Response({
                 "status": "success",
-                "message": f"Database successfully restored from '{filename}'!",
+                "message": f"Database successfully restored from '{filename}'! (pre-restore state saved as {safety_key})",
                 "restored_file": filename,
+                "safety_snapshot": safety_key,
             })
         except Exception as e:
             return Response(
@@ -222,19 +267,25 @@ def admin_system_backup_page_view(request):
         from django.core.exceptions import PermissionDenied
         raise PermissionDenied
 
-    s3, bucket_name = get_s3_client()
     backups = []
     total_bytes = 0
     s3_connected = True
     error_message = None
+    latest_dt = None
+    bucket_name = getattr(settings, "AWS_STORAGE_BUCKET_NAME", "algonex-media-storage")
 
     try:
+        # Inside the try: boto3 may be missing or misconfigured, and that must
+        # degrade to an error banner, not a 500 on the whole admin page.
+        s3, bucket_name = get_s3_client()
         response = s3.list_objects_v2(Bucket=bucket_name, Prefix="backups/")
         for obj in response.get("Contents", []):
             key = obj["Key"]
             if key.endswith(".sql.gz") or key.endswith(".sql"):
                 size = obj["Size"]
                 total_bytes += size
+                if latest_dt is None or obj["LastModified"] > latest_dt:
+                    latest_dt = obj["LastModified"]
                 backups.append({
                     "filename": key.replace("backups/", ""),
                     "full_key": key,
@@ -248,8 +299,17 @@ def admin_system_backup_page_view(request):
         s3_connected = False
         error_message = str(e)
 
+    # The nightly cron runs at 02:00; anything older than 26h means it has
+    # silently stopped and someone should look at the EC2 crontab/log.
+    from datetime import timedelta, timezone as dt_timezone
+    backup_stale = bool(
+        s3_connected
+        and (latest_dt is None or datetime.now(dt_timezone.utc) - latest_dt > timedelta(hours=26))
+    )
+
     context = admin.site.each_context(request)
     context.update({
+        "backup_stale": backup_stale,
         "title": "S3 Database Backups & Restore",
         "backups": backups,
         "backup_count": len(backups),

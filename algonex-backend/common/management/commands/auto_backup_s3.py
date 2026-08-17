@@ -34,8 +34,9 @@ class Command(BaseCommand):
         if db_password:
             env["PGPASSWORD"] = db_password
 
-        # 2. Run pg_dump
-        cmd = f"pg_dump -h {db_host} -p {db_port} -U {db_user} {db_name}"
+        # 2. Run pg_dump. --clean --if-exists makes restores actually replace
+        # existing objects instead of erroring on every CREATE.
+        cmd = f"pg_dump --clean --if-exists -h {db_host} -p {db_port} -U {db_user} {db_name}"
         p = subprocess.Popen(cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         dump_out, dump_err = p.communicate()
 
@@ -77,6 +78,37 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"✅ Uploaded snapshot: s3://{bucket_name}/{s3_key} ({file_size_kb} KB)"
         ))
+
+        # 4.5 Sync media files (student photos, invoices, ID cards) to S3.
+        # The DB dump alone cannot rebuild these — without this, losing the
+        # EC2 disk loses every uploaded file. Uploads only new/changed files.
+        media_root = getattr(settings, "MEDIA_ROOT", "") or ""
+        if media_root and os.path.isdir(media_root):
+            try:
+                existing = {}
+                paginator = s3.get_paginator("list_objects_v2")
+                for page in paginator.paginate(Bucket=bucket_name, Prefix="media_backups/"):
+                    for obj in page.get("Contents", []):
+                        existing[obj["Key"]] = obj["Size"]
+
+                uploaded = skipped = 0
+                for dirpath, _dirnames, filenames in os.walk(media_root):
+                    for fname in filenames:
+                        fpath = os.path.join(dirpath, fname)
+                        rel = os.path.relpath(fpath, media_root)
+                        key = f"media_backups/{rel}"
+                        if existing.get(key) == os.path.getsize(fpath):
+                            skipped += 1
+                            continue
+                        s3.upload_file(fpath, bucket_name, key)
+                        uploaded += 1
+                self.stdout.write(self.style.SUCCESS(
+                    f"📁 Media sync: {uploaded} file(s) uploaded, {skipped} unchanged (s3://{bucket_name}/media_backups/)"
+                ))
+            except Exception as e:
+                self.stderr.write(f"⚠️ Media sync failed (DB snapshot unaffected): {str(e)}")
+        else:
+            self.stdout.write("📁 Media sync skipped: MEDIA_ROOT not set or missing.")
 
         # 5. Cleanup snapshots older than retention_days (30 days)
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=retention_days)

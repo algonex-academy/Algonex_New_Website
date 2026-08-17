@@ -200,6 +200,12 @@
     <!-- Alert status banner -->
     <div id="status_alert" style="display: none; margin-bottom: 24px; padding: 16px; border-radius: 12px; font-size: 14px; font-weight: 500;"></div>
 
+    {% if backup_stale %}
+    <div style="margin-bottom: 24px; padding: 16px; border-radius: 12px; font-size: 14px; font-weight: 600; background: #fff7ed; border: 1px solid #fdba74; color: #9a3412;">
+        ⚠️ No snapshot in the last 26 hours — the nightly backup may have stopped. Check the EC2 crontab (<code>crontab -l</code>) and <code>/var/log/algonex_backup.log</code>, or take a manual snapshot now.
+    </div>
+    {% endif %}
+
     <!-- Stats Widgets -->
     <div class="backup-stats-grid">
         <div class="backup-stat-card">
