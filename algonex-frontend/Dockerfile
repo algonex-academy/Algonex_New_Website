@@ -29,4 +29,4 @@ FROM alpine:3.19 AS prod
 COPY --from=build /app/dist /app/dist-built
 
 # Copy the built files to the mounted volume at startup so it always stays up-to-date
-CMD ["sh", "-c", "rm -rf /app/dist/* && cp -rf /app/dist-built/. /app/dist/ && echo 'Frontend build complete'"]
+CMD ["sh", "-c", "rm -rf /app/dist/* /app/dist/.[!.]* 2>/dev/null || true; cp -rf /app/dist-built/. /app/dist/ && echo 'Frontend build complete'"]
