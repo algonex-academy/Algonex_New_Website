@@ -1,34 +1,88 @@
 #!/bin/sh
-# Git pre-commit hook: runs lint, build check, and backend validation before allowing commits
+# Comprehensive Git Pre-Commit Hook for Algonex (Frontend + Backend + Security)
 
 set -e
 
-echo "==========================================="
-echo "  🚀 Algonex Pre-Commit Quality Checks"
-echo "==========================================="
+echo "======================================================"
+echo "  🚀 Running Algonex Pre-Commit Quality & Safety Suite"
+echo "======================================================"
 
-# 1. Check Frontend Lint
-echo "🔍 [1/3] Checking Frontend Lint (ESLint)..."
+# -----------------------------------------------------------------------------
+# 1. SECURITY & SECRET LEAK PREVENTION
+# -----------------------------------------------------------------------------
+echo "🔐 [1/6] Scanning for accidental secrets / keys..."
+# Check for staged private keys or .env files
+STAGED_FILES=$(git diff --cached --name-only)
+
+if echo "$STAGED_FILES" | grep -E '(\.pem|\.key|\.env$|\.env\.local|\.env\.prod)' > /dev/null; then
+    echo "❌ ERROR: Attempting to commit sensitive file (.env or private key)!"
+    echo "$STAGED_FILES" | grep -E '(\.pem|\.key|\.env$|\.env\.local|\.env\.prod)'
+    echo "💡 Remove sensitive files from git staging with: git reset HEAD <file>"
+    exit 1
+fi
+
+# Check for staged raw private key contents
+if git diff --cached | grep -E '-----BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY-----' > /dev/null; then
+    echo "❌ ERROR: Private key string detected in staged changes!"
+    exit 1
+fi
+
+# -----------------------------------------------------------------------------
+# 2. FRONTEND LINT
+# -----------------------------------------------------------------------------
+echo "🔍 [2/6] Checking Frontend Lint (ESLint)..."
 cd algonex-frontend
 npm run lint
 
-# 2. Check Frontend Build
-echo "🏗️ [2/3] Checking Frontend Production Build (Vite)..."
+# -----------------------------------------------------------------------------
+# 3. FRONTEND PRODUCTION BUILD
+# -----------------------------------------------------------------------------
+echo "🏗️ [3/6] Checking Frontend Production Build (Vite)..."
 npm run build
 cd ..
 
-# 3. Check Backend Python syntax / tests
-echo "🐍 [3/3] Checking Backend Python Code..."
+# -----------------------------------------------------------------------------
+# 4. BACKEND PYTHON SYNTAX CHECK
+# -----------------------------------------------------------------------------
+echo "🐍 [4/6] Checking Backend Python Syntax..."
 if command -v python >/dev/null 2>&1; then
-    cd algonex-backend
-    python -m py_compile config/settings/production.py
-    cd ..
+    PYTHON_CMD="python"
 elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_CMD="python3"
+else
+    PYTHON_CMD=""
+fi
+
+if [ -n "$PYTHON_CMD" ]; then
     cd algonex-backend
-    python3 -m py_compile config/settings/production.py
+    $PYTHON_CMD -m py_compile config/settings/production.py config/settings/base.py
+    
+    # -------------------------------------------------------------------------
+    # 5. DJANGO SYSTEM & MIGRATION CHECKS (if environment available)
+    # -------------------------------------------------------------------------
+    echo "⚙️ [5/6] Checking Django System & Missing Migrations..."
+    if $PYTHON_CMD manage.py check --settings=config.settings.testing >/dev/null 2>&1; then
+        $PYTHON_CMD manage.py makemigrations --check --dry-run --settings=config.settings.testing || {
+            echo "⚠️ WARNING: You have uncreated model changes. Run 'python manage.py makemigrations'!"
+        }
+    fi
     cd ..
 fi
 
-echo "==========================================="
-echo "  ✅ All Pre-Commit Checks Passed!"
-echo "==========================================="
+# -----------------------------------------------------------------------------
+# 6. LARGE FILE GUARD (> 15 MB)
+# -----------------------------------------------------------------------------
+echo "📦 [6/6] Checking for accidentally staged large files (>15MB)..."
+for FILE in $STAGED_FILES; do
+    if [ -f "$FILE" ]; then
+        FILE_SIZE=$(wc -c < "$FILE" 2>/dev/null || echo 0)
+        if [ "$FILE_SIZE" -gt 15728640 ]; then
+            echo "⚠️ WARNING: Staged file $FILE is larger than 15MB ($((FILE_SIZE / 1048576)) MB)."
+            echo "Consider storing large assets outside git (e.g. S3 / CDN)."
+        fi
+    fi
+done
+
+echo "======================================================"
+echo "  ✅ All Quality & Security Checks Passed Successfully!"
+echo "======================================================"
