@@ -37,15 +37,29 @@ apiClient.interceptors.response.use(
           refresh: refreshToken,
         });
 
-        const { access } = response.data;
+        const { access, refresh } = response.data;
         localStorage.setItem("access_token", access);
+        // ROTATE_REFRESH_TOKENS is on server-side: each refresh returns a NEW
+        // refresh token. Discarding it means the session hard-expires 7 days
+        // after login no matter how active the user is.
+        if (refresh) {
+          localStorage.setItem("refresh_token", refresh);
+        }
 
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/signin";
+        // Only force the login page for protected areas — public pages fire
+        // authenticated requests too (stale token on refresh), and yanking a
+        // visitor off the homepage to /signin is the "breaks after refresh" bug.
+        const path = window.location.pathname;
+        const isProtected = ["/profile", "/my-", "/dashboard", "/admin-backups"]
+          .some((p) => path.startsWith(p));
+        if (isProtected) {
+          window.location.href = "/signin";
+        }
         return Promise.reject(refreshError);
       }
     }

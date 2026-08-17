@@ -10,7 +10,12 @@ export const authAPI = {
   },
 
   logout() {
-    return apiClient.post("/auth/logout/");
+    // dj-rest-auth's LogoutView requires the refresh token in the body to
+    // revoke it server-side; without it the call 401s and logout is
+    // client-side only.
+    return apiClient.post("/auth/logout/", {
+      refresh: localStorage.getItem("refresh_token"),
+    });
   },
 
   getUser() {

@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { Spin } from "antd";
 import { useAuth } from "../../hooks/useAuth";
 
-export function ProtectedRoute({ children, roles }) {
+export function ProtectedRoute({ children, roles, requiredRole }) {
   const { user, loading, isAuthenticated } = useAuth();
   const location = useLocation();
 
@@ -18,7 +18,10 @@ export function ProtectedRoute({ children, roles }) {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
-  if (roles && !roles.includes(user.role)) {
+  // Accept both `roles` (array) and `requiredRole` (string) — App.jsx uses
+  // requiredRole; with only `roles` supported the admin gate never ran.
+  const allowedRoles = roles || (requiredRole ? [requiredRole] : null);
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
