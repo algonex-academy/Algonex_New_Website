@@ -127,4 +127,4 @@ class PaymentAdmin(ImportExportModelAdmin, ModelAdmin):
     list_filter = ["status", "payment_date"]
     list_editable = ["status"]
     search_fields = ["student_registration__student_id", "student_registration__user__email", "upi_transaction_id"]
-    raw_id_fields = ["student_registration"]
+    autocomplete_fields = ["student_registration"]
