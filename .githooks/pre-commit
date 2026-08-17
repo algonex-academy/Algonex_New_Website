@@ -22,7 +22,7 @@ if echo "$STAGED_FILES" | grep -E '(\.pem|\.key|\.env$|\.env\.local|\.env\.prod)
 fi
 
 # Check for staged raw private key contents
-if git diff --cached | grep -E '-----BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY-----' > /dev/null; then
+if git diff --cached | grep -E -e '-----BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY-----' > /dev/null; then
     echo "❌ ERROR: Private key string detected in staged changes!"
     exit 1
 fi
