@@ -16,6 +16,11 @@ from signin.views import PaymentSummaryView, SubmitPaymentView
 
 urlpatterns = [
     path("admin/system/backups/", admin_system_backup_page_view, name="admin_system_backups"),
+    path("admin/system/backups", admin_system_backup_page_view),
+    path("admin/backups/", admin_system_backup_page_view),
+    path("admin/backups", admin_system_backup_page_view),
+    path("admin/dashboard/backups/", admin_system_backup_page_view),
+    path("admin/dashboard/backups", admin_system_backup_page_view),
     path("admin/courses/communication/", admin_communication_view, name="admin_courses_communication"),
     path("admin/send-enrollment-email/", send_enrollment_email_view, name="admin_send_enrollment_email"),
     path("admin/", admin.site.urls),
