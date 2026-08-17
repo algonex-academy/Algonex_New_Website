@@ -1,5 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { motion } from "framer-motion";
 import { Bot, User } from "lucide-react";
 import { CardRenderer } from "./ChatCards";
 

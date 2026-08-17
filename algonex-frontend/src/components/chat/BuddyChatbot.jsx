@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Trash2, Sparkles, ChevronDown } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import { sendBuddyMessage } from "../../api/buddy";

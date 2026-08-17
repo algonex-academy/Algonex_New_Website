@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import { Avatar, Rate, Tag, Skeleton } from 'antd';
 import { CommentOutlined } from '@ant-design/icons';
+import { motion } from 'framer-motion';
 import { alumniAPI } from '../../api/alumni';
 
 import "slick-carousel/slick/slick.css";
