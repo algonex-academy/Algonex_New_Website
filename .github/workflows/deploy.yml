@@ -1,0 +1,93 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests & Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: algonex-backend/requirements.txt
+
+      - name: Install Python dependencies
+        run: |
+          cd algonex-backend
+          pip install -r requirements.txt
+
+      - name: Run Backend Pytest Suite
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.testing
+          DB_ENGINE: sqlite
+        run: |
+          cd algonex-backend
+          python -m pytest -v --tb=short
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: algonex-frontend/package-lock.json
+
+      - name: Install Frontend dependencies
+        run: |
+          cd algonex-frontend
+          npm ci
+
+      - name: Frontend Lint
+        run: |
+          cd algonex-frontend
+          npm run lint
+
+      - name: Frontend Build
+        run: |
+          cd algonex-frontend
+          npm run build
+
+  deploy:
+    name: Auto Deploy to Server
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: SSH and Deploy Application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Connecting to server and updating Algonex..."
+            cd /opt/algonex
+
+            echo "📥 Pulling latest changes from main branch..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "🐳 Building and updating Docker containers..."
+            docker compose -f docker-compose.prod.yml up --build -d --remove-orphans
+
+            echo "🗄️ Running database migrations..."
+            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
+
+            echo "📦 Collecting static files..."
+            docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+
+            echo "🧹 Cleaning up old unused Docker images..."
+            docker image prune -f
+
+            echo "✅ Deployment completed successfully!"
