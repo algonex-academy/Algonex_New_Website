@@ -354,17 +354,22 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for job_data in SEED_JOBS:
+            job_fields = dict(job_data)
+            tags_str = job_fields.pop("tags", "")
+            job_fields["tags_text"] = tags_str
+
             job, created = Job.objects.get_or_create(
-                title=job_data["title"],
-                defaults=job_data,
+                title=job_fields["title"],
+                defaults=job_fields,
             )
             if created:
                 self.stdout.write(self.style.SUCCESS(f"  Created: {job.title}"))
             else:
                 # Update existing with new markdown content
-                job.description = job_data["description"]
-                job.requirements = job_data["requirements"]
-                job.save(update_fields=["description", "requirements"])
+                job.description = job_fields["description"]
+                job.requirements = job_fields["requirements"]
+                job.tags_text = tags_str
+                job.save(update_fields=["description", "requirements", "tags_text"])
                 self.stdout.write(f"  Updated: {job.title}")
 
         self.stdout.write(self.style.SUCCESS("Career seed complete!"))
