@@ -148,14 +148,21 @@ class Payment(TimestampMixin, models.Model):
         super().save(*args, **kwargs)
 
         if is_new or old_status != self.status:
-            reg = self.student_registration
-            approved_total = reg.payments.filter(status="approved").aggregate(
-                total=models.Sum("amount")
-            )["total"] or 0
+            from django.db import transaction
+            # Lock the registration row so concurrent payment approvals can't
+            # lose updates on paid_fee (read-modify-write race).
+            with transaction.atomic():
+                reg = StudentRegistration.objects.select_for_update().get(
+                    pk=self.student_registration_id
+                )
+                approved_total = reg.payments.filter(status="approved").aggregate(
+                    total=models.Sum("amount")
+                )["total"] or 0
 
-            reg.paid_fee = approved_total
-            reg.balance_fee = max(0, reg.total_fee - reg.paid_fee)
-            reg.save(update_fields=["paid_fee", "balance_fee"])
+                reg.paid_fee = approved_total
+                reg.balance_fee = max(0, reg.total_fee - reg.paid_fee)
+                reg.save(update_fields=["paid_fee", "balance_fee"])
+            self.student_registration = reg
 
             if self.status == "approved" and old_status != "approved":
                 try:

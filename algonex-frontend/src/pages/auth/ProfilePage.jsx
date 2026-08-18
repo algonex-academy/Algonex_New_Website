@@ -157,7 +157,11 @@ export default function ProfilePage() {
       paymentForm.resetFields();
       fetchPaymentSummary();
     } catch (err) {
-      message.error(err.response?.data?.error || "Failed to submit payment details.");
+      // DRF wraps errors as {error:{message,details}} — passing that object to
+      // message.error renders [object Object] or throws; extract a string.
+      const e = err.response?.data?.error;
+      const detail = typeof e === "string" ? e : (e?.message || e?.detail);
+      message.error(detail || "Failed to submit payment details.");
     } finally {
       setPaymentLoading(false);
     }
