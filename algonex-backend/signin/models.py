@@ -91,8 +91,13 @@ class StudentRegistration(models.Model):
         if not self.student_id:
             from .registration_utils import generate_student_id
             self.student_id = generate_student_id(self.course_selected, self.batch_type)
-        # Keep balance in sync whenever fees change (e.g. admin edits total_fee)
-        self.balance_fee = max(0, self.total_fee - self.paid_fee)
+        # Keep balance in sync whenever fees change (e.g. admin edits total_fee).
+        # Coerce to Decimal first — callers sometimes assign floats (e.g. the
+        # registration view passes paid_fee=0.0), and Decimal - float raises.
+        from decimal import Decimal
+        total = self.total_fee if isinstance(self.total_fee, Decimal) else Decimal(str(self.total_fee or 0))
+        paid = self.paid_fee if isinstance(self.paid_fee, Decimal) else Decimal(str(self.paid_fee or 0))
+        self.balance_fee = max(Decimal("0"), total - paid)
         update_fields = kwargs.get("update_fields")
         if update_fields is not None:
             update_fields = set(update_fields)

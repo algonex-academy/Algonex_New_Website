@@ -51,17 +51,14 @@ backend test suite is **215/216** — one regression, documented below.
 
 ---
 
-## ⚠️ Known regression — resolve before merge
+## ✅ Regression resolved
 
-**Test:** `signin/tests/test_views.py::TestStudentRegisterView::test_student_register_creates_user_and_payment`
-**Symptom:** `POST /api/v1/register/` returns 500 ("Error during student registration pipeline"); 215/216 pass.
-**Introduced by:** wave 2 (security + Dockerfile font changes).
-**Most likely cause:** the ID-card / invoice generation step (`registration_utils.create_id_card` / `create_invoice`). This test passed at 216/216 *before* `fonts-dejavu-core` was added; with real DejaVu TrueType fonts now loaded (instead of PIL's `load_default()`), a text-drawing call in that pipeline is the prime suspect. The photo-validation/rename change in `StudentRegisterView` is the secondary suspect. The exact traceback could not be captured — the Docker daemon was mid-restart when this was written.
-**Next step:** run the one test in the container and read the traceback:
-```
-docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm backend \
-  python -m pytest signin/tests/test_views.py::TestStudentRegisterView::test_student_register_creates_user_and_payment -x --tb=long
-```
+The earlier regression (`test_student_register_creates_user_and_payment` 500ing)
+was **not** the fonts — the real cause was the new `balance_fee` recompute in
+`StudentRegistration.save()` doing `Decimal - float`: the registration view
+assigns `paid_fee = 0.0` (a float) while `total_fee` is a Decimal, and
+`Decimal - float` raises `TypeError`. Fixed by coercing both operands to
+`Decimal` in `save()` before subtracting. **Test suite is now 216/216.**
 
 ---
 
