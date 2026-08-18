@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from programs.models import Program
+from signin.services import _issue_step2_token
 from signin.models import StudentRegistration, Payment
 
 
@@ -59,6 +60,7 @@ class TestRegisterStep2View(TestCase):
     def test_creates_profile(self):
         response = self.client.post("/api/v1/register/step2/", {
             "email": "john@example.com",
+            "reg_token": _issue_step2_token("john@example.com"),
             "city": "Hyderabad",
             "state": "Telangana",
             "country": "India",
@@ -76,6 +78,7 @@ class TestRegisterStep2View(TestCase):
     def test_nonexistent_email_returns_404(self):
         response = self.client.post("/api/v1/register/step2/", {
             "email": "nobody@example.com",
+            "reg_token": _issue_step2_token("nobody@example.com"),
             "city": "City", "state": "State",
             "college": "College", "branch": "Branch",
             "degree_level": "bachelors", "graduation_year": 2025,
@@ -83,6 +86,19 @@ class TestRegisterStep2View(TestCase):
             "terms_agreed": True,
         })
         self.assertEqual(response.status_code, 404)
+
+    def test_missing_reg_token_returns_400(self):
+        # IDOR guard: step2 without a valid step1 token must be rejected,
+        # so an attacker cannot overwrite an arbitrary user's profile by email.
+        response = self.client.post("/api/v1/register/step2/", {
+            "email": "john@example.com",
+            "city": "Hyderabad", "state": "Telangana",
+            "college": "JNTU", "branch": "CSE",
+            "degree_level": "bachelors", "graduation_year": 2025,
+            "employment_status": "student", "interest_category": "fellowship",
+            "terms_agreed": True,
+        })
+        self.assertEqual(response.status_code, 400)
 
     def test_terms_not_agreed_returns_400(self):
         response = self.client.post("/api/v1/register/step2/", {
@@ -107,6 +123,7 @@ class TestRegisterStep2View(TestCase):
         )
         response = self.client.post("/api/v1/register/step2/", {
             "email": "john@example.com",
+            "reg_token": _issue_step2_token("john@example.com"),
             "city": "Hyderabad", "state": "Telangana",
             "college": "JNTU", "branch": "CSE",
             "degree_level": "bachelors", "graduation_year": 2025,

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from signin.models import StudentRegistration
-from signin.services import register_step1, register_step2
+from signin.services import register_step1, register_step2, _issue_step2_token
 from signin.exceptions import UserNotFound, TermsNotAgreed
 from programs.models import Program
 from datetime import date, timedelta
@@ -67,6 +67,7 @@ class TestRegisterStep2(TestCase):
     def test_creates_profile(self):
         result = register_step2(
             email="john@example.com",
+            reg_token=_issue_step2_token("john@example.com"),
             city="Hyderabad", state="Telangana", country="India",
             college="JNTU", branch="CSE",
             degree_level="bachelors", graduation_year=2025,
@@ -89,6 +90,7 @@ class TestRegisterStep2(TestCase):
         )
         register_step2(
             email="john@example.com",
+            reg_token=_issue_step2_token("john@example.com"),
             city="New City", state="Telangana", country="India",
             college="JNTU", branch="CSE",
             degree_level="masters", graduation_year=2026,
@@ -112,6 +114,7 @@ class TestRegisterStep2(TestCase):
         )
         register_step2(
             email="john@example.com",
+            reg_token=_issue_step2_token("john@example.com"),
             city="Hyderabad", state="Telangana",
             college="JNTU", branch="CSE",
             degree_level="bachelors", graduation_year=2025,
@@ -127,6 +130,7 @@ class TestRegisterStep2(TestCase):
         with self.assertRaises(UserNotFound):
             register_step2(
                 email="nobody@example.com",
+                reg_token=_issue_step2_token("nobody@example.com"),
                 city="City", state="State",
                 college="College", branch="Branch",
                 degree_level="bachelors", graduation_year=2025,
