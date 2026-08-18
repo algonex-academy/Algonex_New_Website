@@ -54,3 +54,7 @@ if os.environ.get("EMAIL_HOST_USER"):
     EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# OAuth redirect URI — must exactly match the redirect_uri the SPA authorizes
+# with (window.location.origin + "/auth/callback").
+OAUTH_CALLBACK_URL = "http://localhost:5173/auth/callback"

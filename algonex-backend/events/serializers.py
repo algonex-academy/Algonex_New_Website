@@ -119,7 +119,12 @@ class EventCreateUpdateSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     event_title = serializers.CharField(source="event.title", read_only=True)
     event_slug = serializers.CharField(source="event.slug", read_only=True)
+    event_start_date = serializers.DateTimeField(source="event.start_date", read_only=True)
+    event_location = serializers.CharField(source="event.location", read_only=True)
 
     class Meta:
         model = Registration
-        fields = ["id", "event_title", "event_slug", "status", "registered_at"]
+        fields = [
+            "id", "event_title", "event_slug", "event_start_date",
+            "event_location", "status", "registered_at",
+        ]

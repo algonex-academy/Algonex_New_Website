@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Spin, App } from "antd";
 import apiClient from "../../api/client";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function OAuthCallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const { message } = App.useApp();
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     const code = searchParams.get("code");
@@ -20,10 +22,11 @@ export default function OAuthCallbackPage() {
     const endpoint = state === "github" ? "/auth/github/" : "/auth/google/";
 
     apiClient.post(endpoint, { code })
-      .then((response) => {
+      .then(async (response) => {
         const { access, refresh } = response.data;
         localStorage.setItem("access_token", access);
         localStorage.setItem("refresh_token", refresh);
+        await refreshUser();
         message.success("Logged in successfully!");
         navigate("/", { replace: true });
       })
@@ -31,7 +34,7 @@ export default function OAuthCallbackPage() {
         setError("OAuth login failed. Please try again.");
         message.error("OAuth login failed.");
       });
-  }, [searchParams, navigate, message]);
+  }, [searchParams, navigate, message, refreshUser]);
 
   if (error) {
     return (

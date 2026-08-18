@@ -13,7 +13,7 @@ import {
   TeamOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { programsAPI } from "../../api/programs";
+import { programsAPI, getApiErrorMessage } from "../../api/programs";
 import { getImageUrl } from "../../utils/image";
 
 const MOCK_INTERNSHIPS = [
@@ -104,6 +104,7 @@ export default function InternshipPage() {
   const [internships, setInternships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [, setSelectedTrack] = useState("");
   const [form] = Form.useForm();
 
@@ -130,10 +131,25 @@ export default function InternshipPage() {
     setApplyModalOpen(true);
   };
 
-  const handleApplySubmit = (values) => {
-    message.success(`Application for ${values.internshipTrack} submitted successfully! We will review your profile.`);
-    setApplyModalOpen(false);
-    form.resetFields();
+  const handleApplySubmit = async (values) => {
+    setSubmitting(true);
+    try {
+      await programsAPI.submitLead({
+        full_name: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        subject: `Internship Application: ${values.internshipTrack || "General"}`,
+        course_interested: values.internshipTrack || "",
+        message: `Internship application.\nTrack: ${values.internshipTrack || "Not specified"}\nResume: ${values.resume}`,
+      });
+      message.success(`Application for ${values.internshipTrack} submitted successfully! We will review your profile.`);
+      setApplyModalOpen(false);
+      form.resetFields();
+    } catch (err) {
+      message.error(getApiErrorMessage(err, "Could not submit your application. Please try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -400,7 +416,7 @@ export default function InternshipPage() {
             <Input placeholder="Paste your resume URL" size="large" style={{ borderRadius: 8 }} />
           </Form.Item>
           <Form.Item style={{ marginBottom: 0, marginTop: 12 }}>
-            <Button type="primary" htmlType="submit" block size="large" style={{ height: 46, borderRadius: 8, fontWeight: 600 }}>
+            <Button type="primary" htmlType="submit" block size="large" loading={submitting} style={{ height: 46, borderRadius: 8, fontWeight: 600 }}>
               Submit Application
             </Button>
           </Form.Item>

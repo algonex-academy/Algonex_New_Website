@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SigninFormView(APIView):
+    permission_classes = [AllowAny]
+    throttle_scope = "registration"
+
     def post(self, request):
         try:
             serializer = SigninProfileSerializer(data=request.data)
@@ -57,6 +60,7 @@ class RegisterStep2View(APIView):
 
 
 from decimal import Decimal
+from uuid import uuid4
 from .models import StudentRegistration, Payment
 from .registration_utils import generate_student_id, create_id_card, create_invoice, send_confirmation_email
 
@@ -98,6 +102,27 @@ class StudentRegisterView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Validate the uploaded photo: only real image types, capped size,
+            # and a server-generated filename (never trust the client's name —
+            # e.g. photo=x.html would be served same-origin as executable HTML).
+            allowed_photo_types = {
+                "image/jpeg": "jpg",
+                "image/png": "png",
+                "image/webp": "webp",
+            }
+            photo_content_type = (photo.content_type or "").lower()
+            if photo_content_type not in allowed_photo_types:
+                return Response(
+                    {"error": "Invalid photo type. Only JPEG, PNG, or WebP images are allowed."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if photo.size > 3 * 1024 * 1024:
+                return Response(
+                    {"error": "Photo is too large. Maximum allowed size is 3MB."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            photo.name = f"{uuid4().hex}.{allowed_photo_types[photo_content_type]}"
+
             # Generate student ID if not provided
             if not student_id:
                 student_id = generate_student_id(course_selected, batch_type)
@@ -133,10 +158,12 @@ class StudentRegisterView(APIView):
             with transaction.atomic():
                 user_exists = User.objects.filter(email=email_normalized).exists()
                 if user_exists:
+                    # SECURITY: never set a password on an already-existing
+                    # account from this unauthenticated endpoint — doing so
+                    # would let anyone who knows the email hijack password-less
+                    # (imported/OAuth) accounts. First-time passwords must go
+                    # through the setup-email token link or OTP reset flow.
                     user = User.objects.get(email=email_normalized)
-                    if not user.has_usable_password():
-                        user.set_password(password)
-                        user.save()
                 else:
                     name_parts = full_name.strip().split(None, 1)
                     first_name = name_parts[0] if name_parts else ""

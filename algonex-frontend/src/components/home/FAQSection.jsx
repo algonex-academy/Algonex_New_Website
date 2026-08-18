@@ -27,8 +27,10 @@ const FAQSection = () => {
     useEffect(() => {
         commonAPI.getFAQs()
             .then(res => {
-                const results = res.data?.data?.results || res.data?.results || [];
-                // If backend returns empty, fallback to constants for demonstration
+                // Wrapped + paginated shape: { status, data: { results: [...] } }
+                const payload = res.data?.data?.results ?? res.data?.results;
+                const results = Array.isArray(payload) ? payload : [];
+                // Only fall back to constants when the API genuinely returns none
                 setFaqs(results.length > 0 ? results : ALGONEX_FAQS);
             })
             .catch(err => {

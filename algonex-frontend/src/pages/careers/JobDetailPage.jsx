@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, Tag, Button, Empty, Spin, Modal, Form, Input, Upload, App } from "antd";
-import { ArrowLeftOutlined, UploadOutlined, EnvironmentOutlined, DollarOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, UploadOutlined, EnvironmentOutlined, DollarOutlined, ExportOutlined } from "@ant-design/icons";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { careersAPI } from "../../api/careers";
@@ -53,6 +53,8 @@ export default function JobDetailPage() {
   if (loading) return <div style={{ textAlign: "center", padding: 100 }}><Spin size="large" /></div>;
   if (!job) return <div style={{ padding: 80, textAlign: "center" }}><Empty description="Job not found" /><Button type="primary" onClick={() => navigate("/careers")} style={{ marginTop: 16 }}>Browse Jobs</Button></div>;
 
+  const isExternal = job.apply_mode === "external";
+
   return (
     <div style={{ background: "#f8fafc" }}>
       <div style={{ background: "linear-gradient(135deg, #00B4D8, #0891b2)", padding: "48px 24px", color: "white" }}>
@@ -84,7 +86,28 @@ export default function JobDetailPage() {
           </Card>
         )}
 
-        {applied ? (
+        {isExternal ? (
+          <>
+            {(job.company_name || job.company_logo) && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                {job.company_logo && <img src={job.company_logo} alt={job.company_name || "Company logo"} style={{ height: 40, maxWidth: 120, objectFit: "contain" }} />}
+                {job.company_name && <span style={{ fontSize: 16, fontWeight: 600 }}>{job.company_name}</span>}
+              </div>
+            )}
+            {job.external_link ? (
+              <Button type="primary" size="large" block icon={<ExportOutlined />} href={job.external_link} target="_blank" rel="noopener noreferrer" style={{ height: 48, borderRadius: 8 }}>
+                Apply on company site
+              </Button>
+            ) : (
+              <>
+                <Button type="primary" size="large" block disabled style={{ height: 48, borderRadius: 8 }}>
+                  Apply on company site
+                </Button>
+                <p style={{ textAlign: "center", color: "#64748b", marginTop: 8, fontSize: 14 }}>Application link unavailable — please check back later.</p>
+              </>
+            )}
+          </>
+        ) : applied ? (
           <Button size="large" block style={{ height: 48, borderRadius: 8, background: "#22c55e", color: "white", border: "none" }}>Application Submitted</Button>
         ) : (
           <Button type="primary" size="large" block onClick={() => {
@@ -96,18 +119,20 @@ export default function JobDetailPage() {
         )}
       </div>
 
-      <Modal title={`Apply for ${job.title}`} open={showApply} onOk={handleApply} onCancel={() => setShowApply(false)} okText="Submit Application" confirmLoading={applyLoading}>
-        <Form form={form} layout="vertical">
-          <Form.Item name="resume" label="Resume (PDF)" valuePropName="fileList" getValueFromEvent={(e) => e?.fileList} rules={[{ required: true, message: "Please upload your resume" }]}>
-            <Upload beforeUpload={() => false} maxCount={1} accept=".pdf">
-              <Button icon={<UploadOutlined />}>Select PDF</Button>
-            </Upload>
-          </Form.Item>
-          <Form.Item name="cover_letter" label="Cover Letter (optional)">
-            <Input.TextArea rows={4} placeholder="Why are you a good fit for this role?" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      {!isExternal && (
+        <Modal title={`Apply for ${job.title}`} open={showApply} onOk={handleApply} onCancel={() => setShowApply(false)} okText="Submit Application" confirmLoading={applyLoading}>
+          <Form form={form} layout="vertical">
+            <Form.Item name="resume" label="Resume (PDF)" valuePropName="fileList" getValueFromEvent={(e) => e?.fileList} rules={[{ required: true, message: "Please upload your resume" }]}>
+              <Upload beforeUpload={() => false} maxCount={1} accept=".pdf">
+                <Button icon={<UploadOutlined />}>Select PDF</Button>
+              </Upload>
+            </Form.Item>
+            <Form.Item name="cover_letter" label="Cover Letter (optional)">
+              <Input.TextArea rows={4} placeholder="Why are you a good fit for this role?" />
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
     </div>
   );
 }

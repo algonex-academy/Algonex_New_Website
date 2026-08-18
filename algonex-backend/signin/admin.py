@@ -32,9 +32,9 @@ class StudentRegistrationResource(resources.ModelResource):
         )
 
     def before_import_row(self, row, **kwargs):
-        user_val = str(row.get("user", "")).strip()
-        student_id = str(row.get("student_id", "")).strip()
-        
+        user_val = str(row.get("user") or "").strip()
+        student_id = str(row.get("student_id") or "").strip()
+
         user_obj = None
         if user_val.isdigit():
             user_obj = User.objects.filter(id=int(user_val)).first()
@@ -43,13 +43,16 @@ class StudentRegistrationResource(resources.ModelResource):
 
         if not user_obj and student_id:
             email = f"student_{student_id.lower()}@algonex.in"
+            first_name = str(
+                row.get("full_name") or row.get("first_name") or row.get("name") or ""
+            ).strip()[:30] or f"Student {student_id}"
             user_obj, _ = User.objects.get_or_create(
                 email=email,
                 defaults={
                     "username": f"student_{student_id.lower()}",
-                    "first_name": row.get("why_join", "")[:30] or f"Student {student_id}",
+                    "first_name": first_name,
                     "role": "student",
-                    "phone": row.get("parent_phone", ""),
+                    "phone": str(row.get("parent_phone") or "").strip(),
                 }
             )
 
@@ -75,7 +78,7 @@ class PaymentResource(resources.ModelResource):
         )
 
     def before_import_row(self, row, **kwargs):
-        reg_val = str(row.get("student_registration", "")).strip()
+        reg_val = str(row.get("student_registration") or "").strip()
         if reg_val.isdigit():
             reg_obj = StudentRegistration.objects.filter(id=int(reg_val)).first()
             if reg_obj:
@@ -95,7 +98,7 @@ class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
     list_display_links = ["student_id", "full_name"]
     list_filter = ["course_selected", "batch_type", "status"]
     search_fields = ["student_id", "user__email", "user__first_name", "upi_transaction_id", "college_name"]
-    readonly_fields = ["registration_date", "balance_fee"]
+    readonly_fields = ["registration_date", "paid_fee", "balance_fee"]
     inlines = [PaymentInline]
     raw_id_fields = ["user", "course"]
     
@@ -108,6 +111,9 @@ class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
         }),
         ("Education Information", {
             "fields": ("college_name", "branch", "degree_level", "graduation_year", "current_year")
+        }),
+        ("Employment & Consent", {
+            "fields": ("employment_status", "years_of_experience", "terms_agreed")
         }),
         ("Course / Training Information", {
             "fields": ("course_selected", "course", "batch_type", "joining_date", "why_join")

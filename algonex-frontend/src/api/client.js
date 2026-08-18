@@ -18,6 +18,41 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Single-flight token refresh. ROTATE_REFRESH_TOKENS is on server-side, so a
+// refresh token is single-use: if several 401s each fired their own refresh
+// call, the second one would send an already-rotated (now-blacklisted) token
+// and log the user out. All concurrent 401s must share ONE refresh call.
+let refreshPromise = null;
+
+const refreshAccessToken = () => {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const refreshToken = localStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        throw new Error("No refresh token");
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
+        refresh: refreshToken,
+      });
+
+      const { access, refresh } = response.data;
+      localStorage.setItem("access_token", access);
+      // Each refresh returns a NEW refresh token. Discarding it means the
+      // session hard-expires 7 days after login no matter how active the
+      // user is.
+      if (refresh) {
+        localStorage.setItem("refresh_token", refresh);
+      }
+
+      return access;
+    })().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+};
+
 // Response interceptor — auto-refresh on 401
 apiClient.interceptors.response.use(
   (response) => response,
@@ -28,24 +63,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        if (!refreshToken) {
-          throw new Error("No refresh token");
-        }
-
-        const response = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
-          refresh: refreshToken,
-        });
-
-        const { access, refresh } = response.data;
-        localStorage.setItem("access_token", access);
-        // ROTATE_REFRESH_TOKENS is on server-side: each refresh returns a NEW
-        // refresh token. Discarding it means the session hard-expires 7 days
-        // after login no matter how active the user is.
-        if (refresh) {
-          localStorage.setItem("refresh_token", refresh);
-        }
-
+        const access = await refreshAccessToken();
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return apiClient(originalRequest);
       } catch (refreshError) {

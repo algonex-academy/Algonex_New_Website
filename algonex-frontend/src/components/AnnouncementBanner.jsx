@@ -10,15 +10,20 @@ const FALLBACK_BANNER = {
 };
 
 const AnnouncementBanner = () => {
-  const [banner, setBanner] = useState(FALLBACK_BANNER);
+  // null = render nothing (still loading, or admin deactivated the banner)
+  const [banner, setBanner] = useState(null);
 
   useEffect(() => {
     apiClient.get("/banner/")
       .then((res) => {
-        const data = res.data?.data;
-        if (data) setBanner(data);
+        // API returns data: null when the banner is deactivated — respect it
+        // and render nothing instead of falling back to the hardcoded promo.
+        setBanner(res.data?.data || null);
       })
-      .catch(() => { });
+      .catch(() => {
+        // Only use the hardcoded default when the API call itself fails.
+        setBanner(FALLBACK_BANNER);
+      });
   }, []);
 
   if (!banner) return null;

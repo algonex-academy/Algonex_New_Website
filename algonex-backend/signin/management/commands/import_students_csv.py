@@ -27,16 +27,19 @@ class Command(BaseCommand):
                 reader = csv.DictReader(f)
                 for row in reader:
                     reg_id = int(row["id"])
-                    student_id = row["student_id"].strip()
+                    student_id = str(row.get("student_id") or "").strip()
                     email = f"student_{student_id.lower()}@algonex.in"
+                    first_name = str(
+                        row.get("full_name") or row.get("first_name") or row.get("name") or ""
+                    ).strip()[:30] or f"Student {student_id}"
 
                     user, _ = User.objects.get_or_create(
                         email=email,
                         defaults={
                             "username": f"student_{student_id.lower()}",
-                            "first_name": row.get("why_join", "")[:30] or f"Student {student_id}",
+                            "first_name": first_name,
                             "role": "student",
-                            "phone": row.get("parent_phone", ""),
+                            "phone": row.get("parent_phone") or "",
                         }
                     )
 
@@ -45,32 +48,32 @@ class Command(BaseCommand):
                         defaults={
                             "user": user,
                             "student_id": student_id,
-                            "parent_phone": row.get("parent_phone", ""),
-                            "dob": row.get("dob", ""),
-                            "gender": row.get("gender", ""),
-                            "street_address": row.get("street_address", ""),
-                            "city": row.get("city", ""),
-                            "state": row.get("state", ""),
-                            "country": row.get("country", "India"),
-                            "pincode": row.get("pincode", ""),
-                            "college_name": row.get("college_name", ""),
-                            "branch": row.get("branch", ""),
-                            "degree_level": row.get("degree_level", ""),
+                            "parent_phone": row.get("parent_phone") or "",
+                            "dob": row.get("dob") or "",
+                            "gender": row.get("gender") or "",
+                            "street_address": row.get("street_address") or "",
+                            "city": row.get("city") or "",
+                            "state": row.get("state") or "",
+                            "country": row.get("country") or "India",
+                            "pincode": row.get("pincode") or "",
+                            "college_name": row.get("college_name") or "",
+                            "branch": row.get("branch") or "",
+                            "degree_level": row.get("degree_level") or "",
                             "graduation_year": int(row["graduation_year"]) if row.get("graduation_year") else None,
-                            "current_year": row.get("current_year", ""),
-                            "employment_status": row.get("employment_status", ""),
+                            "current_year": row.get("current_year") or "",
+                            "employment_status": row.get("employment_status") or "",
                             "years_of_experience": int(row.get("years_of_experience") or 0),
-                            "course_selected": row.get("course_selected", ""),
+                            "course_selected": row.get("course_selected") or "",
                             "terms_agreed": row.get("terms_agreed") == "1",
-                            "batch_type": row.get("batch_type", ""),
-                            "joining_date": row.get("joining_date", ""),
-                            "photo": row.get("photo", ""),
-                            "status": row.get("status", "Active"),
+                            "batch_type": row.get("batch_type") or "",
+                            "joining_date": row.get("joining_date") or "",
+                            "photo": row.get("photo") or "",
+                            "status": row.get("status") or "Active",
                             "total_fee": Decimal(row.get("total_fee") or 0),
                             "paid_fee": Decimal(row.get("paid_fee") or 0),
                             "balance_fee": Decimal(row.get("balance_fee") or 0),
-                            "upi_transaction_id": row.get("upi_transaction_id", ""),
-                            "why_join": row.get("why_join", ""),
+                            "upi_transaction_id": row.get("upi_transaction_id") or "",
+                            "why_join": row.get("why_join") or "",
                         }
                     )
                     id_map[reg_id] = reg
@@ -93,14 +96,25 @@ class Command(BaseCommand):
                             id=pay_id,
                             student_registration=reg,
                             amount=Decimal(row.get("amount") or 0),
-                            upi_transaction_id=row["upi_transaction_id"],
-                            status=row.get("status", "approved"),
-                            remarks=row.get("remarks", ""),
+                            # bulk_create bypasses Payment.save(), so normalize
+                            # empty transaction ids to NULL here to avoid
+                            # unique collisions on "".
+                            upi_transaction_id=row.get("upi_transaction_id") or None,
+                            status=row.get("status") or "approved",
+                            remarks=row.get("remarks") or "",
                         )
                     )
 
             Payment.objects.bulk_create(payments_to_create, ignore_conflicts=True)
-            self.stdout.write(self.style.SUCCESS(f"✅ Imported {len(payments_to_create)} Payments."))
+            imported_ids = [p.id for p in payments_to_create]
+            inserted_count = Payment.objects.filter(id__in=imported_ids).count()
+            skipped_count = len(payments_to_create) - inserted_count
+            self.stdout.write(self.style.SUCCESS(f"✅ Imported {inserted_count} Payments."))
+            if skipped_count > 0:
+                self.stdout.write(self.style.WARNING(
+                    f"⚠️ WARNING: {skipped_count} payment row(s) were skipped as conflicts "
+                    f"(duplicate id or transaction id) and were NOT inserted."
+                ))
 
             # Update fee balances
             for reg in StudentRegistration.objects.all():

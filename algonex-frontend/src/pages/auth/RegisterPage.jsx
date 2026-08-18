@@ -92,6 +92,8 @@ export default function RegisterPage() {
     try {
       const payload = {
         email: step1Data.email,
+        // proves this browser completed step1 for this email (anti-IDOR)
+        reg_token: step1Response?.reg_token,
         ...values,
         terms_agreed: values.terms_agreed || false,
       };

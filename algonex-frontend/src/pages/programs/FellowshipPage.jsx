@@ -14,7 +14,7 @@ import {
   BookOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { programsAPI } from "../../api/programs";
+import { programsAPI, getApiErrorMessage } from "../../api/programs";
 import { getImageUrl } from "../../utils/image";
 
 const MOCK_FELLOWSHIPS = [
@@ -123,6 +123,7 @@ export default function FellowshipPage() {
   const [fellowships, setFellowships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [, setSelectedTrack] = useState("");
   const [form] = Form.useForm();
 
@@ -149,10 +150,25 @@ export default function FellowshipPage() {
     setApplyModalOpen(true);
   };
 
-  const handleApplySubmit = (values) => {
-    message.success(`Elite Application for ${values.fellowshipTrack} registered! Our admissions committee will reach out.`);
-    setApplyModalOpen(false);
-    form.resetFields();
+  const handleApplySubmit = async (values) => {
+    setSubmitting(true);
+    try {
+      await programsAPI.submitLead({
+        full_name: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        subject: `Fellowship Application: ${values.fellowshipTrack || "General"}`,
+        course_interested: values.fellowshipTrack || "",
+        message: `Fellowship application.\nTrack: ${values.fellowshipTrack || "Not specified"}\nGitHub: ${values.github}\nResume: ${values.resume}`,
+      });
+      message.success(`Elite Application for ${values.fellowshipTrack} registered! Our admissions committee will reach out.`);
+      setApplyModalOpen(false);
+      form.resetFields();
+    } catch (err) {
+      message.error(getApiErrorMessage(err, "Could not submit your application. Please try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -432,7 +448,7 @@ export default function FellowshipPage() {
             <Input placeholder="Paste your resume URL" size="large" style={{ borderRadius: 8 }} />
           </Form.Item>
           <Form.Item style={{ marginBottom: 0, marginTop: 12 }}>
-            <Button type="primary" htmlType="submit" block size="large" style={{ height: 46, borderRadius: 8, fontWeight: 600, background: "#a855f7", borderColor: "#a855f7" }}>
+            <Button type="primary" htmlType="submit" block size="large" loading={submitting} style={{ height: 46, borderRadius: 8, fontWeight: 600, background: "#a855f7", borderColor: "#a855f7" }}>
               Submit Application
             </Button>
           </Form.Item>

@@ -31,6 +31,7 @@ class Step1Serializer(serializers.Serializer):
 
 class Step2Serializer(serializers.Serializer):
     email = serializers.EmailField()
+    reg_token = serializers.CharField(required=False, allow_blank=True, default="")
 
     # Address
     street_address = serializers.CharField(required=False, allow_blank=True, default="")

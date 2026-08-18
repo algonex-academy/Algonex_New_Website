@@ -126,6 +126,26 @@ export default function CourseDetailPage() {
   const discountedPrice = discountNum > 0 ? Math.round(priceNum * (1 - discountNum / 100)) : priceNum;
   const trendingCourses = STACKS.filter((c) => (c.isTrending || c.is_trending) && c.id !== course.id).slice(0, 4);
 
+  // Normalize field names: the API sends average_rating / review_count /
+  // student_count / faqs / top-level level & prior_knowledge, while static
+  // STACKS data uses rating / reviews (number) / students / faq / recommended.
+  const rating = course.average_rating ?? course.rating ?? 0;
+  const reviewCount = course.review_count
+    ?? (Array.isArray(course.reviews) ? course.reviews.length : course.reviews)
+    ?? 0;
+  const studentCount = course.student_count ?? course.students ?? 0;
+  const level = course.level || course.recommended?.level;
+  const priorKnowledge = course.prior_knowledge || course.recommended?.prior_knowledge;
+  const faqs = Array.isArray(course.faqs) && course.faqs.length > 0
+    ? course.faqs
+    : (Array.isArray(course.faq) ? course.faq : []);
+  // API reviews/testimonials are arrays of feedback objects; static data only
+  // has testimonials. Merge both into one list for the reviews carousel.
+  const studentReviews = [
+    ...(Array.isArray(course.testimonials) ? course.testimonials : []),
+    ...(Array.isArray(course.reviews) ? course.reviews : []),
+  ];
+
   return (
     <div style={{ background: "#f8fafc" }}>
       {/* Banner */}
@@ -148,8 +168,8 @@ export default function CourseDetailPage() {
             Back
           </Button>
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-            <Tag color="cyan">{course.recommended?.level || "All Levels"}</Tag>
-            {course.isTrending && <Tag color="magenta">Trending</Tag>}
+            <Tag color="cyan">{level || "All Levels"}</Tag>
+            {(course.isTrending || course.is_trending) && <Tag color="magenta">Trending</Tag>}
             <Tag color="green">{course.duration}</Tag>
           </div>
           <h1 style={{ fontSize: "clamp(26px, 6vw, 40px)", fontWeight: 700, color: "white", marginBottom: 12 }}>
@@ -160,10 +180,10 @@ export default function CourseDetailPage() {
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Rate disabled defaultValue={course.rating} allowHalf style={{ fontSize: 16 }} />
-              <span style={{ color: "rgba(255,255,255,0.8)" }}>({course.reviews} reviews)</span>
+              <Rate disabled defaultValue={Number(rating) || 0} allowHalf style={{ fontSize: 16 }} />
+              <span style={{ color: "rgba(255,255,255,0.8)" }}>({reviewCount} reviews)</span>
             </span>
-            <span><UserOutlined /> {course.students?.toLocaleString()} students</span>
+            <span><UserOutlined /> {Number(studentCount).toLocaleString()} students</span>
             <span><BookOutlined /> {course.modules?.length} modules</span>
           </div>
         </div>
@@ -194,13 +214,13 @@ export default function CourseDetailPage() {
             </Col>
             <Col>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 24, fontWeight: 700 }}>{course.recommended?.level}</div>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{level || "All Levels"}</div>
                 <div style={{ color: "#888", fontSize: 12 }}>Level</div>
               </div>
             </Col>
             <Col>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 24, fontWeight: 700 }}>{course.rating}</div>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{rating || "—"}</div>
                 <div style={{ color: "#888", fontSize: 12 }}>Rating</div>
               </div>
             </Col>
@@ -257,40 +277,42 @@ export default function CourseDetailPage() {
         )}
 
         {/* Prior Knowledge */}
-        {course.recommended?.prior_knowledge && (
+        {priorKnowledge && (
           <section style={{ marginBottom: 40 }}>
             <Card style={{ borderRadius: 12, background: "#EBFBFF", border: "1px solid #CCF6FF" }}>
               <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
                 <TrophyOutlined style={{ color: "#00B4D8", marginRight: 8 }} />
                 Prerequisites
               </h3>
-              <p style={{ color: "#555", margin: 0 }}>{course.recommended.prior_knowledge}</p>
+              <p style={{ color: "#555", margin: 0 }}>{priorKnowledge}</p>
             </Card>
           </section>
         )}
 
-        {/* Testimonials */}
-        {course.testimonials && course.testimonials.length > 0 && (
+        {/* Testimonials & Student Reviews */}
+        {studentReviews.length > 0 && (
           <section style={{ marginBottom: 40 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
               Student Reviews
             </h2>
-            <Carousel autoplay dots={{ className: "custom-dots" }} slidesToShow={Math.min(course.testimonials.length, 3)} responsive={[
+            <Carousel autoplay dots={{ className: "custom-dots" }} slidesToShow={Math.min(studentReviews.length, 3)} responsive={[
               { breakpoint: 768, settings: { slidesToShow: 1 } },
               { breakpoint: 1024, settings: { slidesToShow: 2 } },
             ]}>
-              {course.testimonials.map((t, idx) => (
-                <div key={idx} style={{ padding: "0 8px" }}>
+              {studentReviews.map((t, idx) => (
+                <div key={t.id || idx} style={{ padding: "0 8px" }}>
                   <Card style={{ borderRadius: 12, margin: "0 8px", height: "100%" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                       <Avatar size={48} src={t.image} icon={<UserOutlined />} />
                       <div>
-                        <div style={{ fontWeight: 600 }}>{t.name}</div>
-                        <div style={{ color: "#888", fontSize: 13 }}>{t.role}</div>
+                        <div style={{ fontWeight: 600 }}>{t.student_name || t.name || "Anonymous"}</div>
+                        {t.role && <div style={{ color: "#888", fontSize: 13 }}>{t.role}</div>}
                       </div>
                     </div>
-                    <Rate disabled defaultValue={t.rating} style={{ fontSize: 14, marginBottom: 8 }} />
-                    <p style={{ color: "#555", fontStyle: "italic", margin: 0 }}>"{t.text}"</p>
+                    <Rate disabled defaultValue={Number(t.rating) || 0} style={{ fontSize: 14, marginBottom: 8 }} />
+                    {t.text && (
+                      <p style={{ color: "#555", fontStyle: "italic", margin: 0 }}>"{t.text}"</p>
+                    )}
                   </Card>
                 </div>
               ))}
@@ -299,7 +321,7 @@ export default function CourseDetailPage() {
         )}
 
         {/* FAQ */}
-        {course.faq && course.faq.length > 0 && (
+        {faqs.length > 0 && (
           <section style={{ marginBottom: 40 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
               Frequently Asked Questions
@@ -307,8 +329,8 @@ export default function CourseDetailPage() {
             <Collapse
               accordion
               expandIconPosition="end"
-              items={course.faq.map((f, idx) => ({
-                key: idx,
+              items={faqs.map((f, idx) => ({
+                key: f.id || idx,
                 label: <span style={{ fontWeight: 500, fontSize: 15 }}>{f.question}</span>,
                 children: <div className="md-content"><Markdown remarkPlugins={[remarkGfm]}>{f.answer}</Markdown></div>,
               }))}

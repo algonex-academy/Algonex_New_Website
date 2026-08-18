@@ -91,6 +91,19 @@ class StudentRegistration(models.Model):
         if not self.student_id:
             from .registration_utils import generate_student_id
             self.student_id = generate_student_id(self.course_selected, self.batch_type)
+        # Keep balance in sync whenever fees change (e.g. admin edits total_fee).
+        # Coerce to Decimal first — callers sometimes assign floats (e.g. the
+        # registration view passes paid_fee=0.0), and Decimal - float raises.
+        from decimal import Decimal
+        total = self.total_fee if isinstance(self.total_fee, Decimal) else Decimal(str(self.total_fee or 0))
+        paid = self.paid_fee if isinstance(self.paid_fee, Decimal) else Decimal(str(self.paid_fee or 0))
+        self.balance_fee = max(Decimal("0"), total - paid)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            update_fields = set(update_fields)
+            if {"total_fee", "paid_fee"} & update_fields:
+                update_fields.add("balance_fee")
+            kwargs["update_fields"] = update_fields
         super().save(*args, **kwargs)
 
 
@@ -135,14 +148,21 @@ class Payment(TimestampMixin, models.Model):
         super().save(*args, **kwargs)
 
         if is_new or old_status != self.status:
-            reg = self.student_registration
-            approved_total = reg.payments.filter(status="approved").aggregate(
-                total=models.Sum("amount")
-            )["total"] or 0
+            from django.db import transaction
+            # Lock the registration row so concurrent payment approvals can't
+            # lose updates on paid_fee (read-modify-write race).
+            with transaction.atomic():
+                reg = StudentRegistration.objects.select_for_update().get(
+                    pk=self.student_registration_id
+                )
+                approved_total = reg.payments.filter(status="approved").aggregate(
+                    total=models.Sum("amount")
+                )["total"] or 0
 
-            reg.paid_fee = approved_total
-            reg.balance_fee = max(0, reg.total_fee - reg.paid_fee)
-            reg.save(update_fields=["paid_fee", "balance_fee"])
+                reg.paid_fee = approved_total
+                reg.balance_fee = max(0, reg.total_fee - reg.paid_fee)
+                reg.save(update_fields=["paid_fee", "balance_fee"])
+            self.student_registration = reg
 
             if self.status == "approved" and old_status != "approved":
                 try:

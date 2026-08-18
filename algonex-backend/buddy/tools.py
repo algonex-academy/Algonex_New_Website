@@ -27,12 +27,12 @@ def get_courses(level: Optional[str] = None, is_trending: Optional[bool] = None)
     Returns a JSON string with a list of courses including name, slug, level, price, duration, and skills.
     """
     from courses.models import Course
-    from django.db.models import Avg, Count
+    from django.db.models import Avg, Count, Q
 
     qs = Course.objects.filter(is_published=True).annotate(
-        average_rating=Avg("reviews__rating"),
-        student_count=Count("enrollments"),
-        review_count=Count("reviews"),
+        average_rating=Avg("feedbacks__rating", filter=Q(feedbacks__student__isnull=False)),
+        student_count=Count("enrollments", filter=Q(enrollments__status="active"), distinct=True),
+        review_count=Count("feedbacks", filter=Q(feedbacks__student__isnull=False), distinct=True),
     ).prefetch_related("skills")
 
     if level:
@@ -151,7 +151,7 @@ def get_jobs(job_type: Optional[str] = None, department: Optional[str] = None) -
     """
     from careers.models import Job
 
-    qs = Job.objects.filter(is_active=True)
+    qs = Job.objects.filter(is_active=True).prefetch_related("tags")
 
     if job_type:
         qs = qs.filter(job_type=job_type.lower())
@@ -173,7 +173,9 @@ def get_jobs(job_type: Optional[str] = None, department: Optional[str] = None) -
             "salary_max": str(j.salary_max) if j.salary_max else None,
             "deadline": j.deadline.isoformat() if j.deadline else None,
             "company_name": j.company_name or "Algonex",
-            "tags": [t.strip() for t in j.tags.split(",") if t.strip()] if j.tags else [],
+            "tags": [t.name for t in j.tags.all()] or (
+                [t.strip() for t in j.tags_text.split(",") if t.strip()] if j.tags_text else []
+            ),
             "apply_mode": j.apply_mode,
             "external_link": j.external_link or None,
         })
@@ -213,8 +215,8 @@ def get_programs(program_type: Optional[str] = None) -> str:
             "stipend": p.stipend,
             "location": p.location,
             "is_remote": p.is_remote,
-            "application_deadline": p.application_deadline.isoformat(),
-            "start_date": p.start_date.isoformat(),
+            "application_deadline": p.application_deadline.isoformat() if p.application_deadline else None,
+            "start_date": p.start_date.isoformat() if p.start_date else None,
             "spots_left": p.spots_left,
             "is_accepting": p.is_accepting,
             "is_featured": p.is_featured,

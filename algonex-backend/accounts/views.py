@@ -155,9 +155,19 @@ class SetPasswordView(APIView):
         return Response({"status": "success", "data": {"message": "Password set successfully."}})
 
 import random
+from django.core.cache import cache
 from django.utils import timezone
 from datetime import timedelta
 from .models import PasswordResetOTP
+
+# Max failed OTP verification attempts before the OTP is invalidated.
+OTP_MAX_ATTEMPTS = 5
+# Attempt counter lifetime — matches the 10-minute OTP expiry.
+OTP_ATTEMPT_TIMEOUT = 10 * 60
+
+
+def _otp_attempts_key(email):
+    return f"password_reset_otp_attempts:{email.lower()}"
 
 class RequestPasswordResetOTPView(APIView):
     permission_classes = [AllowAny]
@@ -174,8 +184,9 @@ class RequestPasswordResetOTPView(APIView):
         except User.DoesNotExist:
             return Response({"status": "success", "data": {"message": "If an account exists, an OTP has been sent."}})
 
-        # Invalidate existing OTPs
+        # Invalidate existing OTPs and reset the failed-attempt counter
         PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
+        cache.delete(_otp_attempts_key(email))
 
         # Generate new OTP
         otp_code = str(random.randint(100000, 999999))
@@ -197,6 +208,7 @@ class RequestPasswordResetOTPView(APIView):
 
 class VerifyPasswordResetOTPView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = "auth_check"
 
     def post(self, request):
         from .serializers import VerifyPasswordResetOTPSerializer
@@ -207,20 +219,39 @@ class VerifyPasswordResetOTPView(APIView):
         otp = serializer.validated_data["otp"]
         new_password = serializer.validated_data["new_password"]
 
+        attempts_key = _otp_attempts_key(email)
+        invalid_response = Response(
+            {"status": "error", "error": {"code": "INVALID_OTP", "message": "Invalid or expired OTP."}},
+            status=http_status.HTTP_400_BAD_REQUEST,
+        )
+
+        # Locked out after too many failed attempts — respond neutrally.
+        if cache.get(attempts_key, 0) >= OTP_MAX_ATTEMPTS:
+            return invalid_response
+
         try:
             user = User.objects.get(email=email)
             otp_record = PasswordResetOTP.objects.filter(
                 user=user, otp_code=otp, is_used=False, expires_at__gt=timezone.now()
             ).latest('created_at')
         except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
-            return Response(
-                {"status": "error", "error": {"code": "INVALID_OTP", "message": "Invalid or expired OTP."}},
-                status=http_status.HTTP_400_BAD_REQUEST,
-            )
+            # Count the failed attempt; invalidate outstanding OTPs on lockout.
+            cache.add(attempts_key, 0, OTP_ATTEMPT_TIMEOUT)
+            try:
+                attempts = cache.incr(attempts_key)
+            except ValueError:
+                cache.set(attempts_key, 1, OTP_ATTEMPT_TIMEOUT)
+                attempts = 1
+            if attempts >= OTP_MAX_ATTEMPTS:
+                PasswordResetOTP.objects.filter(
+                    user__email=email, is_used=False
+                ).update(is_used=True)
+            return invalid_response
 
-        # Mark used and reset password
+        # Mark used, clear the attempt counter, and reset password
         otp_record.is_used = True
         otp_record.save()
+        cache.delete(attempts_key)
 
         user.set_password(new_password)
         user.save()

@@ -54,8 +54,22 @@ class CustomRegisterSerializer(RegisterSerializer):
         data["last_name"] = self.validated_data.get("last_name", "")
         # Auto-generate username from email
         email = self.validated_data.get("email", "")
-        data["username"] = email.split("@")[0] if email else ""
+        data["username"] = self._generate_unique_username(email)
         return data
+
+    @staticmethod
+    def _generate_unique_username(email):
+        """Derive username from the email prefix, adding a numeric suffix on collision."""
+        if not email:
+            return ""
+        base = email.split("@")[0]
+        for suffix in [""] + [str(i) for i in range(1, 100)]:
+            candidate = f"{base}{suffix}"
+            if not User.objects.filter(username=candidate).exists():
+                return candidate
+        raise serializers.ValidationError(
+            {"email": "Could not generate a unique username for this email."}
+        )
 
     def save(self, request):
         user = super().save(request)
