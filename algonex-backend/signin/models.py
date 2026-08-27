@@ -53,7 +53,7 @@ class StudentRegistration(models.Model):
     # System meta & photo
     photo = models.ImageField(upload_to="registration_photos/", blank=True, null=True)
     registration_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default="Active")
+    status = models.CharField(max_length=20, default="Pending")
     
     # Fees summary
     total_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
@@ -88,10 +88,30 @@ class StudentRegistration(models.Model):
         return f"{sid} - {name} ({self.course_selected})" if name else sid
 
     def save(self, *args, **kwargs):
-        if not self.student_id:
+        is_new = self.pk is None
+        old_status = None
+        if not is_new:
+            orig = StudentRegistration.objects.filter(pk=self.pk).first()
+            if orig:
+                old_status = orig.status
+
+        # If status is approved/active and CRUE ID is missing, generate CRUE ID (ACC26080001)
+        if self.status in ["Approved", "Active"] and not self.student_id:
             from .registration_utils import generate_student_id
             self.student_id = generate_student_id(self.course_selected, self.batch_type)
+
         super().save(*args, **kwargs)
+
+        # Trigger approval email when status transitions to Approved or Active
+        is_now_approved = self.status in ["Approved", "Active"]
+        was_approved = old_status in ["Approved", "Active"]
+        if is_now_approved and not was_approved:
+            try:
+                from .registration_utils import send_crue_id_approval_email
+                send_crue_id_approval_email(self)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Failed to send CRUE ID approval email: {e}")
 
 
 class Payment(TimestampMixin, models.Model):

@@ -9,8 +9,8 @@ export const eventsAPI = {
     return apiClient.get(`/events/${slug}/`);
   },
 
-  register(slug) {
-    return apiClient.post(`/events/${slug}/register/`);
+  register(slug, data = {}) {
+    return apiClient.post(`/events/${slug}/register/`, data);
   },
 
   cancel(slug) {

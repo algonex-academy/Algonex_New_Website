@@ -345,3 +345,37 @@ class NextStudentIdView(APIView):
         batch_type = request.query_params.get("batchType")
         next_id = generate_student_id(course, batch_type)
         return Response({"student_id": next_id}, status=status.HTTP_200_OK)
+
+
+class VerifyCrueIdView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        query_id = (request.query_params.get("crue_id") or request.query_params.get("student_id") or "").strip()
+        if not query_id:
+            return Response(
+                {"status": "error", "error": {"code": "MISSING_ID", "message": "CRUE ID is required."}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        registration = StudentRegistration.objects.filter(
+            student_id__iexact=query_id
+        ).select_related("user").first()
+
+        if not registration or registration.status not in ["Approved", "Active"]:
+            return Response(
+                {"status": "error", "error": {"code": "INVALID_CRUE_ID", "message": "Incorrect CRUE ID"}},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        data = {
+            "crue_id": registration.student_id,
+            "full_name": registration.full_name,
+            "email": registration.email,
+            "phone": registration.phone,
+            "college_name": registration.college_name,
+            "branch": registration.branch,
+            "year_of_study": registration.current_year,
+            "course_selected": registration.course_selected,
+        }
+        return Response({"status": "success", "data": data}, status=status.HTTP_200_OK)

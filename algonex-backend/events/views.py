@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import ListModelMixin
@@ -22,9 +22,9 @@ from common.permissions import IsAdmin
 
 class EventViewSet(ModelViewSet):
     """
-    Public: list/retrieve published events.
+    Public: list/retrieve published events & register (no login required).
     Admin: create/update/delete events.
-    Authenticated: register/cancel.
+    Authenticated: cancel registration.
     """
 
     lookup_field = "slug"
@@ -43,9 +43,9 @@ class EventViewSet(ModelViewSet):
         return EventCreateUpdateSerializer
 
     def get_permissions(self):
-        if self.action in ("list", "retrieve"):
-            return [IsAuthenticatedOrReadOnly()]
-        if self.action in ("register", "cancel"):
+        if self.action in ("list", "retrieve", "register"):
+            return [AllowAny()]
+        if self.action in ("cancel",):
             return [IsAuthenticated()]
         return [IsAdmin()]
 
@@ -68,11 +68,49 @@ class EventViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response({"status": "success", "data": serializer.data})
 
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], permission_classes=[AllowAny])
     def register(self, request, slug=None):
-        """POST /api/v1/events/:slug/register/"""
+        """POST /api/v1/events/:slug/register/ — supports customizable Google Forms-like responses"""
         event = get_object_or_404(Event, slug=slug, is_published=True)
-        registration = register_for_event(user=request.user, event=event)
+        data = request.data or {}
+
+        full_name = data.get("full_name") or data.get("name") or ""
+        email = data.get("email") or ""
+        phone = data.get("phone") or ""
+        college_name = data.get("college_name") or data.get("college") or ""
+        branch = data.get("branch") or ""
+        year_of_study = data.get("year_of_study") or data.get("year") or ""
+        roll_no = data.get("roll_no") or data.get("usn") or ""
+        student_id = data.get("student_id") or data.get("algonex_id") or ""
+        github_url = data.get("github_url") or data.get("github") or ""
+
+        custom_answers = data.get("custom_answers") or data.get("answers") or {}
+        if not isinstance(custom_answers, dict):
+            custom_answers = {}
+
+        standard_keys = {
+            "full_name", "name", "email", "phone", "college_name", "college",
+            "branch", "year_of_study", "year", "roll_no", "usn", "student_id", "algonex_id",
+            "github_url", "github", "custom_answers", "answers"
+        }
+        for k, v in data.items():
+            if k not in standard_keys and k not in custom_answers:
+                custom_answers[k] = v
+
+        registration = register_for_event(
+            user=request.user if (request.user and request.user.is_authenticated) else None,
+            full_name=full_name,
+            email=email,
+            phone=phone,
+            college_name=college_name,
+            branch=branch,
+            year_of_study=year_of_study,
+            roll_no=roll_no,
+            student_id=student_id,
+            github_url=github_url,
+            custom_answers=custom_answers,
+            event=event,
+        )
         serializer = RegistrationSerializer(registration)
         return Response(
             {"status": "success", "data": serializer.data},

@@ -16,7 +16,9 @@ class EventListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "slug", "summary", "description", "image", "images", "event_type",
             "location", "start_date", "end_date", "time_range", "capacity",
-            "spots_left", "confirmed_count", "status", "speaker", "highlights", "media",
+            "spots_left", "confirmed_count", "status", "speaker", "highlights",
+            "form_phone_mode", "form_college_mode", "form_branch_mode", "form_year_mode", "form_roll_no_mode", "form_student_id_mode", "form_github_mode",
+            "registration_form_schema", "media",
         ]
 
     def get_confirmed_count(self, obj):
@@ -82,7 +84,9 @@ class EventDetailSerializer(serializers.ModelSerializer):
             "id", "title", "slug", "description", "summary", "image", "images", "event_type",
             "location", "meeting_link", "start_date", "end_date", "time_range",
             "capacity", "spots_left", "confirmed_count", "is_full", "status",
-            "speaker", "highlights", "is_published", "user_registration_status", "media", "created_at",
+            "speaker", "highlights",
+            "form_phone_mode", "form_college_mode", "form_branch_mode", "form_year_mode", "form_roll_no_mode", "form_student_id_mode", "form_github_mode",
+            "registration_form_schema", "is_published", "user_registration_status", "media", "created_at",
         ]
 
 
@@ -113,6 +117,8 @@ class EventCreateUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "title", "summary", "description", "image", "event_type", "location",
             "meeting_link", "start_date", "end_date", "capacity", "is_published",
+            "form_phone_mode", "form_college_mode", "form_branch_mode", "form_year_mode", "form_roll_no_mode", "form_student_id_mode", "form_github_mode",
+            "registration_form_schema",
         ]
 
 
@@ -122,4 +128,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
-        fields = ["id", "event_title", "event_slug", "status", "registered_at"]
+        fields = [
+            "id", "event_title", "event_slug", "full_name", "email", "phone",
+            "college_name", "branch", "year_of_study", "roll_no", "student_id", "github_url",
+            "custom_answers", "status", "registered_at"
+        ]

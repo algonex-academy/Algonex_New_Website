@@ -140,6 +140,24 @@
   .backup-btn-restore:hover {
     background: #fef3c7;
   }
+  .status-badge-base {
+    display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 600;
+  }
+  .status-badge-connected {
+    background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;
+  }
+  .status-badge-disconnected {
+    background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239;
+  }
+  .status-dot-base {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .status-dot-connected {
+    background: #10b981;
+  }
+  .status-dot-disconnected {
+    background: #f43f5e;
+  }
 
   /* Modal Backdrop & Dialog */
   #restore_modal {
@@ -190,8 +208,8 @@
                 </svg>
                 <span id="btn_create_text">Create Backup Snapshot Now</span>
             </button>
-            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 600; background: {% if s3_connected %}#ecfdf5; border: 1px solid #a7f3d0; color: #065f46;{% else %}#fff1f2; border: 1px solid #fecdd3; color: #9f1239;{% endif %}">
-                <span style="width: 8px; height: 8px; border-radius: 50%; background: {% if s3_connected %}#10b981;{% else %}#f43f5e;{% endif %}"></span>
+            <div class="status-badge-base {% if s3_connected %}status-badge-connected{% else %}status-badge-disconnected{% endif %}">
+                <span class="status-dot-base {% if s3_connected %}status-dot-connected{% else %}status-dot-disconnected{% endif %}"></span>
                 <span>{% if s3_connected %}s3://{{ bucket_name }}{% else %}S3 Disconnected{% endif %}</span>
             </div>
         </div>

@@ -55,7 +55,7 @@ class Command(BaseCommand):
             )
             if created:
                 count += 1
-                self.stdout.write(f"  ✓ Added: {item['title']} ({item['file']})")
+                self.stdout.write(f"  + Added: {item['title']} ({item['file']})")
             else:
                 self.stdout.write(f"  - Already exists: {item['title']} ({item['file']})")
 

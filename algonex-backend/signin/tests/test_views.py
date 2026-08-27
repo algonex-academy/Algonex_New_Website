@@ -240,3 +240,46 @@ class TestPaymentViews(TestCase):
         self.registration.refresh_from_db()
         self.assertEqual(self.registration.paid_fee, 8000)
         self.assertEqual(self.registration.balance_fee, 7000)
+
+
+class TestVerifyCrueIdView(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            email="crue_user@example.com",
+            password="password123",
+            first_name="Alice",
+            last_name="Smith",
+            phone="9876543210"
+        )
+        self.registration = StudentRegistration.objects.create(
+            user=self.user,
+            student_id="ACC26080001",
+            college_name="Algonex Institute",
+            branch="Computer Science",
+            current_year="3rd Year",
+            course_selected="Full Stack Engineering",
+            status="Approved"
+        )
+
+    def test_verify_valid_approved_crue_id(self):
+        response = self.client.get("/api/v1/verify-crue-id/?crue_id=ACC26080001")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["data"]
+        self.assertEqual(data["crue_id"], "ACC26080001")
+        self.assertEqual(data["full_name"], "Alice Smith")
+        self.assertEqual(data["email"], "crue_user@example.com")
+        self.assertEqual(data["college_name"], "Algonex Institute")
+
+    def test_verify_invalid_crue_id(self):
+        response = self.client.get("/api/v1/verify-crue-id/?crue_id=INVALID999")
+        self.assertEqual(response.status_code, 404)
+        data = response.json()
+        self.assertEqual(data["error"]["message"], "Incorrect CRUE ID")
+
+    def test_verify_pending_crue_id_rejected(self):
+        self.registration.status = "Pending"
+        self.registration.save()
+        response = self.client.get("/api/v1/verify-crue-id/?crue_id=ACC26080001")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["error"]["message"], "Incorrect CRUE ID")

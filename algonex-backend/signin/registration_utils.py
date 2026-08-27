@@ -11,34 +11,20 @@ logger = logging.getLogger(__name__)
 # Paths
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "logo.png")
 
-def generate_student_id(course: str = None, batch_type: str = None) -> str:
-    """Generates a unique student ID in format:
-    [Course Initial] + [YYMM] + [Batch Initial] + [4 sequential digits]
-    e.g., P2607I0001 for Python course in July 2026, Internship batch.
+def generate_student_id(course: str = None, batch_type: str = None, prefix: str = "ACC") -> str:
+    """Generates a unique student ID in format: ACC + YY + MM + [4 sequential digits]
+    e.g., ACC26080001 for August 2026.
     """
-    if course:
-        course_clean = course.strip()
-        course_prefix = course_clean[0].upper() if course_clean else "P"
-    else:
-        course_prefix = "P"
-
     now = datetime.now()
     date_str = now.strftime("%y%m")
+    prefix_str = f"{prefix}{date_str}"
 
-    if batch_type:
-        batch_clean = batch_type.strip()
-        batch_prefix = batch_clean[0].upper() if batch_clean else "I"
-    else:
-        batch_prefix = "I"
-
-    prefix = f"{course_prefix}{date_str}{batch_prefix}"
-    
     from signin.models import StudentRegistration
-    count = StudentRegistration.objects.filter(student_id__startswith=prefix).count()
-    
+    count = StudentRegistration.objects.filter(student_id__startswith=prefix_str).count()
+
     next_num = count + 1
     while True:
-        candidate = f"{prefix}{next_num:04d}"
+        candidate = f"{prefix_str}{next_num:04d}"
         if not StudentRegistration.objects.filter(student_id=candidate).exists():
             return candidate
         next_num += 1
@@ -683,6 +669,133 @@ def send_confirmation_email(
         return True
     except Exception as e:
         logger.error(f"Failed to send confirmation email: {e}")
+        return False
+
+
+def send_crue_id_approval_email(registration) -> bool:
+    """Sends official CRUE ID approval email to student when admin approves application."""
+    try:
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@algonex.in')
+        to_email = registration.email
+        if not to_email:
+            logger.warning("No email found for CRUE ID approval notification.")
+            return False
+
+        crue_id = registration.student_id or "ACC26080001"
+        name = registration.full_name or "Applicant"
+        course = registration.course_selected or "Training Program"
+
+        subject = f"Congratulations! Your Algonex CRUE ID is {crue_id}"
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{
+            background-color: #0b0518;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }}
+        .container {{
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #18092d 0%, #0d031b 100%);
+            border: 2px solid #a855f7;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }}
+        .header {{
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+        }}
+        .brand {{
+            color: #a855f7;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0;
+        }}
+        .subbrand {{
+            color: #06b6d4;
+            font-size: 12px;
+            letter-spacing: 4px;
+            margin: 5px 0 0 0;
+        }}
+        .content {{
+            padding: 20px 0;
+            line-height: 1.6;
+        }}
+        .highlight-box {{
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-left: 4px solid #a855f7;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }}
+        .crue-code {{
+            font-size: 26px;
+            color: #06b6d4;
+            font-weight: bold;
+            font-family: monospace;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }}
+        .footer {{
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            font-size: 12px;
+            color: #6b7280;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="brand">ALGONEX</p>
+            <p class="subbrand">IT SOLUTIONS</p>
+        </div>
+        <div class="content">
+            <h2>Welcome to Algonex CRUE, {name}!</h2>
+            <p>Your CRUE application has been reviewed and official approval has been granted by the admin team.</p>
+            
+            <div class="highlight-box">
+                <div style="font-size: 14px; color: #a855f7; text-transform: uppercase; font-weight: bold;">Official CRUE ID</div>
+                <div class="crue-code">{crue_id}</div>
+                <div style="font-size: 12px; color: #34d399;">STATUS: APPROVED</div>
+            </div>
+            
+            <p>You can now use your <strong>CRUE ID ({crue_id})</strong> across Algonex portals, event registrations, and workshops. Entering your CRUE ID on event forms will automatically verify your profile and fill in your details.</p>
+            
+            <p>Course/Track: <strong>{course}</strong></p>
+        </div>
+        <div class="footer">
+            <p>This is an automated notification from Algonex IT Solutions.</p>
+            <p>&copy; 2026 Algonex IT Solutions. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>"""
+
+        email = EmailMessage(
+            subject=subject,
+            body=html_content,
+            from_email=from_email,
+            to=[to_email]
+        )
+        email.content_subtype = "html"
+        email.send(fail_silently=False)
+        logger.info(f"Successfully sent CRUE ID approval email to {to_email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send CRUE ID approval email: {e}")
         return False
 
 

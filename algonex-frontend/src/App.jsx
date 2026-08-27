@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import { ConfigProvider, App as AntApp } from 'antd';
@@ -56,6 +57,14 @@ import NotFoundPage from './pages/NotFoundPage';
 import CertificateVerification from './pages/CertificateVerification';
 import CertificateSearchPage from './pages/CertificateSearchPage';
 import AdminBackupPage from './pages/admin/AdminBackupPage';
+
+const ExternalAdminRedirect = () => {
+  useEffect(() => {
+    const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:8000/admin/';
+    window.location.href = adminUrl;
+  }, []);
+  return null;
+};
 
 const App = () => {
   return (
@@ -120,7 +129,7 @@ const App = () => {
                     <Route path="/my-events" element={<ProtectedRoute><MyEventsPage /></ProtectedRoute>} />
                     <Route path="/my-applications" element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} />
                     <Route path="/dashboard/backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
-                    <Route path="/admin-backups" element={<ProtectedRoute requiredRole="admin"><AdminBackupPage /></ProtectedRoute>} />
+                    <Route path="/admin/*" element={<ExternalAdminRedirect />} />
 
                     {/* 404 */}
                     <Route path="*" element={<NotFoundPage />} />

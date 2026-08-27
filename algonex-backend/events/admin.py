@@ -33,12 +33,40 @@ class EventAdmin(ImportExportModelAdmin, ModelAdmin):
         ("Cover Photo & Highlights", {
             "fields": ("image", "highlights")
         }),
+        ("Registration Form Fields Customization", {
+            "fields": (
+                "form_phone_mode",
+                "form_college_mode",
+                "form_branch_mode",
+                "form_year_mode",
+                "form_roll_no_mode",
+                "form_student_id_mode",
+                "form_github_mode",
+            ),
+            "description": "Select whether each field is Required (Mandatory), Optional (Non-Mandatory), or Hidden (Do Not Show) on the event registration form."
+        }),
+        ("Advanced Custom Questions (JSON Schema)", {
+            "fields": ("registration_form_schema",),
+            "description": "Optional: Add extra custom questions. Example: [{'id': 'tshirt', 'label': 'T-Shirt Size', 'type': 'select', 'options': ['S', 'M', 'L', 'XL'], 'required': True}]"
+        }),
     )
-
 
 
 @admin.register(Registration)
 class RegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
-    list_display = ("user", "event", "status", "registered_at")
+    list_display = ("get_registrant", "event", "email", "phone", "college_name", "branch", "student_id", "status", "registered_at")
     list_filter = ("status", "event")
-    search_fields = ("user__email", "event__title")
+    search_fields = ("user__email", "email", "full_name", "phone", "college_name", "branch", "roll_no", "student_id", "event__title")
+    readonly_fields = ("registered_at",)
+    fieldsets = (
+        ("Registrant Info", {
+            "fields": ("event", "user", "full_name", "email", "phone", "college_name", "branch", "year_of_study", "roll_no", "student_id", "github_url", "status", "registered_at")
+        }),
+        ("Custom Form Answers", {
+            "fields": ("custom_answers",)
+        }),
+    )
+
+    def get_registrant(self, obj):
+        return obj.user.email if obj.user else (obj.full_name or obj.email or "Guest")
+    get_registrant.short_description = "Registrant"

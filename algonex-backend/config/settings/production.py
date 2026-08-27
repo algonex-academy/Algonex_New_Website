@@ -22,16 +22,58 @@ for default_origin in ["https://algonex.co.in", "https://www.algonex.co.in"]:
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME", "algonex"),
-        "USER": os.environ.get("DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+_database_url = os.environ.get("DATABASE_URL")
+if _database_url and _database_url.strip():
+    import re
+    import urllib.parse
+    clean_url = _database_url.strip().strip("'\"")
+    m = re.match(r"^(?:postgres(?:ql)?://)?(?:(?P<user>[^:@]+)(?::(?P<password>.*))?@)?(?P<host>[^:/]+)(?::(?P<port>\d+))?(?:/(?P<name>[^?]+))?(?:\?(?P<query>.*))?$", clean_url)
+    if m:
+        gd = m.groupdict()
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": (gd["name"] or "postgres").lstrip("/"),
+                "USER": urllib.parse.unquote(gd["user"] or "postgres"),
+                "PASSWORD": urllib.parse.unquote(gd["password"] or ""),
+                "HOST": gd["host"] or "localhost",
+                "PORT": str(gd["port"] or "5432"),
+                "CONN_MAX_AGE": int(os.environ.get("DB_CONN_MAX_AGE", 600)),
+                "OPTIONS": {
+                    "sslmode": os.environ.get("DB_SSLMODE", "require"),
+                },
+            }
+        }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": os.environ.get("DB_NAME", "algonex"),
+                "USER": os.environ.get("DB_USER", "postgres"),
+                "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+                "HOST": os.environ.get("DB_HOST", "localhost"),
+                "PORT": os.environ.get("DB_PORT", "5432"),
+                "CONN_MAX_AGE": int(os.environ.get("DB_CONN_MAX_AGE", 600)),
+                "OPTIONS": {
+                    "sslmode": os.environ.get("DB_SSLMODE", "prefer"),
+                },
+            }
+        }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME", "algonex"),
+            "USER": os.environ.get("DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "5432"),
+            "CONN_MAX_AGE": int(os.environ.get("DB_CONN_MAX_AGE", 600)),
+            "OPTIONS": {
+                "sslmode": os.environ.get("DB_SSLMODE", "prefer"),
+            },
+        }
     }
-}
 
 # S3 Storage or Local Storage
 USE_S3 = os.environ.get("USE_S3", "false").lower() == "true" or bool(os.environ.get("AWS_STORAGE_BUCKET_NAME"))

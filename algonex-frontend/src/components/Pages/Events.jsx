@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Card, Tag, Button, Input, Segmented, Row, Col, Empty, Modal, App, Spin, Carousel } from "antd";
+import { Link } from "react-router-dom";
+import { Card, Tag, Button, Input, Segmented, Row, Col, Empty, Modal, Form, App, Spin, Carousel, Select, InputNumber, Checkbox } from "antd";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAuth } from "../../hooks/useAuth";
 import { eventsAPI } from "../../api/events";
+import apiClient from "../../api/client";
 import {
   CalendarOutlined,
   EnvironmentOutlined,
@@ -12,6 +15,10 @@ import {
   ArrowRightOutlined,
   InfoCircleOutlined,
   CheckCircleOutlined,
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  BankOutlined,
 } from "@ant-design/icons";
 
 const upcomingEvents = [
@@ -90,7 +97,7 @@ const upcomingEvents = [
 ];
 
 
-const pastEvents = [
+const _pastEvents = [
   {
     id: 101,
     title: "Python Data Science Workshop",
@@ -203,36 +210,86 @@ export default function EventsPage() {
   const [typeFilter, setTypeFilter] = useState("All");
   const [registeredEvents, setRegisteredEvents] = useState(new Set());
   const [modalEvent, setModalEvent] = useState(null);
-  const [showSigninModal, setShowSigninModal] = useState(false);
+  const [detailModalEvent, setDetailModalEvent] = useState(null);
+  const [guestModalEvent, setGuestModalEvent] = useState(null);
+  const [guestForm] = Form.useForm();
   const [apiEvents, setApiEvents] = useState(null);
   const [, setEventsLoading] = useState(true);
   const [pastEventModal, setPastEventModal] = useState(null);
   const [registerLoading, setRegisterLoading] = useState(false);
   const { isAuthenticated } = useAuth();
   const { message } = App.useApp();
-  const navigate = useNavigate();
 
-  // Try API, fall back to static data
+  const [crueIdVerifying, setCrueIdVerifying] = useState(false);
+  const [crueIdError, setCrueIdError] = useState(null);
+  const [crueIdSuccess, setCrueIdSuccess] = useState(false);
+
+  const handleApplyCrueId = async (form) => {
+    const val = form.getFieldValue("student_id");
+    if (!val || !val.trim()) {
+      setCrueIdError("Please enter your CRUE ID");
+      setCrueIdSuccess(false);
+      return;
+    }
+    setCrueIdVerifying(true);
+    setCrueIdError(null);
+    setCrueIdSuccess(false);
+
+    try {
+      const res = await apiClient.get("/signin/verify-crue-id/", {
+        params: { crue_id: val.trim() }
+      });
+      const data = res.data?.data || {};
+      setCrueIdSuccess(true);
+      message.success("CRUE ID verified! Your details have been auto-filled.");
+
+      form.setFieldsValue({
+        full_name: data.full_name || form.getFieldValue("full_name"),
+        email: data.email || form.getFieldValue("email"),
+        phone: data.phone || form.getFieldValue("phone"),
+        college_name: data.college_name || form.getFieldValue("college_name"),
+        branch: data.branch || form.getFieldValue("branch"),
+        year_of_study: data.year_of_study || form.getFieldValue("year_of_study"),
+      });
+    } catch (_err) {
+      setCrueIdError("Incorrect CRUE ID");
+      setCrueIdSuccess(false);
+    } finally {
+      setCrueIdVerifying(false);
+    }
+  };
+
+  // Try API, fall back to static data only if API fails
   useEffect(() => {
     eventsAPI.list()
       .then((res) => {
         const results = res.data?.data?.results || res.data?.results || [];
-        if (results.length > 0) setApiEvents(results);
+        setApiEvents(results);
       })
       .catch(() => {})
       .finally(() => setEventsLoading(false));
   }, []);
 
   const upcomingEventsList = useMemo(() => {
-    if (!apiEvents || apiEvents.length === 0) return upcomingEvents;
-    const upcoming = apiEvents.filter((e) => e.status !== "past");
-    return upcoming.length > 0 ? upcoming : upcomingEvents;
+    if (!apiEvents) return upcomingEvents;
+    const now = new Date();
+    return apiEvents.filter((e) => {
+      if (e.status === "past") return false;
+      if (e.end_date) return new Date(e.end_date) >= now;
+      if (e.start_date) return new Date(e.start_date) >= now;
+      return true;
+    });
   }, [apiEvents]);
 
   const pastEventsList = useMemo(() => {
-    if (!apiEvents || apiEvents.length === 0) return pastEvents;
-    const past = apiEvents.filter((e) => e.status === "past");
-    return past.length > 0 ? past : pastEvents;
+    if (!apiEvents) return [];
+    const now = new Date();
+    return apiEvents.filter((e) => {
+      if (e.status === "past") return true;
+      if (e.end_date) return new Date(e.end_date) < now;
+      if (e.start_date) return new Date(e.start_date) < now;
+      return false;
+    });
   }, [apiEvents]);
 
   const filteredUpcoming = useMemo(() => {
@@ -244,10 +301,28 @@ export default function EventsPage() {
     });
   }, [upcomingEventsList, search, typeFilter]);  const handleRegister = (event) => {
     if (!isAuthenticated) {
-      setShowSigninModal(true);
+      setGuestModalEvent(event);
       return;
     }
     setModalEvent(event);
+  };
+
+  const handleGuestRegister = async (values) => {
+    if (!guestModalEvent) return;
+    const eventSlug = guestModalEvent.slug || guestModalEvent.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    setRegisterLoading(true);
+    try {
+      await eventsAPI.register(eventSlug, values);
+      setRegisteredEvents((prev) => new Set([...prev, guestModalEvent.id]));
+      message.success(`Successfully registered for ${guestModalEvent.title}!`);
+      setGuestModalEvent(null);
+      guestForm.resetFields();
+    } catch (err) {
+      const errMsg = err.response?.data?.error?.message || "Registration failed. Please check your details.";
+      message.error(errMsg);
+    } finally {
+      setRegisterLoading(false);
+    }
   };
 
   const confirmRegister = async () => {
@@ -333,9 +408,7 @@ export default function EventsPage() {
                       </div>
                     }
                   >
-                    <Link to={event.slug ? `/events/${event.slug}` : "#"} style={{ textDecoration: "none", color: "inherit" }}>
-                      <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#2c3e50" }}>{event.title}</h3>
-                    </Link>
+                    <h3 onClick={() => setDetailModalEvent(event)} style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#2c3e50", cursor: "pointer" }}>{event.title}</h3>
                     <p style={{ color: "#64748b", fontSize: 11, marginBottom: 8, lineHeight: 1.35, flex: 1, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {event.summary || (event.description || "").substring(0, 75) + (event.description?.length > 75 ? "..." : "")}
                     </p>
@@ -344,11 +417,9 @@ export default function EventsPage() {
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><EnvironmentOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.location}</div>
                     </div>
                     <div style={{ display: "flex", gap: 4, marginTop: "auto" }}>
-                      {event.slug && (
-                        <Link to={`/events/${event.slug}`} style={{ flex: 1 }}>
-                          <Button block size="small" style={{ fontSize: 11, height: 26, padding: "0 4px" }}>Details</Button>
-                        </Link>
-                      )}
+                      <div style={{ flex: 1 }}>
+                        <Button block size="small" onClick={() => setDetailModalEvent(event)} style={{ fontSize: 11, height: 26, padding: "0 4px" }}>Details</Button>
+                      </div>
                       <div style={{ flex: 1 }}>
                         {registeredEvents.has(event.id) ? (
                           <Button block size="small" style={{ background: "#22c55e", color: "white", border: "none", fontSize: 11, height: 26, padding: "0 4px" }}>
@@ -382,46 +453,50 @@ export default function EventsPage() {
               Click any past event card to view session highlights, speaker details, and photo galleries.
             </p>
           </div>
-          <Row gutter={[16, 16]}>
-            {pastEventsList.map((event) => (
-              <Col key={event.id} xs={24} sm={12} lg={8}>
-                <Card
-                  hoverable
-                  onClick={() => setPastEventModal(event)}
-                  style={{ borderRadius: 12, border: "1px solid #e8e8e8", overflow: "hidden", cursor: "pointer", height: "100%" }}
-                  cover={
-                    <div style={{ position: "relative", height: 120, overflow: "hidden" }}>
-                      <Carousel autoplay autoplaySpeed={3500} dots={false} fade effect="fade">
-                        {(event.images && event.images.length > 0 ? event.images : (event.image ? [event.image] : ["https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&auto=format&fit=crop"])).map((imgUrl, idx) => (
-                          <div key={idx} style={{ height: 120 }}>
-                            <img alt={event.title} src={imgUrl} style={{ width: "100%", height: 120, objectFit: "cover" }} />
-                          </div>
-                        ))}
-                      </Carousel>
-                      <Tag color="default" style={{ position: "absolute", top: 8, right: 8, margin: 0, fontWeight: 600, zIndex: 2 }}>
-                        {event.event_type || event.type}
-                      </Tag>
+          {pastEventsList.length > 0 ? (
+            <Row gutter={[16, 16]}>
+              {pastEventsList.map((event) => (
+                <Col key={event.id} xs={24} sm={12} lg={8}>
+                  <Card
+                    hoverable
+                    onClick={() => setPastEventModal(event)}
+                    style={{ borderRadius: 12, border: "1px solid #e8e8e8", overflow: "hidden", cursor: "pointer", height: "100%" }}
+                    cover={
+                      <div style={{ position: "relative", height: 120, overflow: "hidden" }}>
+                        <Carousel autoplay autoplaySpeed={3500} dots={false} fade effect="fade">
+                          {(event.images && event.images.length > 0 ? event.images : (event.image ? [event.image] : ["https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&auto=format&fit=crop"])).map((imgUrl, idx) => (
+                            <div key={idx} style={{ height: 120 }}>
+                              <img alt={event.title} src={imgUrl} style={{ width: "100%", height: 120, objectFit: "cover" }} />
+                            </div>
+                          ))}
+                        </Carousel>
+                        <Tag color="default" style={{ position: "absolute", top: 8, right: 8, margin: 0, fontWeight: 600, zIndex: 2 }}>
+                          {event.event_type || event.type}
+                        </Tag>
+                      </div>
+                    }
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, color: "#2c3e50", margin: 0, lineHeight: 1.3 }}>{event.title}</h4>
                     </div>
-                  }
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: "#2c3e50", margin: 0, lineHeight: 1.3 }}>{event.title}</h4>
-                  </div>
-                  <div style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>
-                    <CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.date || (event.start_date && new Date(event.start_date).toLocaleDateString())}
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 8, marginTop: 4 }}>
-                    <span style={{ color: "#00B4D8", fontWeight: 600, fontSize: 12 }}>
-                      <TeamOutlined style={{ marginRight: 4 }} /> {event.attendees || event.confirmed_count || 0} attended
-                    </span>
-                    <span style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>
-                      View Details <InfoCircleOutlined style={{ marginLeft: 2 }} />
-                    </span>
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                    <div style={{ color: "#64748b", fontSize: 12, marginBottom: 8 }}>
+                      <CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {event.date || (event.start_date && new Date(event.start_date).toLocaleDateString())}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 8, marginTop: 4 }}>
+                      <span style={{ color: "#00B4D8", fontWeight: 600, fontSize: 12 }}>
+                        <TeamOutlined style={{ marginRight: 4 }} /> {event.attendees || event.confirmed_count || 0} attended
+                      </span>
+                      <span style={{ color: "#64748b", fontSize: 11, fontWeight: 600 }}>
+                        View Details <InfoCircleOutlined style={{ marginLeft: 2 }} />
+                      </span>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <Empty description="No past events yet. Completed events will automatically appear here." style={{ padding: 40 }} />
+          )}
         </div>
       </section>
 
@@ -519,18 +594,294 @@ export default function EventsPage() {
         {modalEvent && <p>{modalEvent.date || modalEvent.start_date} | {modalEvent.location}</p>}
       </Modal>
 
-      {/* Sign In Required Modal */}
+      {/* Guest Event Registration Modal — No Sign-In Required */}
       <Modal
-        title="Sign in required"
-        open={showSigninModal}
-        onOk={() => {
-          setShowSigninModal(false);
-          navigate("/signin");
+        title={
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#1e293b" }}>
+            Register for {guestModalEvent?.title}
+          </div>
+        }
+        open={!!guestModalEvent}
+        onCancel={() => {
+          setGuestModalEvent(null);
+          guestForm.resetFields();
         }}
-        onCancel={() => setShowSigninModal(false)}
-        okText="Sign In"
+        footer={null}
+        destroyOnClose
+        centered
+        width={480}
       >
-        <p>You need to sign in to register for events.</p>
+        <p style={{ color: "#64748b", fontSize: 14, marginBottom: 20 }}>
+          No sign-in required! Enter your details below to reserve your spot.
+        </p>
+
+        <Form
+          form={guestForm}
+          layout="vertical"
+          onFinish={handleGuestRegister}
+          requiredMark="optional"
+        >
+          <Form.Item
+            name="full_name"
+            label="Full Name"
+            rules={[{ required: true, message: "Please enter your full name" }]}
+          >
+            <Input prefix={<UserOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. Rahul Sharma" size="large" />
+          </Form.Item>
+
+          <Form.Item
+            name="email"
+            label="Email Address"
+            rules={[
+              { required: true, message: "Please enter your email" },
+              { type: "email", message: "Please enter a valid email address" }
+            ]}
+          >
+            <Input prefix={<MailOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. rahul@example.com" size="large" />
+          </Form.Item>
+
+          {/* Phone Field */}
+          {(guestModalEvent?.form_phone_mode || "required") !== "hidden" && (
+            <Form.Item
+              name="phone"
+              label={`Phone / WhatsApp Number ${guestModalEvent?.form_phone_mode === "optional" ? "(Optional)" : ""}`}
+              rules={guestModalEvent?.form_phone_mode === "optional" ? [] : [{ required: true, message: "Please enter your phone number" }]}
+            >
+              <Input prefix={<PhoneOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. +91 9876543210" size="large" />
+            </Form.Item>
+          )}
+
+          {/* College Name Field */}
+          {(guestModalEvent?.form_college_mode || "optional") !== "hidden" && (
+            <Form.Item
+              name="college_name"
+              label={`College / Organization ${guestModalEvent?.form_college_mode === "required" ? "" : "(Optional)"}`}
+              rules={guestModalEvent?.form_college_mode === "required" ? [{ required: true, message: "Please enter your college name" }] : []}
+            >
+              <Input prefix={<BankOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. ABC Institute of Technology" size="large" />
+            </Form.Item>
+          )}
+
+          {/* Branch Field */}
+          {guestModalEvent?.form_branch_mode && guestModalEvent.form_branch_mode !== "hidden" && (
+            <Form.Item
+              name="branch"
+              label={`Branch / Department ${guestModalEvent.form_branch_mode === "required" ? "" : "(Optional)"}`}
+              rules={guestModalEvent.form_branch_mode === "required" ? [{ required: true, message: "Please enter your branch" }] : []}
+            >
+              <Input placeholder="e.g. Computer Science & Engineering" size="large" />
+            </Form.Item>
+          )}
+
+          {/* Year of Study Field */}
+          {guestModalEvent?.form_year_mode && guestModalEvent.form_year_mode !== "hidden" && (
+            <Form.Item
+              name="year_of_study"
+              label={`Year of Study ${guestModalEvent.form_year_mode === "required" ? "" : "(Optional)"}`}
+              rules={guestModalEvent.form_year_mode === "required" ? [{ required: true, message: "Please select your year of study" }] : []}
+            >
+              <Select placeholder="Select Year of Study" size="large">
+                <Select.Option value="1st Year">1st Year</Select.Option>
+                <Select.Option value="2nd Year">2nd Year</Select.Option>
+                <Select.Option value="3rd Year">3rd Year</Select.Option>
+                <Select.Option value="4th Year">4th Year</Select.Option>
+                <Select.Option value="Postgraduate / Alumni">Postgraduate / Alumni</Select.Option>
+              </Select>
+            </Form.Item>
+          )}
+
+          {/* Roll No / USN Field */}
+          {guestModalEvent?.form_roll_no_mode && guestModalEvent.form_roll_no_mode !== "hidden" && (
+            <Form.Item
+              name="roll_no"
+              label={`Student Roll No / USN ${guestModalEvent.form_roll_no_mode === "required" ? "" : "(Optional)"}`}
+              rules={guestModalEvent.form_roll_no_mode === "required" ? [{ required: true, message: "Please enter your Roll No / USN" }] : []}
+            >
+              <Input placeholder="e.g. 1AB21CS001" size="large" />
+            </Form.Item>
+          )}
+
+          {/* CRUE ID Field */}
+          {guestModalEvent?.form_student_id_mode && guestModalEvent.form_student_id_mode !== "hidden" && (
+            <Form.Item
+              name="student_id"
+              label={`CRUE ID / Algonex Code ${guestModalEvent.form_student_id_mode === "required" ? "" : "(Optional)"}`}
+              rules={guestModalEvent.form_student_id_mode === "required" ? [{ required: true, message: "Please enter your CRUE ID" }] : []}
+              validateStatus={crueIdError ? "error" : (crueIdSuccess ? "success" : "")}
+              help={
+                crueIdError ? (
+                  <span style={{ color: "#ff4d4f", fontWeight: "bold" }}>{crueIdError}</span>
+                ) : crueIdSuccess ? (
+                  <span style={{ color: "#52c41a", fontWeight: "bold" }}>✓ CRUE ID Verified & Details Auto-filled</span>
+                ) : null
+              }
+            >
+              <Input.Search
+                placeholder="e.g. ACC26080001"
+                size="large"
+                enterButton={
+                  <Button type="primary" loading={crueIdVerifying} style={{ background: "#a855f7", borderColor: "#a855f7" }}>
+                    Apply
+                  </Button>
+                }
+                onSearch={() => handleApplyCrueId(guestForm)}
+                onChange={() => {
+                  if (crueIdError) setCrueIdError(null);
+                  if (crueIdSuccess) setCrueIdSuccess(false);
+                }}
+              />
+            </Form.Item>
+          )}
+
+          {/* GitHub / Portfolio Field */}
+          {guestModalEvent?.form_github_mode && guestModalEvent.form_github_mode !== "hidden" && (
+            <Form.Item
+              name="github_url"
+              label={`GitHub / Portfolio URL ${guestModalEvent.form_github_mode === "required" ? "" : "(Optional)"}`}
+              rules={guestModalEvent.form_github_mode === "required" ? [{ required: true, message: "Please enter your GitHub/Portfolio URL" }] : []}
+            >
+              <Input placeholder="e.g. https://github.com/username" size="large" />
+            </Form.Item>
+          )}
+
+          {/* Customizable Google Forms Fields */}
+          {(guestModalEvent?.registration_form_schema || []).map((field, idx) => {
+            const fieldKey = field.id || field.name || `custom_${idx}`;
+            const fieldLabel = field.label || field.title || fieldKey;
+            const isRequired = field.required !== false && field.mandatory !== false;
+            const fieldType = field.type || "text";
+
+            return (
+              <Form.Item
+                key={fieldKey}
+                name={fieldKey}
+                label={fieldLabel}
+                rules={[{ required: isRequired, message: `Please provide ${fieldLabel}` }]}
+              >
+                {fieldType === "select" ? (
+                  <Select placeholder={`Select ${fieldLabel}`} size="large">
+                    {(field.options || []).map((opt, i) => (
+                      <Select.Option key={i} value={typeof opt === "string" ? opt : opt.value || opt.label}>
+                        {typeof opt === "string" ? opt : opt.label || opt.value}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                ) : fieldType === "textarea" ? (
+                  <Input.TextArea placeholder={field.placeholder || `Enter ${fieldLabel}`} rows={3} size="large" />
+                ) : fieldType === "number" ? (
+                  <InputNumber placeholder={field.placeholder || `Enter ${fieldLabel}`} size="large" style={{ width: "100%" }} />
+                ) : fieldType === "checkbox" ? (
+                  <Checkbox>{field.placeholder || fieldLabel}</Checkbox>
+                ) : (
+                  <Input placeholder={field.placeholder || `Enter ${fieldLabel}`} size="large" />
+                )}
+              </Form.Item>
+            );
+          })}
+
+          <Form.Item style={{ marginTop: 24, marginBottom: 0 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={registerLoading}
+              style={{
+                height: 46,
+                borderRadius: 8,
+                fontWeight: 600,
+                backgroundColor: "#00B4D8",
+                borderColor: "#00B4D8"
+              }}
+            >
+              Confirm Registration
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {/* Event Details Popup Modal */}
+      <Modal
+        open={!!detailModalEvent}
+        onCancel={() => setDetailModalEvent(null)}
+        footer={[
+          <Button key="cancel" onClick={() => setDetailModalEvent(null)}>
+            Close
+          </Button>,
+          <Button
+            key="register"
+            type="primary"
+            onClick={() => {
+              const ev = detailModalEvent;
+              setDetailModalEvent(null);
+              handleRegister(ev);
+            }}
+            style={{ background: "#00B4D8", borderColor: "#00B4D8", fontWeight: 700 }}
+          >
+            Register Now <ArrowRightOutlined />
+          </Button>
+        ]}
+        width={680}
+        destroyOnClose
+        centered
+      >
+        {detailModalEvent && (
+          <div style={{ paddingTop: 10 }}>
+            {/* Header Cover / Carousel */}
+            <div style={{ position: "relative", height: 220, borderRadius: 12, overflow: "hidden", marginBottom: 20 }}>
+              <Carousel autoplay autoplaySpeed={3500} dots={false} fade effect="fade">
+                {(detailModalEvent.images && detailModalEvent.images.length > 0 ? detailModalEvent.images : (detailModalEvent.image ? [detailModalEvent.image] : ["https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop"])).map((imgUrl, idx) => (
+                  <div key={idx} style={{ height: 220 }}>
+                    <img alt={detailModalEvent.title} src={imgUrl} style={{ width: "100%", height: 220, objectFit: "cover" }} />
+                  </div>
+                ))}
+              </Carousel>
+              <Tag color="cyan" style={{ position: "absolute", top: 12, left: 12, margin: 0, fontWeight: 700, zIndex: 2 }}>
+                {detailModalEvent.event_type || detailModalEvent.type || "Event"}
+              </Tag>
+              {detailModalEvent.spots_left != null && (
+                <Tag color={detailModalEvent.spots_left <= 5 ? "red" : "green"} style={{ position: "absolute", top: 12, right: 12, margin: 0, fontWeight: 700, zIndex: 2 }}>
+                  {detailModalEvent.spots_left <= 0 ? "Full — Waitlist" : `${detailModalEvent.spots_left} spots left`}
+                </Tag>
+              )}
+            </div>
+
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#2c3e50", marginBottom: 12 }}>
+              {detailModalEvent.title}
+            </h2>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, color: "#64748b", fontSize: 13, marginBottom: 16, background: "#f8fafc", padding: "12px 16px", borderRadius: 8 }}>
+              <span><CalendarOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {detailModalEvent.date || (detailModalEvent.start_date && new Date(detailModalEvent.start_date).toLocaleDateString())} {detailModalEvent.time_range ? `(${detailModalEvent.time_range})` : ""}</span>
+              <span><EnvironmentOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {detailModalEvent.location}</span>
+              {detailModalEvent.capacity && <span><TeamOutlined style={{ color: "#00B4D8", marginRight: 4 }} /> {detailModalEvent.capacity} Capacity</span>}
+            </div>
+
+            {detailModalEvent.speaker && (
+              <div style={{ background: "#e0f2fe", padding: "10px 14px", borderRadius: 8, borderLeft: "4px solid #00B4D8", marginBottom: 16, fontSize: 13, color: "#0369a1", fontWeight: 600 }}>
+                Featured Speaker / Host: {detailModalEvent.speaker}
+              </div>
+            )}
+
+            <div className="md-content" style={{ color: "#475569", fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>
+              <Markdown remarkPlugins={[remarkGfm]}>{detailModalEvent.description || detailModalEvent.summary || ""}</Markdown>
+            </div>
+
+            {detailModalEvent.highlights && detailModalEvent.highlights.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <h4 style={{ fontSize: 14, fontWeight: 700, color: "#2c3e50", marginBottom: 8 }}>
+                  Event Highlights:
+                </h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {detailModalEvent.highlights.map((h, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#334155" }}>
+                      <CheckCircleOutlined style={{ color: "#22c55e" }} />
+                      <span>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );

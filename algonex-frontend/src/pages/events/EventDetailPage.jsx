@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Tag, Button, Empty, Spin, Modal, App, Row, Col } from "antd";
+import { Card, Tag, Button, Empty, Spin, Modal, Form, Input, App, Row, Col, Select, InputNumber, Checkbox } from "antd";
 import {
   ArrowLeftOutlined,
   CalendarOutlined,
@@ -9,10 +9,15 @@ import {
   TeamOutlined,
   CheckCircleOutlined,
   LinkOutlined,
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  BankOutlined,
 } from "@ant-design/icons";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { eventsAPI } from "../../api/events";
+import apiClient from "../../api/client";
 import { useAuth } from "../../hooks/useAuth";
 
 const TYPE_COLORS = { workshop: "cyan", webinar: "blue", hackathon: "magenta", meetup: "green" };
@@ -20,12 +25,54 @@ const TYPE_COLORS = { workshop: "cyan", webinar: "blue", hackathon: "magenta", m
 export default function EventDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const { message } = App.useApp();
+  const { isAuthenticated } = useAuth();
+
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [regStatus, setRegStatus] = useState(null); // "confirmed" | "waitlisted" | null
   const [actionLoading, setActionLoading] = useState(false);
+  const [guestModalVisible, setGuestModalVisible] = useState(false);
+  const [guestForm] = Form.useForm();
+
+  const [crueIdVerifying, setCrueIdVerifying] = useState(false);
+  const [crueIdError, setCrueIdError] = useState(null);
+  const [crueIdSuccess, setCrueIdSuccess] = useState(false);
+
+  const handleApplyCrueId = async (form) => {
+    const val = form.getFieldValue("student_id");
+    if (!val || !val.trim()) {
+      setCrueIdError("Please enter your CRUE ID");
+      setCrueIdSuccess(false);
+      return;
+    }
+    setCrueIdVerifying(true);
+    setCrueIdError(null);
+    setCrueIdSuccess(false);
+
+    try {
+      const res = await apiClient.get("/signin/verify-crue-id/", {
+        params: { crue_id: val.trim() }
+      });
+      const data = res.data?.data || {};
+      setCrueIdSuccess(true);
+      message.success("CRUE ID verified! Your details have been auto-filled.");
+
+      form.setFieldsValue({
+        full_name: data.full_name || form.getFieldValue("full_name"),
+        email: data.email || form.getFieldValue("email"),
+        phone: data.phone || form.getFieldValue("phone"),
+        college_name: data.college_name || form.getFieldValue("college_name"),
+        branch: data.branch || form.getFieldValue("branch"),
+        year_of_study: data.year_of_study || form.getFieldValue("year_of_study"),
+      });
+    } catch (_err) {
+      setCrueIdError("Incorrect CRUE ID");
+      setCrueIdSuccess(false);
+    } finally {
+      setCrueIdVerifying(false);
+    }
+  };
 
   const fetchEvent = useCallback(() => {
     setLoading(true);
@@ -43,7 +90,7 @@ export default function EventDetailPage() {
 
   const handleRegister = async () => {
     if (!isAuthenticated) {
-      navigate("/signin", { state: { from: { pathname: `/events/${slug}` } } });
+      setGuestModalVisible(true);
       return;
     }
     setActionLoading(true);
@@ -55,6 +102,23 @@ export default function EventDetailPage() {
       fetchEvent();
     } catch (err) {
       message.error(err.response?.data?.error?.message || "Registration failed.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleGuestSubmit = async (values) => {
+    setActionLoading(true);
+    try {
+      const res = await eventsAPI.register(slug, values);
+      const status = res.data?.data?.status || res.data?.status || "confirmed";
+      setRegStatus(status);
+      setGuestModalVisible(false);
+      guestForm.resetFields();
+      message.success(status === "waitlisted" ? "Added to waitlist!" : "Registration successful! Confirmation details recorded.");
+      fetchEvent();
+    } catch (err) {
+      message.error(err.response?.data?.error?.message || "Registration failed. Please check your details.");
     } finally {
       setActionLoading(false);
     }
@@ -186,6 +250,212 @@ export default function EventDetailPage() {
           ))}
         </Row>
       </div>
+
+      {/* Guest Event Registration Modal — No Sign-In Required */}
+      <Modal
+        title={
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#1e293b" }}>
+            Register for {event.title}
+          </div>
+        }
+        open={guestModalVisible}
+        onCancel={() => {
+          setGuestModalVisible(false);
+          guestForm.resetFields();
+        }}
+        footer={null}
+        destroyOnClose
+        centered
+        width={480}
+      >
+        <p style={{ color: "#64748b", fontSize: 14, marginBottom: 20 }}>
+          No sign-in required! Enter your details below to reserve your spot.
+        </p>
+
+        <Form
+          form={guestForm}
+          layout="vertical"
+          onFinish={handleGuestSubmit}
+          requiredMark="optional"
+        >
+          <Form.Item
+            name="full_name"
+            label="Full Name"
+            rules={[{ required: true, message: "Please enter your full name" }]}
+          >
+            <Input prefix={<UserOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. Rahul Sharma" size="large" />
+          </Form.Item>
+
+          <Form.Item
+            name="email"
+            label="Email Address"
+            rules={[
+              { required: true, message: "Please enter your email" },
+              { type: "email", message: "Please enter a valid email address" }
+            ]}
+          >
+            <Input prefix={<MailOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. rahul@example.com" size="large" />
+          </Form.Item>
+
+          {/* Phone Field */}
+          {(event?.form_phone_mode || "required") !== "hidden" && (
+            <Form.Item
+              name="phone"
+              label={`Phone / WhatsApp Number ${event?.form_phone_mode === "optional" ? "(Optional)" : ""}`}
+              rules={event?.form_phone_mode === "optional" ? [] : [{ required: true, message: "Please enter your phone number" }]}
+            >
+              <Input prefix={<PhoneOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. +91 9876543210" size="large" />
+            </Form.Item>
+          )}
+
+          {/* College Name Field */}
+          {(event?.form_college_mode || "optional") !== "hidden" && (
+            <Form.Item
+              name="college_name"
+              label={`College / Organization ${event?.form_college_mode === "required" ? "" : "(Optional)"}`}
+              rules={event?.form_college_mode === "required" ? [{ required: true, message: "Please enter your college name" }] : []}
+            >
+              <Input prefix={<BankOutlined style={{ color: "#94a3b8" }} />} placeholder="e.g. ABC Institute of Technology" size="large" />
+            </Form.Item>
+          )}
+
+          {/* Branch Field */}
+          {event?.form_branch_mode && event.form_branch_mode !== "hidden" && (
+            <Form.Item
+              name="branch"
+              label={`Branch / Department ${event.form_branch_mode === "required" ? "" : "(Optional)"}`}
+              rules={event.form_branch_mode === "required" ? [{ required: true, message: "Please enter your branch" }] : []}
+            >
+              <Input placeholder="e.g. Computer Science & Engineering" size="large" />
+            </Form.Item>
+          )}
+
+          {/* Year of Study Field */}
+          {event?.form_year_mode && event.form_year_mode !== "hidden" && (
+            <Form.Item
+              name="year_of_study"
+              label={`Year of Study ${event.form_year_mode === "required" ? "" : "(Optional)"}`}
+              rules={event.form_year_mode === "required" ? [{ required: true, message: "Please select your year of study" }] : []}
+            >
+              <Select placeholder="Select Year of Study" size="large">
+                <Select.Option value="1st Year">1st Year</Select.Option>
+                <Select.Option value="2nd Year">2nd Year</Select.Option>
+                <Select.Option value="3rd Year">3rd Year</Select.Option>
+                <Select.Option value="4th Year">4th Year</Select.Option>
+                <Select.Option value="Postgraduate / Alumni">Postgraduate / Alumni</Select.Option>
+              </Select>
+            </Form.Item>
+          )}
+
+          {/* Roll No / USN Field */}
+          {event?.form_roll_no_mode && event.form_roll_no_mode !== "hidden" && (
+            <Form.Item
+              name="roll_no"
+              label={`Student Roll No / USN ${event.form_roll_no_mode === "required" ? "" : "(Optional)"}`}
+              rules={event.form_roll_no_mode === "required" ? [{ required: true, message: "Please enter your Roll No / USN" }] : []}
+            >
+              <Input placeholder="e.g. 1AB21CS001" size="large" />
+            </Form.Item>
+          )}
+
+          {/* CRUE ID Field */}
+          {event?.form_student_id_mode && event.form_student_id_mode !== "hidden" && (
+            <Form.Item
+              name="student_id"
+              label={`CRUE ID / Algonex Code ${event.form_student_id_mode === "required" ? "" : "(Optional)"}`}
+              rules={event.form_student_id_mode === "required" ? [{ required: true, message: "Please enter your CRUE ID" }] : []}
+              validateStatus={crueIdError ? "error" : (crueIdSuccess ? "success" : "")}
+              help={
+                crueIdError ? (
+                  <span style={{ color: "#ff4d4f", fontWeight: "bold" }}>{crueIdError}</span>
+                ) : crueIdSuccess ? (
+                  <span style={{ color: "#52c41a", fontWeight: "bold" }}>✓ CRUE ID Verified & Details Auto-filled</span>
+                ) : null
+              }
+            >
+              <Input.Search
+                placeholder="e.g. ACC26080001"
+                size="large"
+                enterButton={
+                  <Button type="primary" loading={crueIdVerifying} style={{ background: "#a855f7", borderColor: "#a855f7" }}>
+                    Apply
+                  </Button>
+                }
+                onSearch={() => handleApplyCrueId(guestForm)}
+                onChange={() => {
+                  if (crueIdError) setCrueIdError(null);
+                  if (crueIdSuccess) setCrueIdSuccess(false);
+                }}
+              />
+            </Form.Item>
+          )}
+
+          {/* GitHub / Portfolio Field */}
+          {event?.form_github_mode && event.form_github_mode !== "hidden" && (
+            <Form.Item
+              name="github_url"
+              label={`GitHub / Portfolio URL ${event.form_github_mode === "required" ? "" : "(Optional)"}`}
+              rules={event.form_github_mode === "required" ? [{ required: true, message: "Please enter your GitHub/Portfolio URL" }] : []}
+            >
+              <Input placeholder="e.g. https://github.com/username" size="large" />
+            </Form.Item>
+          )}
+
+          {/* Customizable Google Forms Fields */}
+          {(event?.registration_form_schema || []).map((field, idx) => {
+            const fieldKey = field.id || field.name || `custom_${idx}`;
+            const fieldLabel = field.label || field.title || fieldKey;
+            const isRequired = field.required !== false && field.mandatory !== false;
+            const fieldType = field.type || "text";
+
+            return (
+              <Form.Item
+                key={fieldKey}
+                name={fieldKey}
+                label={fieldLabel}
+                rules={[{ required: isRequired, message: `Please provide ${fieldLabel}` }]}
+              >
+                {fieldType === "select" ? (
+                  <Select placeholder={`Select ${fieldLabel}`} size="large">
+                    {(field.options || []).map((opt, i) => (
+                      <Select.Option key={i} value={typeof opt === "string" ? opt : opt.value || opt.label}>
+                        {typeof opt === "string" ? opt : opt.label || opt.value}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                ) : fieldType === "textarea" ? (
+                  <Input.TextArea placeholder={field.placeholder || `Enter ${fieldLabel}`} rows={3} size="large" />
+                ) : fieldType === "number" ? (
+                  <InputNumber placeholder={field.placeholder || `Enter ${fieldLabel}`} size="large" style={{ width: "100%" }} />
+                ) : fieldType === "checkbox" ? (
+                  <Checkbox>{field.placeholder || fieldLabel}</Checkbox>
+                ) : (
+                  <Input placeholder={field.placeholder || `Enter ${fieldLabel}`} size="large" />
+                )}
+              </Form.Item>
+            );
+          })}
+
+          <Form.Item style={{ marginTop: 24, marginBottom: 0 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={actionLoading}
+              style={{
+                height: 46,
+                borderRadius: 8,
+                fontWeight: 600,
+                backgroundColor: "#00B4D8",
+                borderColor: "#00B4D8"
+              }}
+            >
+              Confirm Registration
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

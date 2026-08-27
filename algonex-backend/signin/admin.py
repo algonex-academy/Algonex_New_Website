@@ -99,6 +99,8 @@ class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
     inlines = [PaymentInline]
     raw_id_fields = ["user", "course"]
     
+    actions = ["approve_applications", "reject_applications"]
+
     fieldsets = (
         ("Personal Information", {
             "fields": ("user", "student_id", "parent_phone", "dob", "gender", "photo")
@@ -119,6 +121,21 @@ class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
             "fields": ("registration_date",)
         }),
     )
+
+    @admin.action(description="Approve selected CRUE Applications & Issue CRUE IDs")
+    def approve_applications(self, request, queryset):
+        approved_count = 0
+        for reg in queryset:
+            if reg.status != "Approved":
+                reg.status = "Approved"
+                reg.save()
+                approved_count += 1
+        self.message_user(request, f"Successfully approved {approved_count} CRUE application(s) and issued CRUE IDs.")
+
+    @admin.action(description="Reject selected CRUE Applications")
+    def reject_applications(self, request, queryset):
+        count = queryset.update(status="Rejected")
+        self.message_user(request, f"Marked {count} CRUE application(s) as Rejected.")
 
 
 @admin.register(Payment)

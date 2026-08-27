@@ -59,20 +59,54 @@ const CertificateVerification = () => {
       });
     }));
 
+    // Convert all image sources to base64 Data URIs to prevent SVG foreignObject CORS issues in production
+    await Promise.all(
+      images.map(async (img) => {
+        if (img.src && !img.src.startsWith('data:')) {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || img.clientWidth || 300;
+            canvas.height = img.naturalHeight || img.clientHeight || 300;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const dataUri = canvas.toDataURL('image/png');
+            if (dataUri && dataUri.length > 100) {
+              img.src = dataUri;
+              return;
+            }
+          } catch (_e) {
+            // Canvas dirty fallback -> fetch as blob
+          }
+          try {
+            const res = await fetch(img.src, { mode: 'cors' });
+            const blob = await res.blob();
+            const reader = new FileReader();
+            await new Promise((resolve) => {
+              reader.onloadend = () => {
+                img.src = reader.result;
+                resolve();
+              };
+              reader.readAsDataURL(blob);
+            });
+          } catch (fetchErr) {
+            console.warn('Could not inline image src:', img.src, fetchErr);
+          }
+        }
+      })
+    );
+
     // Save and reset scroll position
     const outerContainer = document.querySelector('.cert-container-outer');
     const savedScrollLeft = outerContainer ? outerContainer.scrollLeft : 0;
     if (outerContainer) outerContainer.scrollLeft = 0;
 
     try {
-      // Use html-to-image (SVG foreignObject approach) — this uses the browser's
-      // native rendering engine instead of re-painting the DOM like html2canvas.
-      // This gives pixel-perfect output for fonts, SVGs, gradients, and CSS.
+      // Use html-to-image (SVG foreignObject approach) — pixel-perfect output for fonts & CSS
       const dataUrl = await toPng(element, {
         width: 1123,
         height: 794,
         pixelRatio: 3,
-        cacheBust: true,
+        cacheBust: false,
         skipAutoScale: true,
         style: {
           transform: 'none',
@@ -503,7 +537,7 @@ const CertificateVerification = () => {
 
               {/* Company Logo & Name */}
               <div style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
-                <img src={algonexLogo} alt="Algonex Logo" style={{ height: 48, width: 'auto', marginRight: 14 }} />
+                <img src={algonexLogo} alt="Algonex Logo" crossOrigin="anonymous" style={{ height: 48, width: 'auto', marginRight: 14 }} />
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                   <div className="font-sans-bold" style={{ fontSize: 24, color: '#000', letterSpacing: '0.8px', lineHeight: '1.1' }}>
                     ALGONEX IT SOLUTIONS
@@ -658,20 +692,25 @@ const CertificateVerification = () => {
                 <div style={{ fontSize: 13.5, color: '#444', marginBottom: 8, fontWeight: 600 }}>
                   He/she worked with Tools such as
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '8px 12px', marginTop: 4 }}>
                   {toolsList.map((tool, idx) => (
                     <div
                       key={idx}
                       style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         border: '1.2px solid #222',
-                        borderRadius: '8px',
-                        padding: '5px 16px',
+                        borderRadius: '20px',
+                        padding: '6px 18px',
                         fontSize: 13,
                         fontWeight: 600,
                         backgroundColor: '#ffffff',
                         color: '#091e42',
                         fontFamily: '"Outfit", sans-serif',
-                        margin: '6px 7px'
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1.2,
+                        boxSizing: 'border-box'
                       }}
                     >
                       {tool}
@@ -699,7 +738,7 @@ const CertificateVerification = () => {
               {/* Left Side: CEO Sign & ID */}
               <div style={{ textAlign: 'left', width: '220px', zIndex: 12 }}>
                 <div style={{ height: 45, display: 'flex', alignItems: 'flex-end', paddingBottom: 2 }}>
-                  <img src={ceoSign} alt="CEO Signature" style={{ height: 42, width: 'auto' }} />
+                  <img src={ceoSign} alt="CEO Signature" crossOrigin="anonymous" style={{ height: 42, width: 'auto' }} />
                 </div>
                 <div style={{ height: '1px', backgroundColor: '#333', width: '180px', marginBottom: 6 }}></div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1f1f1f' }}>
@@ -719,13 +758,13 @@ const CertificateVerification = () => {
                   borderRadius: 4,
                   boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                 }}>
-                  <img src={qrCodeUrl} alt="Verification QR Code" style={{ width: 72, height: 72 }} />
+                  <img src={qrCodeUrl} alt="Verification QR Code" crossOrigin="anonymous" style={{ width: 72, height: 72 }} />
                 </div>
               </div>
 
               {/* Center-Right: MSME certified block */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 12, width: '220px' }}>
-                <img src={msmeLogo} alt="Certified by MSME" style={{ height: 75, width: 'auto' }} />
+                <img src={msmeLogo} alt="Certified by MSME" crossOrigin="anonymous" style={{ height: 75, width: 'auto' }} />
                 <div style={{ fontSize: 11.5, color: '#333', fontWeight: 700, marginTop: 6 }}>
                   Certified by MSME
                 </div>
@@ -736,16 +775,18 @@ const CertificateVerification = () => {
                 <img
                   src={algonexStamp}
                   alt="Algonex Stamp"
+                  crossOrigin="anonymous"
                   style={{
-                    width: 95,
-                    height: 95
+                    height: 100,
+                    width: 'auto',
+                    objectFit: 'contain'
                   }}
                 />
                 <div style={{
                   fontSize: 11.5,
                   color: '#333',
                   fontWeight: 700,
-                  marginTop: 4,
+                  marginTop: 6,
                   letterSpacing: '0.5px',
                   fontFamily: '"Outfit", "Inter", sans-serif'
                 }}>
