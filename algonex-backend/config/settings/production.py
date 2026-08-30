@@ -22,8 +22,17 @@ for default_origin in ["https://algonex.co.in", "https://www.algonex.co.in"]:
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
+_use_sqlite = os.environ.get("USE_SQLITE", "false").lower() == "true"
 _database_url = os.environ.get("DATABASE_URL")
-if _database_url and _database_url.strip():
+
+if _use_sqlite:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+elif _database_url and _database_url.strip():
     import re
     import urllib.parse
     clean_url = _database_url.strip().strip("'\"")
