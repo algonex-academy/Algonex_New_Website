@@ -22,7 +22,7 @@ class StudentRegistrationResource(resources.ModelResource):
         skip_unchanged = True
         report_skipped = True
         fields = (
-            "id", "user", "student_id", "parent_phone", "dob", "gender",
+            "id", "user", "student_id", "crue_id", "parent_phone", "dob", "gender",
             "street_address", "city", "state", "country", "pincode",
             "college_name", "branch", "degree_level", "graduation_year",
             "current_year", "employment_status", "years_of_experience",
@@ -91,11 +91,11 @@ class PaymentInline(TabularInline):
 @admin.register(StudentRegistration)
 class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
     resource_classes = [StudentRegistrationResource]
-    list_display = ["student_id", "full_name", "email", "phone", "parent_phone", "course_selected", "batch_type", "total_fee", "paid_fee", "balance_fee", "registration_date", "status"]
+    list_display = ["student_id", "crue_id", "full_name", "email", "phone", "parent_phone", "course_selected", "batch_type", "total_fee", "paid_fee", "balance_fee", "registration_date", "status"]
     list_display_links = ["student_id", "full_name"]
     list_filter = ["course_selected", "batch_type", "status"]
-    search_fields = ["student_id", "user__email", "user__first_name", "upi_transaction_id", "college_name"]
-    readonly_fields = ["registration_date", "balance_fee"]
+    search_fields = ["student_id", "crue_id", "user__email", "user__first_name", "upi_transaction_id", "college_name"]
+    readonly_fields = ["registration_date", "balance_fee", "student_id", "crue_id"]
     inlines = [PaymentInline]
     raw_id_fields = ["user", "course"]
     
@@ -103,7 +103,7 @@ class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
 
     fieldsets = (
         ("Personal Information", {
-            "fields": ("user", "student_id", "parent_phone", "dob", "gender", "photo")
+            "fields": ("user", "student_id", "crue_id", "parent_phone", "dob", "gender", "photo")
         }),
         ("Location Information", {
             "fields": ("street_address", "city", "state", "country", "pincode")
