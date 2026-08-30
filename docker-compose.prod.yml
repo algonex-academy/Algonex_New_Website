@@ -9,8 +9,6 @@ services:
       - static_data:/app/staticfiles
     expose:
       - "8000"
-    depends_on:
-      - db
     restart: unless-stopped
     logging:
       driver: json-file
@@ -57,25 +55,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: ${DB_NAME:-algonex}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    expose:
-      - "5432"
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
 volumes:
-  postgres_data:
   media_data:
   static_data:
   caddy_data:
