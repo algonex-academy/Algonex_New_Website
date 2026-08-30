@@ -80,7 +80,8 @@ TABLES = [
 
 
 def enable_rls(apps, schema_editor):
-    """Enable RLS on all tables. No policies = deny all via PostgREST."""
+    if schema_editor.connection.vendor != "postgresql":
+        return
     for table in TABLES:
         schema_editor.execute(
             f'ALTER TABLE IF EXISTS public."{table}" ENABLE ROW LEVEL SECURITY;'
@@ -88,7 +89,8 @@ def enable_rls(apps, schema_editor):
 
 
 def disable_rls(apps, schema_editor):
-    """Reverse: disable RLS on all tables (restores original open state)."""
+    if schema_editor.connection.vendor != "postgresql":
+        return
     for table in TABLES:
         schema_editor.execute(
             f'ALTER TABLE IF EXISTS public."{table}" DISABLE ROW LEVEL SECURITY;'
@@ -102,14 +104,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql=[
-                f'ALTER TABLE IF EXISTS public."{table}" ENABLE ROW LEVEL SECURITY;'
-                for table in TABLES
-            ],
-            reverse_sql=[
-                f'ALTER TABLE IF EXISTS public."{table}" DISABLE ROW LEVEL SECURITY;'
-                for table in TABLES
-            ],
-        ),
+        migrations.RunPython(enable_rls, disable_rls),
     ]

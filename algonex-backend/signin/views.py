@@ -57,8 +57,9 @@ class RegisterStep2View(APIView):
 
 
 from decimal import Decimal
+from django.db.models import Q
 from .models import StudentRegistration, Payment
-from .registration_utils import generate_student_id, create_id_card, create_invoice, send_confirmation_email
+from .registration_utils import generate_student_id, generate_crue_id, create_id_card, create_invoice, send_confirmation_email
 
 class StudentRegisterView(APIView):
     permission_classes = [AllowAny]
@@ -343,8 +344,12 @@ class NextStudentIdView(APIView):
     def get(self, request):
         course = request.query_params.get("course")
         batch_type = request.query_params.get("batchType")
-        next_id = generate_student_id(course, batch_type)
-        return Response({"student_id": next_id}, status=status.HTTP_200_OK)
+        next_student_id = generate_student_id(course, batch_type)
+        next_crue_id = generate_crue_id()
+        return Response({
+            "student_id": next_student_id,
+            "crue_id": next_crue_id,
+        }, status=status.HTTP_200_OK)
 
 
 class VerifyCrueIdView(APIView):
@@ -359,7 +364,7 @@ class VerifyCrueIdView(APIView):
             )
 
         registration = StudentRegistration.objects.filter(
-            student_id__iexact=query_id
+            Q(crue_id__iexact=query_id) | Q(student_id__iexact=query_id)
         ).select_related("user").first()
 
         if not registration or registration.status not in ["Approved", "Active"]:
@@ -369,7 +374,8 @@ class VerifyCrueIdView(APIView):
             )
 
         data = {
-            "crue_id": registration.student_id,
+            "student_id": registration.student_id or registration.crue_id,
+            "crue_id": registration.crue_id or registration.student_id,
             "full_name": registration.full_name,
             "email": registration.email,
             "phone": registration.phone,

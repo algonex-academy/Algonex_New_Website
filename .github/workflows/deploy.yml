@@ -30,6 +30,7 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: config.settings.testing
           DB_ENGINE: sqlite
+          USE_SQLITE: "true"
         run: |
           cd algonex-backend
           python -m pytest -v --tb=short

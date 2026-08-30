@@ -374,7 +374,7 @@ export default function EventDetailPage() {
               }
             >
               <Input.Search
-                placeholder="e.g. ACC26080001"
+                placeholder="e.g. ACC260001 or P26I0014"
                 size="large"
                 enterButton={
                   <Button type="primary" loading={crueIdVerifying} style={{ background: "#a855f7", borderColor: "#a855f7" }}>

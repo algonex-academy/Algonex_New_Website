@@ -254,7 +254,8 @@ class TestVerifyCrueIdView(TestCase):
         )
         self.registration = StudentRegistration.objects.create(
             user=self.user,
-            student_id="ACC26080001",
+            student_id="P26I0014",
+            crue_id="ACC260001",
             college_name="Algonex Institute",
             branch="Computer Science",
             current_year="3rd Year",
@@ -263,10 +264,11 @@ class TestVerifyCrueIdView(TestCase):
         )
 
     def test_verify_valid_approved_crue_id(self):
-        response = self.client.get("/api/v1/verify-crue-id/?crue_id=ACC26080001")
+        response = self.client.get("/api/v1/verify-crue-id/?crue_id=ACC260001")
         self.assertEqual(response.status_code, 200)
         data = response.json()["data"]
-        self.assertEqual(data["crue_id"], "ACC26080001")
+        self.assertEqual(data["crue_id"], "ACC260001")
+        self.assertEqual(data["student_id"], "P26I0014")
         self.assertEqual(data["full_name"], "Alice Smith")
         self.assertEqual(data["email"], "crue_user@example.com")
         self.assertEqual(data["college_name"], "Algonex Institute")
@@ -280,6 +282,6 @@ class TestVerifyCrueIdView(TestCase):
     def test_verify_pending_crue_id_rejected(self):
         self.registration.status = "Pending"
         self.registration.save()
-        response = self.client.get("/api/v1/verify-crue-id/?crue_id=ACC26080001")
+        response = self.client.get("/api/v1/verify-crue-id/?crue_id=ACC260001")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json()["error"]["message"], "Incorrect CRUE ID")

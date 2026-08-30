@@ -40,6 +40,11 @@ class Course(TimestampMixin, SlugMixin, models.Model):
         related_name="courses_taught",
     )
     name = models.CharField(max_length=255)
+    code = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="2-character course code for Student IDs (e.g., PY for Python, DS for Data Science, ME for MERN)"
+    )
     description = models.TextField()
     image = models.ImageField(upload_to="courses/images/", blank=True, null=True)
     banner = models.ImageField(upload_to="courses/banners/", blank=True, null=True)
@@ -111,6 +116,40 @@ class Course(TimestampMixin, SlugMixin, models.Model):
         if self.capacity is not None:
             return max(0, self.capacity - self.registration_count)
         return 0
+
+    def generate_code(self):
+        if not self.name:
+            return "PY"
+        n_lower = self.name.lower()
+        if "python" in n_lower or "py" in n_lower:
+            return "PY"
+        elif "data" in n_lower or "science" in n_lower or "analyst" in n_lower:
+            return "DS"
+        elif "mern" in n_lower or "react" in n_lower:
+            return "ME"
+        elif "java" in n_lower:
+            return "JV"
+        elif "cyber" in n_lower or "security" in n_lower:
+            return "CS"
+        elif "ai" in n_lower or "machine" in n_lower:
+            return "AI"
+
+        words = self.name.split()
+        if len(words) >= 2:
+            w1 = "".join(c for c in words[0] if c.isalnum())
+            w2 = "".join(c for c in words[1] if c.isalnum())
+            if w1 and w2:
+                return (w1[0] + w2[0]).upper()
+
+        clean = "".join(c for c in self.name if c.isalnum()).upper()
+        return clean[:2] if len(clean) >= 2 else (clean + "P")[:2]
+
+    def save(self, *args, **kwargs):
+        if not self.code and self.name:
+            self.code = self.generate_code()
+        elif self.code:
+            self.code = self.code.upper().strip()
+        super().save(*args, **kwargs)
 
 
 class Enrollment(models.Model):

@@ -20,12 +20,20 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-dev-only-key-c
 
 ALLOWED_HOSTS = ["*"]
 
-# Database configuration: supports DATABASE_URL (Supabase URI), discrete DB_* vars, or SQLite fallback
+# Database configuration: supports USE_SQLITE, DATABASE_URL (Supabase URI), discrete DB_* vars, or SQLite fallback
+_use_sqlite = os.environ.get("USE_SQLITE", "false").lower() in ("true", "1", "yes")
 _database_url = os.environ.get("DATABASE_URL")
 _db_engine = os.environ.get("DB_ENGINE")
 _db_host = os.environ.get("DB_HOST")
 
-if _database_url and _database_url.strip():
+if _use_sqlite:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+elif _database_url and _database_url.strip():
     import re
     import urllib.parse
     # Clean possible whitespace or quotes

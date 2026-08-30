@@ -11,7 +11,7 @@ from common.backup_views import (
     AdminBackupListView, AdminBackupCreateView, AdminBackupRestoreView,
     admin_system_backup_page_view
 )
-from signin.views import PaymentSummaryView, SubmitPaymentView
+from signin.views import PaymentSummaryView, SubmitPaymentView, VerifyCrueIdView
 
 
 urlpatterns = [
@@ -34,6 +34,8 @@ urlpatterns = [
     path("api/v1/programs/", include("programs.urls")),
     path("api/v1/contact/", include("contactform.urls")),
     path("api/v1/register/", include("signin.urls")),
+    path("api/v1/verify-crue-id/", VerifyCrueIdView.as_view(), name="verify-crue-id-root"),
+    path("api/v1/verify-student-id/", VerifyCrueIdView.as_view(), name="verify-student-id-root"),
     path("api/v1/payments/summary/", PaymentSummaryView.as_view(), name="payment-summary"),
     path("api/v1/payments/pay/", SubmitPaymentView.as_view(), name="payment-pay"),
     path("api/v1/signin/submit-payment/", SubmitPaymentView.as_view(), name="payment-submit-alt"),

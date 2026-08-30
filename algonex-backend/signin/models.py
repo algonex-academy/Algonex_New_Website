@@ -14,6 +14,7 @@ class StudentRegistration(models.Model):
         null=True, blank=True
     )
     student_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    crue_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     parent_phone = models.CharField(max_length=20, blank=True)
     
     # Personal details
@@ -95,10 +96,13 @@ class StudentRegistration(models.Model):
             if orig:
                 old_status = orig.status
 
-        # If status is approved/active and CRUE ID is missing, generate CRUE ID (ACC26080001)
-        if self.status in ["Approved", "Active"] and not self.student_id:
-            from .registration_utils import generate_student_id
-            self.student_id = generate_student_id(self.course_selected, self.batch_type)
+        # If status is approved/active and IDs are missing, generate Student ID (P2608I0014) and CRUE ID (ACC26080001)
+        if self.status in ["Approved", "Active"]:
+            from .registration_utils import generate_student_id, generate_crue_id
+            if not self.student_id:
+                self.student_id = generate_student_id(self.course_selected, self.batch_type)
+            if not self.crue_id:
+                self.crue_id = generate_crue_id()
 
         super().save(*args, **kwargs)
 

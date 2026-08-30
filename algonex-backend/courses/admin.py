@@ -18,9 +18,9 @@ class FeedbackInline(TabularInline):
 
 @admin.register(Course)
 class CourseAdmin(ImportExportModelAdmin, ModelAdmin):
-    list_display = ("name", "instructor", "level", "price", "is_published", "is_trending", "created_at")
+    list_display = ("code", "name", "instructor", "level", "price", "is_published", "is_trending", "created_at")
     list_filter = ("level", "is_published", "is_trending", "skills")
-    search_fields = ("name", "description", "instructor__email")
+    search_fields = ("code", "name", "description", "instructor__email")
     prepopulated_fields = {"slug": ("name",)}
     list_editable = ("is_published", "is_trending")
     inlines = [FAQInline, FeedbackInline, MediaInline]

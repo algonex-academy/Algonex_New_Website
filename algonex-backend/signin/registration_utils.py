@@ -11,13 +11,76 @@ logger = logging.getLogger(__name__)
 # Paths
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "logo.png")
 
-def generate_student_id(course: str = None, batch_type: str = None, prefix: str = "ACC") -> str:
-    """Generates a unique student ID in format: ACC + YY + MM + [4 sequential digits]
-    e.g., ACC26080001 for August 2026.
+def get_course_code(course: str = None) -> str:
+    if not course:
+        return "PY"
+
+    try:
+        from courses.models import Course
+        from django.db.models import Q
+        c_obj = Course.objects.filter(
+            Q(name__iexact=course) | Q(slug__iexact=course) | Q(code__iexact=course)
+        ).first()
+        if c_obj and c_obj.code:
+            return c_obj.code.upper().strip()
+    except Exception:
+        pass
+
+    c_lower = course.lower()
+    if "python" in c_lower or "py" in c_lower:
+        return "PY"
+    elif "data" in c_lower or "science" in c_lower or "analyst" in c_lower:
+        return "DS"
+    elif "mern" in c_lower or "react" in c_lower or "web" in c_lower:
+        return "ME"
+    elif "java" in c_lower:
+        return "JV"
+    elif "cyber" in c_lower or "security" in c_lower:
+        return "CS"
+    elif "ai" in c_lower or "machine" in c_lower:
+        return "AI"
+
+    words = course.split()
+    if len(words) >= 2:
+        w1 = "".join(c for c in words[0] if c.isalnum())
+        w2 = "".join(c for c in words[1] if c.isalnum())
+        if w1 and w2:
+            return (w1[0] + w2[0]).upper()
+
+    clean = "".join(c for c in course if c.isalnum()).upper()
+    return clean[:2] if len(clean) >= 2 else (clean + "P")[:2]
+
+
+def get_batch_code(batch_type: str = None) -> str:
+    if not batch_type:
+        return "I"
+    b_lower = batch_type.lower()
+    if "intern" in b_lower:
+        return "I"
+    elif "fellow" in b_lower:
+        return "F"
+    elif "course" in b_lower or "training" in b_lower:
+        return "C"
+    elif "workshop" in b_lower:
+        return "W"
+    return batch_type[0].upper() if batch_type[0].isalnum() else "I"
+
+
+def generate_student_id(course: str = None, batch_type: str = None, prefix: str = None) -> str:
+    """Generates a unique Student ID in format: CourseCode + YY + BatchCode + 4-digit sequence
+    e.g., P26I0014 for Python Full Stack Internship in 2026.
     """
     now = datetime.now()
-    date_str = now.strftime("%y%m")
-    prefix_str = f"{prefix}{date_str}"
+    date_str = now.strftime("%y")
+
+    if prefix and prefix != "ACC":
+        prefix_str = f"{prefix}{date_str}"
+    elif course or batch_type:
+        c_code = get_course_code(course)
+        b_code = get_batch_code(batch_type)
+        prefix_str = f"{c_code}{date_str}{b_code}"
+    else:
+        prefix_str = f"P{date_str}I"
 
     from signin.models import StudentRegistration
     count = StudentRegistration.objects.filter(student_id__startswith=prefix_str).count()
@@ -27,6 +90,29 @@ def generate_student_id(course: str = None, batch_type: str = None, prefix: str 
         candidate = f"{prefix_str}{next_num:04d}"
         if not StudentRegistration.objects.filter(student_id=candidate).exists():
             return candidate
+        next_num += 1
+
+
+def generate_crue_id() -> str:
+    """Generates a unique CRUE ID in format: ACC + YY + 4-digit sequence
+    e.g., ACC260001 for 2026.
+    """
+    now = datetime.now()
+    date_str = now.strftime("%y")
+    prefix_str = f"ACC{date_str}"
+
+    from signin.models import StudentRegistration
+    count = StudentRegistration.objects.filter(crue_id__startswith=prefix_str).count() if hasattr(StudentRegistration, 'crue_id') else StudentRegistration.objects.filter(student_id__startswith=prefix_str).count()
+
+    next_num = count + 1
+    while True:
+        candidate = f"{prefix_str}{next_num:04d}"
+        if hasattr(StudentRegistration, 'crue_id'):
+            if not StudentRegistration.objects.filter(crue_id=candidate).exists():
+                return candidate
+        else:
+            if not StudentRegistration.objects.filter(student_id=candidate).exists():
+                return candidate
         next_num += 1
 
 def get_system_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
@@ -681,7 +767,7 @@ def send_crue_id_approval_email(registration) -> bool:
             logger.warning("No email found for CRUE ID approval notification.")
             return False
 
-        crue_id = registration.student_id or "ACC26080001"
+        crue_id = getattr(registration, 'crue_id', None) or registration.student_id or "ACC260001"
         name = registration.full_name or "Applicant"
         course = registration.course_selected or "Training Program"
 
