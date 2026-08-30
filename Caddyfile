@@ -1,5 +1,5 @@
 {$DOMAIN}, algonex.co.in, www.algonex.co.in {
-    tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+    tls internal
 
     @api {
         path /api /api/*
